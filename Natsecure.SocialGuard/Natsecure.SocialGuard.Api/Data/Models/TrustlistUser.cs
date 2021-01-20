@@ -16,8 +16,10 @@ namespace Natsecure.SocialGuard.Api.Data.Models
 
 		public DateTime LastEscalated { get; set; }
 
+		[Required, Range(0, 3)]
 		public byte EscalationLevel { get; set; }
 
+		[MinLength(5), MaxLength(2000)]
 		public string EscalationNote { get; set; }
 	}
 }

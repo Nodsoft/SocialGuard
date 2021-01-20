@@ -23,6 +23,10 @@ namespace Natsecure.SocialGuard.Api.Services
 
 		public async Task InsertNewUserAsync(TrustlistUser user)
 		{
+			// Check if user exists already.
+			_ = await context.TrustlistUsers.FindAsync(user.Id) is null ? true : throw new ArgumentOutOfRangeException(nameof(user));
+
+
 			user.EntryAt = DateTime.UtcNow;
 			user.LastEscalated = DateTime.UtcNow;
 

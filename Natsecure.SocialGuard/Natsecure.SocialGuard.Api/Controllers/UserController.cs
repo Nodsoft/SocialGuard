@@ -40,7 +40,15 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		[HttpPost]
 		public async Task<IActionResult> NewUserRecord([FromBody] TrustlistUser userRecord) 
 		{
-			await service.InsertNewUserAsync(userRecord);
+			try
+			{
+				await service.InsertNewUserAsync(userRecord);
+			}
+			catch (ArgumentOutOfRangeException)
+			{
+				return StatusCode(409, "User already exists in DB. Use PUT request to update his Escalation Level.");
+			}
+
 			return StatusCode(201);
 		}
 
@@ -53,7 +61,7 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			}
 			catch (ArgumentOutOfRangeException)
 			{
-				return StatusCode(404);
+				return StatusCode(404, "No user found in DB.");
 			}
 
 			return StatusCode(202);
