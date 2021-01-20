@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Natsecure.SocialGuard.Api.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,15 +14,15 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		public async Task<IActionResult> ListUsers() => throw new NotImplementedException();
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> FetchUser(long id) => throw new NotImplementedException();
+		public async Task<IActionResult> FetchUser(ulong id) => throw new NotImplementedException();
 
 		[HttpPost]
-		public async Task<IActionResult> NewUserRecord([FromBody] object userRecord) => throw new NotImplementedException();
+		public async Task<IActionResult> NewUserRecord([FromBody] TrustlistUser userRecord) => throw new NotImplementedException();
 
 		[HttpPut]
-		public async Task<IActionResult> EscalateUserRecord([FromBody] object userRecord) => throw new NotImplementedException();
+		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) => throw new NotImplementedException();
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteUserRecord(long id) => throw new NotImplementedException();
+		public async Task<IActionResult> DeleteUserRecord(ulong id) => throw new NotImplementedException();
 	}
 }
