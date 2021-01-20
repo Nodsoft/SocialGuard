@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Natsecure.SocialGuard.Api.Data;
+using Natsecure.SocialGuard.Api.Data.Models;
+using Natsecure.SocialGuard.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +37,11 @@ namespace Natsecure.SocialGuard.Api
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "v1" });
 			});
 
-
 			services.AddDbContextFactory<ApiDbContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString($"ApiDbContext"),
 					providerOptions => providerOptions.EnableRetryOnFailure()));
+
+			services.AddScoped<TrustlistUserService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
