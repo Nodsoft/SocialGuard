@@ -30,7 +30,7 @@ namespace Natsecure.SocialGuard.Api
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Natsecure.SocialGuard.Api", Version = "v1" });
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "v1" });
 			});
 		}
 
@@ -41,7 +41,7 @@ namespace Natsecure.SocialGuard.Api
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Natsecure.SocialGuard.Api v1"));
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Natsecure SocialGuard v1"));
 			}
 
 			app.UseHttpsRedirection();
