@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Natsecure.SocialGuard.Api.Data.Models;
 using Natsecure.SocialGuard.Api.Services;
+using Natsecure.SocialGuard.Api.Services.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Natsecure.SocialGuard.Api.Controllers
 
 
 		[HttpGet("list")]
-		public IActionResult ListUsersids()
+		public IActionResult ListUsersIds()
 		{
 			IEnumerable<ulong> users = service.ListUserIds();
 			return users.Any()
@@ -37,7 +38,7 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			return StatusCode(user is not null ? 200 : 404, user);
 		}
 
-		[HttpPost]
+		[HttpPost, AccessKey(AccessScopes.Insert)]
 		public async Task<IActionResult> NewUserRecord([FromBody] TrustlistUser userRecord) 
 		{
 			try
@@ -52,7 +53,7 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			return StatusCode(201);
 		}
 
-		[HttpPut]
+		[HttpPut, AccessKey(AccessScopes.Escalate)]
 		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
 		{
 			try
@@ -67,7 +68,7 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			return StatusCode(202);
 		}
 
-		[HttpDelete("{id}")]
+		[HttpDelete("{id}"), AccessKey(AccessScopes.Delete)]
 		public async Task<IActionResult> DeleteUserRecord(ulong id) 
 		{
 			await service.DeleteUserAsync(id);

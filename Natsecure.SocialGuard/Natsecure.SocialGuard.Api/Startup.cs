@@ -11,8 +11,10 @@ using Microsoft.OpenApi.Models;
 using Natsecure.SocialGuard.Api.Data;
 using Natsecure.SocialGuard.Api.Data.Models;
 using Natsecure.SocialGuard.Api.Services;
+using Natsecure.SocialGuard.Api.Services.Authentication;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,6 +37,12 @@ namespace Natsecure.SocialGuard.Api
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "v1" });
+				c.OperationFilter<AccessKeySwaggerFilter>();
+
+				// Set the comments path for the Swagger JSON and UI.
+				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
+				string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+				c.IncludeXmlComments(xmlPath);
 			});
 
 			services.AddDbContextFactory<ApiDbContext>(options =>
