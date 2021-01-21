@@ -21,8 +21,13 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			this.service = service;
 		}
 
-
-		[HttpGet("list")]
+		/// <summary>
+		/// Enumerates all users present in the Trustlist.
+		/// </summary>
+		/// <response code="200">Returns List</response>
+		/// <response code="204">If Trustlist is empty</response>    
+		/// <returns>List of user IDs</returns>
+		[HttpGet("list"), ProducesResponseType(200), ProducesResponseType(204)]
 		public IActionResult ListUsersIds()
 		{
 			IEnumerable<ulong> users = service.ListUserIds();
@@ -31,15 +36,30 @@ namespace Natsecure.SocialGuard.Api.Controllers
 				: StatusCode(204);
 		}
 
-		[HttpGet("{id}")]
+
+		/// <summary>
+		/// Gets Trustlist record on user with specified Trustlist
+		/// </summary>
+		/// <param name="id">ID of user</param>
+		/// <response code="200">Returns record</response>
+		/// <response code="404">If user ID is not found in DB</response>    
+		/// <returns>Trustlist info</returns>
+		[HttpGet("{id}"), ProducesResponseType(200), ProducesResponseType(404)]
 		public async Task<IActionResult> FetchUser(ulong id) 
 		{
 			TrustlistUser user = await service.FetchUserAsync(id);
 			return StatusCode(user is not null ? 200 : 404, user);
 		}
 
-		[HttpPost, AccessKey(AccessScopes.Insert)]
-		public async Task<IActionResult> NewUserRecord([FromBody] TrustlistUser userRecord) 
+
+		/// <summary>
+		/// Inserts record into Trustlist
+		/// </summary>
+		/// <param name="userRecord">User record to insert</param>
+		/// <response code="201">User was created</response>
+		/// <response code="409">If User record already exists</response> 
+		[HttpPost, AccessKey(AccessScopes.Insert), ProducesResponseType(201), ProducesResponseType(409)]
+		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord) 
 		{
 			try
 			{
@@ -53,7 +73,13 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			return StatusCode(201);
 		}
 
-		[HttpPut, AccessKey(AccessScopes.Escalate)]
+		/// <summary>
+		/// Escalates existing record in Trustlist
+		/// </summary>
+		/// <param name="userRecord">User record to escalate</param>
+		/// <response code="202">Record escalation request was accepted</response>
+		/// <response code="404">If user ID is not found in DB</response>
+		[HttpPut, AccessKey(AccessScopes.Escalate), ProducesResponseType(202), ProducesResponseType(404)]
 		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
 		{
 			try
@@ -68,6 +94,12 @@ namespace Natsecure.SocialGuard.Api.Controllers
 			return StatusCode(202);
 		}
 
+
+		/// <summary>
+		/// Wipes User record from Trustlist
+		/// </summary>
+		/// <param name="id">ID of User to wipe</param>
+		/// <response code="200">Record was wiped (if any)</response>
 		[HttpDelete("{id}"), AccessKey(AccessScopes.Delete)]
 		public async Task<IActionResult> DeleteUserRecord(ulong id) 
 		{
