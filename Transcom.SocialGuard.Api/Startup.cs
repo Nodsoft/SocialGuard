@@ -1,16 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Transcom.SocialGuard.Api.Data;
 using Transcom.SocialGuard.Api.Services;
 using Transcom.SocialGuard.Api.Services.Authentication;
 using System;
 using System.IO;
+using MongoDB.Driver;
 
 namespace Transcom.SocialGuard.Api
 {
@@ -39,11 +38,10 @@ namespace Transcom.SocialGuard.Api
 				c.IncludeXmlComments(xmlPath);
 			});
 
-			services.AddDbContextFactory<ApiDbContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString($"ApiDbContext"),
-					providerOptions => providerOptions.EnableRetryOnFailure()));
+			services.AddSingleton(s => 
+				new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
 
-			services.AddScoped<TrustlistUserService>();
+			services.AddSingleton<TrustlistUserService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

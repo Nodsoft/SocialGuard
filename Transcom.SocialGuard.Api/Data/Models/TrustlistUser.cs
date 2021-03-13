@@ -1,24 +1,22 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Transcom.SocialGuard.Api.Data.Models
 {
 	public record TrustlistUser
 	{
-		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+		[Required, BsonRequired]
 		public ulong Id { get; init; }
 
 		public DateTime EntryAt { get; set; }
 
 		public DateTime LastEscalated { get; set; }
 
-		[Required, Range(0, 3)]
+		[Required, BsonRequired, Range(0, 3)]
 		public byte EscalationLevel { get; set; }
 
-		[MinLength(5), MaxLength(2000)]
+		[Required, BsonRequired, MinLength(5), MaxLength(2000)]
 		public string EscalationNote { get; set; }
 	}
 }

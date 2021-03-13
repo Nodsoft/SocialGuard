@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Transcom.SocialGuard.Api.Data.Models
+﻿namespace Transcom.SocialGuard.Api.Data.Models
 {
 	public enum EscalationLevel : byte
 	{

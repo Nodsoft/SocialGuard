@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Transcom.SocialGuard.Api.Services.Authentication
+﻿namespace Transcom.SocialGuard.Api.Services.Authentication
 {
 	public static class AccessScopes
 	{

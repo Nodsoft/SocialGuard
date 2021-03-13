@@ -23,11 +23,7 @@ namespace Transcom.SocialGuard.Api.Services.Authentication
 
 		public string[] Scopes { get; init; }
 
-		public AccessKeyAttribute()
-		{
-			Scopes = null;
-		}
-
+		public AccessKeyAttribute() { }
 		public AccessKeyAttribute(params string[] scope)
 		{
 			Scopes = scope;
