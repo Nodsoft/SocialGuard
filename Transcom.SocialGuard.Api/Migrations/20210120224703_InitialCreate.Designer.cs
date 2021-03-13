@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Natsecure.SocialGuard.Api.Data;
+using Transcom.SocialGuard.Api.Data;
 
-namespace Natsecure.SocialGuard.Api.Migrations
+namespace Transcom.SocialGuard.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
     [Migration("20210120224703_InitialCreate")]

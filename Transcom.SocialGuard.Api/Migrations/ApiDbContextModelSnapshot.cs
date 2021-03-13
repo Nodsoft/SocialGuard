@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Natsecure.SocialGuard.Api.Data;
+using Transcom.SocialGuard.Api.Data;
 
-namespace Natsecure.SocialGuard.Api.Migrations
+namespace Transcom.SocialGuard.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
     partial class ApiDbContextModelSnapshot : ModelSnapshot

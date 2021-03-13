@@ -4,13 +4,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Natsecure.SocialGuard.Api.Data;
+using Transcom.SocialGuard.Api.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Natsecure.SocialGuard.Api
+namespace Transcom.SocialGuard.Api
 {
 	public class Program
 	{

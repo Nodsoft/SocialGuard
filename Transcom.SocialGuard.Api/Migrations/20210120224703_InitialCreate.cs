@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Natsecure.SocialGuard.Api.Migrations
+namespace Transcom.SocialGuard.Api.Migrations
 {
     public partial class InitialCreate : Migration
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Natsecure.SocialGuard.Api.Data.Models;
-using Natsecure.SocialGuard.Api.Services;
-using Natsecure.SocialGuard.Api.Services.Authentication;
+using Transcom.SocialGuard.Api.Data.Models;
+using Transcom.SocialGuard.Api.Services;
+using Transcom.SocialGuard.Api.Services.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 
 
-namespace Natsecure.SocialGuard.Api.Controllers
+namespace Transcom.SocialGuard.Api.Controllers
 {
 	[ApiController, Route("api/[controller]")]
 	public class UserController : ControllerBase

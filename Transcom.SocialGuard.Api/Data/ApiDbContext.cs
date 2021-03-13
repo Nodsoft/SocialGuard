@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Natsecure.SocialGuard.Api.Data.Models;
+using Transcom.SocialGuard.Api.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Natsecure.SocialGuard.Api.Data
+namespace Transcom.SocialGuard.Api.Data
 {
 	public class ApiDbContext : DbContext
 	{

@@ -1,25 +1,18 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Natsecure.SocialGuard.Api.Data;
-using Natsecure.SocialGuard.Api.Data.Models;
-using Natsecure.SocialGuard.Api.Services;
-using Natsecure.SocialGuard.Api.Services.Authentication;
+using Transcom.SocialGuard.Api.Data;
+using Transcom.SocialGuard.Api.Services;
+using Transcom.SocialGuard.Api.Services.Authentication;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Natsecure.SocialGuard.Api
+namespace Transcom.SocialGuard.Api
 {
 	public class Startup
 	{

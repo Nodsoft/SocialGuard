@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Natsecure.SocialGuard.Api.Services.Authentication
+namespace Transcom.SocialGuard.Api.Services.Authentication
 {
 	public class AccessKeySwaggerFilter : IOperationFilter
 	{

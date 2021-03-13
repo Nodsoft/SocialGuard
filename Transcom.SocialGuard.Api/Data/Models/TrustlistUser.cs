@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Natsecure.SocialGuard.Api.Data.Models
+
+
+namespace Transcom.SocialGuard.Api.Data.Models
 {
 	public record TrustlistUser
 	{

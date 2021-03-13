@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 // https://github.com/DJDaemonix/WoWS-Karma/blob/main/WowsKarma.Api/Services/Authentication/AccessKeyAttribute.cs
 
-namespace Natsecure.SocialGuard.Api.Services.Authentication
+namespace Transcom.SocialGuard.Api.Services.Authentication
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 	public sealed class AccessKeyAttribute : Attribute, IAsyncAuthorizationFilter
@@ -49,7 +49,7 @@ namespace Natsecure.SocialGuard.Api.Services.Authentication
 			} 
 
 			string[] apiKeys = await File.ReadAllLinesAsync(apiKeysLocation, Encoding.ASCII);
-			Dictionary<string, string[]> apiKeysSplitted = apiKeys.Select(x => x.Split('|')).ToDictionary(x => x[0],x => x[1].Split(','));
+			Dictionary<string, string[]> apiKeysSplitted = apiKeys.Select(x => x.Split('|')).ToDictionary(x => x[0], x => x[1].Split(','));
 
 			if (apiKeysSplitted.TryGetValue(extractedApiKey, out string[] keyScopes))
 			{

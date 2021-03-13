@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Natsecure.SocialGuard.Api.Data;
-using Natsecure.SocialGuard.Api.Data.Models;
+using Transcom.SocialGuard.Api.Data;
+using Transcom.SocialGuard.Api.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Natsecure.SocialGuard.Api.Services
+namespace Transcom.SocialGuard.Api.Services
 {
 	public class TrustlistUserService
 	{
