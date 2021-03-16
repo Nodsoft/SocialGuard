@@ -6,8 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Transcom.SocialGuard.Api.Controllers
 {
@@ -45,7 +44,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <response code="404">If user ID is not found in DB</response>    
 		/// <returns>Trustlist info</returns>
 		[HttpGet("{id}"), ProducesResponseType(200), ProducesResponseType(404)]
-		public async Task<IActionResult> FetchUser(ulong id) 
+		public async Task<IActionResult> FetchUser(ulong id)
 		{
 			TrustlistUser user = await service.FetchUserAsync(id);
 			return StatusCode(user is not null ? 200 : 404, user);
@@ -58,7 +57,8 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to insert</param>
 		/// <response code="201">User was created</response>
 		/// <response code="409">If User record already exists</response> 
-		[HttpPost, AccessKey(AccessScopes.Insert), ProducesResponseType(201), ProducesResponseType(409)]
+		[HttpPost, Authorize(Roles = UserRole.Insert + "," + UserRole.Admin)] 
+		[ProducesResponseType(201), ProducesResponseType(409)]
 		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord) 
 		{
 			try
@@ -79,7 +79,8 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to escalate</param>
 		/// <response code="202">Record escalation request was accepted</response>
 		/// <response code="404">If user ID is not found in DB</response>
-		[HttpPut, AccessKey(AccessScopes.Escalate), ProducesResponseType(202), ProducesResponseType(404)]
+		[HttpPut, Authorize(Roles = UserRole.Escalate + "," + UserRole.Admin)]
+		[ProducesResponseType(202), ProducesResponseType(404)]
 		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
 		{
 			try
@@ -100,7 +101,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// </summary>
 		/// <param name="id">ID of User to wipe</param>
 		/// <response code="200">Record was wiped (if any)</response>
-		[HttpDelete("{id}"), AccessKey(AccessScopes.Delete)]
+		[HttpDelete("{id}"), Authorize(Roles = UserRole.Insert + "," + UserRole.Admin)]
 		public async Task<IActionResult> DeleteUserRecord(ulong id) 
 		{
 			await service.DeleteUserAsync(id);

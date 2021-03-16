@@ -36,12 +36,37 @@ namespace Transcom.SocialGuard.Api
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "v1" });
-				//c.OperationFilter<AccessKeySwaggerFilter>();
 
 				// Set the comments path for the Swagger JSON and UI.
 				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
 				string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 				c.IncludeXmlComments(xmlPath);
+
+				// Bearer token authentication
+				c.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				{
+					Name = "bearer",
+					BearerFormat = "JWT",
+					Scheme = "bearer",
+					Description = "Specify the authorization token.",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.Http,
+				});
+
+				// Make sure swagger UI requires a Bearer token specified
+				OpenApiSecurityScheme securityScheme = new()
+				{
+					Reference = new()
+					{
+						Id = "jwt_auth",
+						Type = ReferenceType.SecurityScheme
+					}
+				};
+
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				{
+					{ securityScheme, Array.Empty<string>()},
+				});
 			});
 
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole>(
@@ -69,6 +94,8 @@ namespace Transcom.SocialGuard.Api
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
 				};
 			});
+
+
 			services.AddTransient<AuthenticationService>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
@@ -100,6 +127,7 @@ namespace Transcom.SocialGuard.Api
 				});
 			}
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>

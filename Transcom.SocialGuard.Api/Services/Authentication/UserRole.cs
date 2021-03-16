@@ -11,6 +11,8 @@ namespace Transcom.SocialGuard.Api.Services.Authentication
 	
 		
 		public const string User = "user";
+		public const string Insert = "insert";
+		public const string Escalate = "escalate";
 		public const string Admin = "admin";
 	}
 }
