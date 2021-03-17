@@ -99,7 +99,8 @@ namespace Transcom.SocialGuard.Api
 			services.AddTransient<AuthenticationService>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
-			services.AddSingleton<TrustlistUserService>();
+			services.AddSingleton<TrustlistUserService>()
+					.AddSingleton<EmitterService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

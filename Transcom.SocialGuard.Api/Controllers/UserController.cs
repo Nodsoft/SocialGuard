@@ -13,11 +13,13 @@ namespace Transcom.SocialGuard.Api.Controllers
 	[ApiController, Route("api/[controller]")]
 	public class UserController : ControllerBase
 	{
-		private readonly TrustlistUserService service;
+		private readonly TrustlistUserService trustlistService;
+		private readonly EmitterService emitterService;
 
-		public UserController(TrustlistUserService service)
+		public UserController(TrustlistUserService trustlistService, EmitterService emitterService)
 		{
-			this.service = service;
+			this.trustlistService = trustlistService;
+			this.emitterService = emitterService;
 		}
 
 		/// <summary>
@@ -29,7 +31,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		[HttpGet("list"), ProducesResponseType(200), ProducesResponseType(204)]
 		public IActionResult ListUsersIds()
 		{
-			IEnumerable<ulong> users = service.ListUserIds();
+			IEnumerable<ulong> users = trustlistService.ListUserIds();
 			return users.Any()
 				? StatusCode(200, users)
 				: StatusCode(204);
@@ -46,7 +48,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		[HttpGet("{id}"), ProducesResponseType(200), ProducesResponseType(404)]
 		public async Task<IActionResult> FetchUser(ulong id)
 		{
-			TrustlistUser user = await service.FetchUserAsync(id);
+			TrustlistUser user = await trustlistService.FetchUserAsync(id);
 			return StatusCode(user is not null ? 200 : 404, user);
 		}
 
@@ -63,7 +65,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		{
 			try
 			{
-				await service.InsertNewUserAsync(userRecord);
+				await trustlistService.InsertNewUserAsync(userRecord, await GetEmitterAsync());
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -85,7 +87,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		{
 			try
 			{
-				await service.EscalateUserAsync(userRecord);
+				await trustlistService.EscalateUserAsync(userRecord, await GetEmitterAsync());
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -101,11 +103,14 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// </summary>
 		/// <param name="id">ID of User to wipe</param>
 		/// <response code="200">Record was wiped (if any)</response>
-		[HttpDelete("{id}"), Authorize(Roles = UserRole.Insert + "," + UserRole.Admin)]
+		[HttpDelete("{id}"), Authorize(Roles = UserRole.Admin)]
 		public async Task<IActionResult> DeleteUserRecord(ulong id) 
 		{
-			await service.DeleteUserAsync(id);
+			await trustlistService.DeleteUserRecordAsync(id);
 			return StatusCode(200);
 		}
+
+
+		private async Task<Emitter> GetEmitterAsync() => await emitterService.GetEmitterAsync(HttpContext);
 	}
 }
