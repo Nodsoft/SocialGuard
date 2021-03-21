@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Transcom.SocialGuard.Api.Controllers
 {
+
 	[ApiController, Route("api/[controller]")]
 	public class UserController : ControllerBase
 	{
@@ -28,7 +29,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <response code="200">Returns List</response>
 		/// <response code="204">If Trustlist is empty</response>    
 		/// <returns>List of user IDs</returns>
-		[HttpGet("list"), ProducesResponseType(200), ProducesResponseType(204)]
+		[HttpGet("list"), ProducesResponseType(typeof(IEnumerable<ulong>), 200), ProducesResponseType(204)]
 		public IActionResult ListUsersIds()
 		{
 			IEnumerable<ulong> users = trustlistService.ListUserIds();
@@ -45,7 +46,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <response code="200">Returns record</response>
 		/// <response code="404">If user ID is not found in DB</response>    
 		/// <returns>Trustlist info</returns>
-		[HttpGet("{id}"), ProducesResponseType(200), ProducesResponseType(404)]
+		[HttpGet("{id}"), ProducesResponseType(typeof(TrustlistUser), 200), ProducesResponseType(404)]
 		public async Task<IActionResult> FetchUser(ulong id)
 		{
 			TrustlistUser user = await trustlistService.FetchUserAsync(id);
@@ -59,13 +60,20 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to insert</param>
 		/// <response code="201">User was created</response>
 		/// <response code="409">If User record already exists</response> 
-		[HttpPost, Authorize(Roles = UserRole.Insert + "," + UserRole.Admin)] 
+		[HttpPost, Authorize(Roles = UserRole.Emitter)] 
 		[ProducesResponseType(201), ProducesResponseType(409)]
 		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord) 
 		{
+			Emitter emitter = await GetEmitterAsync();
+
+			if (emitter is null)
+			{
+				return StatusCode(401, "No emitter profile set for logged-in user. Please setup emitter first.");
+			}
+
 			try
 			{
-				await trustlistService.InsertNewUserAsync(userRecord, await GetEmitterAsync());
+				await trustlistService.InsertNewUserAsync(userRecord, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -81,13 +89,20 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to escalate</param>
 		/// <response code="202">Record escalation request was accepted</response>
 		/// <response code="404">If user ID is not found in DB</response>
-		[HttpPut, Authorize(Roles = UserRole.Escalate + "," + UserRole.Admin)]
+		[HttpPut, Authorize(Roles = UserRole.Emitter)]
 		[ProducesResponseType(202), ProducesResponseType(404)]
 		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
 		{
+			Emitter emitter = await GetEmitterAsync();
+
+			if (emitter is null)
+			{
+				return StatusCode(401, "No emitter profile set for logged-in user. Please setup emitter first.");
+			}
+
 			try
 			{
-				await trustlistService.EscalateUserAsync(userRecord, await GetEmitterAsync());
+				await trustlistService.EscalateUserAsync(userRecord, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{

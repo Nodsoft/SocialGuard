@@ -1,13 +1,18 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 
 
 namespace Transcom.SocialGuard.Api.Data.Models
 {
+
+	/// <summary>
+	/// Represents an Emitter profile.
+	/// </summary>
 	public record Emitter
 	{
-		[BsonId]
+		[BsonId, BsonRepresentation(BsonType.String)]
 		public string Login { get; init; }
 
 		[Required]
@@ -19,10 +24,24 @@ namespace Transcom.SocialGuard.Api.Data.Models
 		public string DisplayName { get; init; }
 	}
 
-	public enum EmitterType
-	{ 
-		Unknown,
-		User,
-		Server
+	/// <summary>
+	/// Represents types of Emitter profiles.
+	/// </summary>
+	public enum EmitterType : byte
+	{
+		/// <summary>
+		/// Represents an unknown, undefined, or other Emitter profile type.
+		/// </summary>
+		Unknown = 0,
+
+		/// <summary>
+		/// Emitter is a singular user.
+		/// </summary>
+		User = 1,
+
+		/// <summary>
+		/// Emitter is a Discord server.
+		/// </summary>
+		Server = 2
 	}
 }

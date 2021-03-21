@@ -39,7 +39,7 @@ namespace Transcom.SocialGuard.Api.Services.Authentication
 			}
 
 			bool firstUser = userManager.Users.Count() is 0;
-			ApplicationUser user = new() { Email = model.Email, SecurityStamp = Guid.NewGuid().ToString(), UserName = model.Username };
+			ApplicationUser user = new(model.Username) { Email = model.Email, SecurityStamp = Guid.NewGuid().ToString() };
 			IdentityResult result = await userManager.CreateAsync(user, model.Password);
 
 			if (!result.Succeeded)
@@ -52,10 +52,7 @@ namespace Transcom.SocialGuard.Api.Services.Authentication
 				await ProvisionFirstUseAsync(user);
 			}
 
-			await userManager.AddToRoleAsync(user, UserRole.User);
-
-
-			return new() { StatusCode = 200, Response = Response.SuccessResponse() with { Message = "User created successfuly." } };
+			return new() { StatusCode = 201, Response = Response.SuccessResponse() with { Message = "User created successfuly." } };
 		}
 
 		public async Task<AuthServiceResponse> HandleLogin(LoginModel model)
@@ -94,7 +91,7 @@ namespace Transcom.SocialGuard.Api.Services.Authentication
 			if (roleManager.Roles.Count() is 0)
 			{
 				await roleManager.CreateAsync(new(UserRole.Admin));
-				await roleManager.CreateAsync(new(UserRole.User));
+				await roleManager.CreateAsync(new(UserRole.Emitter));
 
 				await userManager.AddToRoleAsync(firstUser, UserRole.Admin);
 			}

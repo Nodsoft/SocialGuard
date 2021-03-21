@@ -35,7 +35,7 @@ namespace Transcom.SocialGuard.Api
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "v1" });
+				c.SwaggerDoc("2.0", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "2.0" });
 
 				// Set the comments path for the Swagger JSON and UI.
 				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
@@ -65,13 +65,20 @@ namespace Transcom.SocialGuard.Api
 
 				c.AddSecurityRequirement(new OpenApiSecurityRequirement()
 				{
-					{ securityScheme, Array.Empty<string>()},
+					{ securityScheme, Array.Empty<string>() },
 				});
 			});
 
-			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole>(
+			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
-				mongo => { });
+				mongo => 
+				{
+					IConfigurationSection config = Configuration.GetSection("Auth");
+					mongo.ConnectionString = config["ConnectionString"];
+					mongo.MigrationCollection = config["Tables:Migration"];
+					mongo.RolesCollection = config["Tables:Role"];
+					mongo.UsersCollection = config["Tables:User"];
+				});
 
 			services.AddAuthentication(options =>
 			{
@@ -99,6 +106,7 @@ namespace Transcom.SocialGuard.Api
 			services.AddTransient<AuthenticationService>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
+
 			services.AddSingleton<TrustlistUserService>()
 					.AddSingleton<EmitterService>();
 		}
@@ -114,7 +122,7 @@ namespace Transcom.SocialGuard.Api
 			app.UseStaticFiles();
 
 			app.UseSwagger();
-			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Natsecure SocialGuard v1"));
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/2.0/swagger.json", "Natsecure SocialGuard 2.0"));
 
 			app.UseHttpsRedirection();
 

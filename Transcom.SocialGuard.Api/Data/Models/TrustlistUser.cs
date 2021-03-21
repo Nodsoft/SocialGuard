@@ -7,6 +7,9 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Transcom.SocialGuard.Api.Data.Models
 {
+	/// <summary>
+	/// Represents a Trustlist User entry.
+	/// </summary>
 	public record TrustlistUser
 	{
 		[Required, BsonRequired]

@@ -1,5 +1,8 @@
 ﻿namespace Transcom.SocialGuard.Api.Data.Models
 {
+	/// <summary>
+	/// Represents severity levels for Trustlist User entries.
+	/// </summary>
 	public enum EscalationLevel : byte
 	{
 		Neutral = 0,

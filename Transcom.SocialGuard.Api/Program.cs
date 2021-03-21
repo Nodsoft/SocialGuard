@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Bson.Serialization.Conventions;
 using System.Threading.Tasks;
 
 namespace Transcom.SocialGuard.Api
@@ -9,6 +9,8 @@ namespace Transcom.SocialGuard.Api
 	{
 		public static async Task Main(string[] args)
 		{
+			ConventionRegistry.Register("Ignore null values", new ConventionPack { new IgnoreIfNullConvention(true) }, t => true);
+
 			using IHost host = CreateHostBuilder(args).Build();
 
 			await host.RunAsync();

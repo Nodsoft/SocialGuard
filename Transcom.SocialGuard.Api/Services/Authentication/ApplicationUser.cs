@@ -4,15 +4,12 @@
 
 namespace Transcom.SocialGuard.Api.Services.Authentication
 {
-	public class ApplicationUser : MongoUser
+	public class ApplicationUser : MongoUser<string>
 	{
-		public ApplicationUser() : base() 
+		public ApplicationUser() : base() { }
+		public ApplicationUser(string username) : base(username) 
 		{
-			Id = Id == default ? new() : Id;
-		}
-		public ApplicationUser(string username) : base(username)
-		{
-			Id = Id == default ? new() : Id;
+			Id = username;
 		}
 	}
 }
