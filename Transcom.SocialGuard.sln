@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30803.129
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Natsecure.SocialGuard.Api", "Natsecure.SocialGuard.Api\Natsecure.SocialGuard.Api.csproj", "{A406CC3F-6F0E-474E-9F5D-826EF320724E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transcom.SocialGuard.Api", "Transcom.SocialGuard.Api\Transcom.SocialGuard.Api.csproj", "{A406CC3F-6F0E-474E-9F5D-826EF320724E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

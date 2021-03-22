@@ -1,24 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Natsecure.SocialGuard.Api.Data.Models;
-using Natsecure.SocialGuard.Api.Services;
-using Natsecure.SocialGuard.Api.Services.Authentication;
+using Transcom.SocialGuard.Api.Data.Models;
+using Transcom.SocialGuard.Api.Services;
+using Transcom.SocialGuard.Api.Services.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
-
-
-namespace Natsecure.SocialGuard.Api.Controllers
+namespace Transcom.SocialGuard.Api.Controllers
 {
+
 	[ApiController, Route("api/[controller]")]
 	public class UserController : ControllerBase
 	{
-		private readonly TrustlistUserService service;
+		private readonly TrustlistUserService trustlistService;
+		private readonly EmitterService emitterService;
 
-		public UserController(TrustlistUserService service)
+		public UserController(TrustlistUserService trustlistService, EmitterService emitterService)
 		{
-			this.service = service;
+			this.trustlistService = trustlistService;
+			this.emitterService = emitterService;
 		}
 
 		/// <summary>
@@ -27,10 +29,10 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		/// <response code="200">Returns List</response>
 		/// <response code="204">If Trustlist is empty</response>    
 		/// <returns>List of user IDs</returns>
-		[HttpGet("list"), ProducesResponseType(200), ProducesResponseType(204)]
+		[HttpGet("list"), ProducesResponseType(typeof(IEnumerable<ulong>), 200), ProducesResponseType(204)]
 		public IActionResult ListUsersIds()
 		{
-			IEnumerable<ulong> users = service.ListUserIds();
+			IEnumerable<ulong> users = trustlistService.ListUserIds();
 			return users.Any()
 				? StatusCode(200, users)
 				: StatusCode(204);
@@ -44,10 +46,10 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		/// <response code="200">Returns record</response>
 		/// <response code="404">If user ID is not found in DB</response>    
 		/// <returns>Trustlist info</returns>
-		[HttpGet("{id}"), ProducesResponseType(200), ProducesResponseType(404)]
-		public async Task<IActionResult> FetchUser(ulong id) 
+		[HttpGet("{id}"), ProducesResponseType(typeof(TrustlistUser), 200), ProducesResponseType(404)]
+		public async Task<IActionResult> FetchUser(ulong id)
 		{
-			TrustlistUser user = await service.FetchUserAsync(id);
+			TrustlistUser user = await trustlistService.FetchUserAsync(id);
 			return StatusCode(user is not null ? 200 : 404, user);
 		}
 
@@ -58,12 +60,20 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to insert</param>
 		/// <response code="201">User was created</response>
 		/// <response code="409">If User record already exists</response> 
-		[HttpPost, AccessKey(AccessScopes.Insert), ProducesResponseType(201), ProducesResponseType(409)]
+		[HttpPost, Authorize(Roles = UserRole.Emitter)] 
+		[ProducesResponseType(201), ProducesResponseType(409)]
 		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord) 
 		{
+			Emitter emitter = await GetEmitterAsync();
+
+			if (emitter is null)
+			{
+				return StatusCode(401, "No emitter profile set for logged-in user. Please setup emitter first.");
+			}
+
 			try
 			{
-				await service.InsertNewUserAsync(userRecord);
+				await trustlistService.InsertNewUserAsync(userRecord, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -79,12 +89,20 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to escalate</param>
 		/// <response code="202">Record escalation request was accepted</response>
 		/// <response code="404">If user ID is not found in DB</response>
-		[HttpPut, AccessKey(AccessScopes.Escalate), ProducesResponseType(202), ProducesResponseType(404)]
+		[HttpPut, Authorize(Roles = UserRole.Emitter)]
+		[ProducesResponseType(202), ProducesResponseType(404)]
 		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
 		{
+			Emitter emitter = await GetEmitterAsync();
+
+			if (emitter is null)
+			{
+				return StatusCode(401, "No emitter profile set for logged-in user. Please setup emitter first.");
+			}
+
 			try
 			{
-				await service.EscalateUserAsync(userRecord);
+				await trustlistService.EscalateUserAsync(userRecord, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -100,11 +118,14 @@ namespace Natsecure.SocialGuard.Api.Controllers
 		/// </summary>
 		/// <param name="id">ID of User to wipe</param>
 		/// <response code="200">Record was wiped (if any)</response>
-		[HttpDelete("{id}"), AccessKey(AccessScopes.Delete)]
+		[HttpDelete("{id}"), Authorize(Roles = UserRole.Admin)]
 		public async Task<IActionResult> DeleteUserRecord(ulong id) 
 		{
-			await service.DeleteUserAsync(id);
+			await trustlistService.DeleteUserRecordAsync(id);
 			return StatusCode(200);
 		}
+
+
+		private async Task<Emitter> GetEmitterAsync() => await emitterService.GetEmitterAsync(HttpContext);
 	}
 }
