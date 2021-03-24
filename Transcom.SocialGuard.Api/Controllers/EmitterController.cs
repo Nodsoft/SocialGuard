@@ -9,7 +9,7 @@ using Transcom.SocialGuard.Api.Services.Authentication;
 
 namespace Transcom.SocialGuard.Api.Controllers
 {
-	[ApiController, Route("api/[controller]"), Authorize(Roles = UserRole.Emitter)]
+	[ApiController, Route("api/[controller]"), Authorize]
 	public class EmitterController : ControllerBase
 	{
 		private readonly EmitterService emitterService;
@@ -29,8 +29,26 @@ namespace Transcom.SocialGuard.Api.Controllers
 		public async Task<IActionResult> GetEmitterProfile()
 		{
 			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
-			return emitter is null 
-				? StatusCode(204) 
+
+			return emitter is null
+				? StatusCode(204)
+				: StatusCode(200, emitter);
+		}
+
+		/// <summary>
+		/// Fetches specified user's Emitter profile.
+		/// </summary>
+		/// <response code="200">Returns Emitter profile</response>
+		/// <response code="404">If user's Emitter profile is not found.</response>    
+		/// <returns>Emitter profile</returns>
+		[HttpGet("{id}"), AllowAnonymous] 
+		[ProducesResponseType(typeof(Emitter), 200), ProducesResponseType(404)]
+		public async Task<IActionResult> GetEmitterProfile(string id)
+		{
+			Emitter emitter = await emitterService.GetEmitterAsync(id);
+
+			return emitter is null
+				? StatusCode(404)
 				: StatusCode(200, emitter);
 		}
 

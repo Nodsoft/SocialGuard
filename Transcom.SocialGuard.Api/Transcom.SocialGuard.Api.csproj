@@ -8,6 +8,13 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <Authors>Sakura Isayeki</Authors>
+    <Company>Transcom-DT</Company>
+    <Product>SocialGuard</Product>
+    <Version>2.1.0</Version>
+    <RepositoryUrl>https://github.com/Transcom-DT/SocialGuard</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <Copyright>GNU GPLv3</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

@@ -16,6 +16,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.OpenApi.Extensions;
 
 namespace Transcom.SocialGuard.Api
 {
@@ -27,15 +30,23 @@ namespace Transcom.SocialGuard.Api
 		}
 
 		public IConfiguration Configuration { get; }
+		public static string Version { get; } = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("2.0", new OpenApiInfo { Title = "Natsecure SocialGuard", Version = "2.0" });
+				c.SwaggerDoc(Version, new OpenApiInfo
+				{
+					Title = "SocialGuard",
+					Version = Version,
+					Description = "Centralised Discord Trustlist to keep servers safe from known blacklisted users.",
+					Contact = new() { Name = "Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
+					License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") },
+				});
 
 				// Set the comments path for the Swagger JSON and UI.
 				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
@@ -122,7 +133,7 @@ namespace Transcom.SocialGuard.Api
 			app.UseStaticFiles();
 
 			app.UseSwagger();
-			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/2.0/swagger.json", "Natsecure SocialGuard 2.0"));
+			app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/{Version}/swagger.json", $"SocialGuard {Version}"));
 
 			app.UseHttpsRedirection();
 
@@ -141,6 +152,15 @@ namespace Transcom.SocialGuard.Api
 
 			app.UseEndpoints(endpoints =>
 			{
+				/*
+				 * Remove once proper website is built.
+				 */
+				endpoints.MapGet("/", context =>
+				{
+					context.Response.Redirect("swagger/index.html");
+					return Task.CompletedTask;
+				});
+
 				endpoints.MapControllers();
 			});
 		}

@@ -64,7 +64,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		[ProducesResponseType(201), ProducesResponseType(409)]
 		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord) 
 		{
-			Emitter emitter = await GetEmitterAsync();
+			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
 
 			if (emitter is null)
 			{
@@ -93,7 +93,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		[ProducesResponseType(202), ProducesResponseType(404)]
 		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
 		{
-			Emitter emitter = await GetEmitterAsync();
+			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
 
 			if (emitter is null)
 			{
@@ -124,8 +124,5 @@ namespace Transcom.SocialGuard.Api.Controllers
 			await trustlistService.DeleteUserRecordAsync(id);
 			return StatusCode(200);
 		}
-
-
-		private async Task<Emitter> GetEmitterAsync() => await emitterService.GetEmitterAsync(HttpContext);
 	}
 }
