@@ -20,7 +20,16 @@ namespace Transcom.SocialGuard.Api.Services
 
 		public async Task CreateOrUpdateEmitterSelfAsync(Emitter emitter, HttpContext context)
 		{
-			await emitters.InsertOneAsync(emitter with { Login = context.User.Identity.Name });
+			emitter = emitter with { Login = context.User.Identity.Name };
+
+			if ((await emitters.FindAsync(e => e.Login == emitter.Login)).Any())
+			{
+				await emitters.ReplaceOneAsync(e => e.Login == emitter.Login, emitter);
+			}
+			else
+			{
+				await emitters.InsertOneAsync(emitter);
+			}
 		}
 
 		public async Task DeleteEmitterAsync(string emitterLogin) => await emitters.FindOneAndDeleteAsync(e => e.Login == emitterLogin);
