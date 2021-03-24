@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Transcom.SocialGuard.Api.Data.Models;
 
@@ -17,6 +18,8 @@ namespace Transcom.SocialGuard.Api.Services
 		}
 
 		public async Task<Emitter> GetEmitterAsync(HttpContext context) => (await emitters.FindAsync(e => e.Login == context.User.Identity.Name)).FirstOrDefault();
+
+		public async Task<Emitter> GetEmitterAsync(string login) => (await emitters.FindAsync(e => e.Login == login)).FirstOrDefault();
 
 		public async Task CreateOrUpdateEmitterSelfAsync(Emitter emitter, HttpContext context)
 		{
