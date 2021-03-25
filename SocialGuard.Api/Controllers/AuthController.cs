@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialGuard.Api.Services.Authentication;
+using SocialGuard.Api.Services.Authentication.Models;
 using System.Threading.Tasks;
-using Transcom.SocialGuard.Api.Services.Authentication;
-using Transcom.SocialGuard.Api.Services.Authentication.Models;
 
 
 
-namespace Transcom.SocialGuard.Api.Controllers
+namespace SocialGuard.Api.Controllers
 {
 	[ApiController, Route("api/[controller]")]
 	public class AuthController : ControllerBase

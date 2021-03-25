@@ -1,26 +1,23 @@
-using System;
 using AspNetCore.Identity.Mongo;
-using AspNetCore.Identity.Mongo.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Transcom.SocialGuard.Api.Services.Authentication;
-using System.IO;
-using MongoDB.Driver;
-using Transcom.SocialGuard.Api.Services;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using SocialGuard.Api.Services;
+using SocialGuard.Api.Services.Authentication;
+using System;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.OpenApi.Extensions;
 
-namespace Transcom.SocialGuard.Api
+namespace SocialGuard.Api
 {
 	public class Startup
 	{
@@ -82,7 +79,7 @@ namespace Transcom.SocialGuard.Api
 
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
-				mongo => 
+				mongo =>
 				{
 					IConfigurationSection config = Configuration.GetSection("Auth");
 					mongo.ConnectionString = config["ConnectionString"];

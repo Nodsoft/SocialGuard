@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SocialGuard.Api.Services.Authentication.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,11 +10,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Transcom.SocialGuard.Api.Services.Authentication.Models;
 
 
 
-namespace Transcom.SocialGuard.Api.Services.Authentication
+namespace SocialGuard.Api.Services.Authentication
 {
 	public class AuthenticationService
 	{

@@ -1,11 +1,10 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.ComponentModel.DataAnnotations;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 
 
 
-namespace Transcom.SocialGuard.Api.Data.Models
+namespace SocialGuard.Api.Data.Models
 {
 	/// <summary>
 	/// Represents a Trustlist User entry.
@@ -27,7 +26,7 @@ namespace Transcom.SocialGuard.Api.Data.Models
 		[Required, BsonRequired, MinLength(5), MaxLength(2000)]
 		public string EscalationNote { get; set; }
 
-		
+
 		public Emitter Emitter { get; set; }
 	}
 }

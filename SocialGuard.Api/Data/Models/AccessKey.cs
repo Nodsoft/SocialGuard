@@ -1,4 +1,4 @@
-﻿namespace Transcom.SocialGuard.Api.Data.Models
+﻿namespace SocialGuard.Api.Data.Models
 {
 	public record AccessKey
 	{

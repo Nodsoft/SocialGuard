@@ -1,12 +1,12 @@
-﻿using Transcom.SocialGuard.Api.Data.Models;
+﻿using MongoDB.Driver;
+using SocialGuard.Api.Data.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Driver;
 
 
 
-namespace Transcom.SocialGuard.Api.Services
+namespace SocialGuard.Api.Services
 {
 	public class TrustlistUserService
 	{
@@ -38,11 +38,11 @@ namespace Transcom.SocialGuard.Api.Services
 
 		public async Task EscalateUserAsync(TrustlistUser updated, Emitter emitter)
 		{
-			TrustlistUser current =	await FetchUserAsync(updated.Id) ?? throw new ArgumentOutOfRangeException(nameof(updated));
+			TrustlistUser current = await FetchUserAsync(updated.Id) ?? throw new ArgumentOutOfRangeException(nameof(updated));
 
 			if (current.EscalationLevel < updated.EscalationLevel)
 			{
-				await trustlistUsers.ReplaceOneAsync(u => u.Id == current.Id, current with 
+				await trustlistUsers.ReplaceOneAsync(u => u.Id == current.Id, current with
 				{
 					EscalationLevel = updated.EscalationLevel,
 					LastEscalated = DateTime.UtcNow,

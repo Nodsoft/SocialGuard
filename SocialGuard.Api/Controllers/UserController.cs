@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Transcom.SocialGuard.Api.Data.Models;
-using Transcom.SocialGuard.Api.Services;
-using Transcom.SocialGuard.Api.Services.Authentication;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SocialGuard.Api.Data.Models;
+using SocialGuard.Api.Services;
+using SocialGuard.Api.Services.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
-namespace Transcom.SocialGuard.Api.Controllers
+namespace SocialGuard.Api.Controllers
 {
 
 	[ApiController, Route("api/[controller]")]
@@ -60,9 +60,9 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <param name="userRecord">User record to insert</param>
 		/// <response code="201">User was created</response>
 		/// <response code="409">If User record already exists</response> 
-		[HttpPost, Authorize(Roles = UserRole.Emitter)] 
+		[HttpPost, Authorize(Roles = UserRole.Emitter)]
 		[ProducesResponseType(201), ProducesResponseType(409)]
-		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord) 
+		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord)
 		{
 			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
 
@@ -91,7 +91,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <response code="404">If user ID is not found in DB</response>
 		[HttpPut, Authorize(Roles = UserRole.Emitter)]
 		[ProducesResponseType(202), ProducesResponseType(404)]
-		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord) 
+		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord)
 		{
 			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
 
@@ -119,7 +119,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <param name="id">ID of User to wipe</param>
 		/// <response code="200">Record was wiped (if any)</response>
 		[HttpDelete("{id}"), Authorize(Roles = UserRole.Admin)]
-		public async Task<IActionResult> DeleteUserRecord(ulong id) 
+		public async Task<IActionResult> DeleteUserRecord(ulong id)
 		{
 			await trustlistService.DeleteUserRecordAsync(id);
 			return StatusCode(200);

@@ -1,4 +1,4 @@
-﻿namespace Transcom.SocialGuard.Api.Services.Authentication.Models
+﻿namespace SocialGuard.Api.Services.Authentication.Models
 {
 	public record Response
 	{

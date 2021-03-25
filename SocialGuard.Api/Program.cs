@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization.Conventions;
 using System.Threading.Tasks;
 
-namespace Transcom.SocialGuard.Api
+namespace SocialGuard.Api
 {
 	public class Program
 	{

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -9,7 +9,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <Authors>Sakura Isayeki</Authors>
-    <Company>Transcom-DT</Company>
+    <Company>Nodsoft Systems</Company>
     <Product>SocialGuard</Product>
     <Version>2.1.0</Version>
     <RepositoryUrl>https://github.com/Transcom-DT/SocialGuard</RepositoryUrl>
