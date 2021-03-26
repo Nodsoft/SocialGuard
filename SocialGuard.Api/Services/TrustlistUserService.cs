@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using SocialGuard.Api.Data.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,6 +23,8 @@ namespace SocialGuard.Api.Services
 		public IQueryable<ulong> ListUserIds() => from user in trustlistUsers.AsQueryable() select user.Id;
 
 		public async Task<TrustlistUser> FetchUserAsync(ulong id) => await (await trustlistUsers.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+
+		public async Task<IEnumerable<TrustlistUser>> FetchUsersAsync(ulong[] ids) => (await trustlistUsers.FindAsync(Builders<TrustlistUser>.Filter.In(u => u.Id, ids))).ToEnumerable();
 
 		public async Task InsertNewUserAsync(TrustlistUser user, Emitter emitter)
 		{
@@ -49,6 +52,24 @@ namespace SocialGuard.Api.Services
 					EscalationNote = updated.EscalationNote,
 					Emitter = emitter
 				});
+			}
+		}
+
+		public async Task ImportEntriesAsync(IEnumerable<TrustlistUser> entries, Emitter commonEmitter, DateTime importTimestamp)
+		{
+			foreach (TrustlistUser entry in entries)
+			{
+				if (await FetchUserAsync(entry.Id) is null)
+				{
+					await trustlistUsers.InsertOneAsync(entry with
+					{
+						EscalationLevel = (byte)(entry.EscalationLevel is 0 ? 1 : entry.EscalationLevel),
+						EscalationNote = entry.EscalationNote ?? $"Imported from {commonEmitter.DisplayName}",
+						EntryAt = importTimestamp,
+						LastEscalated = importTimestamp,
+						Emitter = commonEmitter
+					});
+				}
 			}
 		}
 

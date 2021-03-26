@@ -53,6 +53,15 @@ namespace SocialGuard.Api.Controllers
 			return StatusCode(user is not null ? 200 : 404, user);
 		}
 
+		[HttpPost("for"), ProducesResponseType(typeof(IEnumerable<TrustlistUser>), 200), ProducesResponseType(204)]
+		public async Task<IActionResult> FetchUsers([FromBody] ulong[] ids)
+		{
+			IEnumerable<TrustlistUser> users = await trustlistService.FetchUsersAsync(ids);
+			return users.Any()
+				? StatusCode(200, users)
+				: StatusCode(204);
+		}
+
 
 		/// <summary>
 		/// Inserts record into Trustlist
