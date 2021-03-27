@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization.Conventions;
 using Serilog;
+using Serilog.Events;
 using System.Threading.Tasks;
 
 namespace SocialGuard.Api
