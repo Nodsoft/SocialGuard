@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using SocialGuard.Api.Services;
 using SocialGuard.Api.Services.Authentication;
+using SocialGuard.Api.Services.Logging;
 using System;
 using System.IO;
 using System.Reflection;
@@ -41,8 +42,8 @@ namespace SocialGuard.Api
 					Title = "SocialGuard",
 					Version = Version,
 					Description = "Centralised Discord Trustlist to keep servers safe from known blacklisted users.",
-					Contact = new() { Name = "Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
-					License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") },
+					Contact = new() { Name = "NSYS / Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
+					License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") }
 				});
 
 				// Set the comments path for the Swagger JSON and UI.
@@ -140,12 +141,14 @@ namespace SocialGuard.Api
 			{
 				app.UseForwardedHeaders(new ForwardedHeadersOptions
 				{
-					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+					ForwardedHeaders = ForwardedHeaders.All
 				});
 			}
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseMiddleware<RequestLoggingMiddleware>();
 
 			app.UseEndpoints(endpoints =>
 			{
