@@ -118,6 +118,12 @@ namespace SocialGuard.Api
 
 			services.AddSingleton<TrustlistUserService>()
 					.AddSingleton<EmitterService>();
+			services.AddApplicationInsightsTelemetry(options =>
+			{
+#if DEBUG
+				options.DeveloperMode = true;
+#endif
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

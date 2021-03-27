@@ -16,10 +16,12 @@
     <RepositoryType>Git</RepositoryType>
     <Copyright>GNU GPLv3</Copyright>
     <PackageProjectUrl>https://socialguard.net/</PackageProjectUrl>
+    <ApplicationInsightsResourceId>/subscriptions/fa8d310a-6127-4faa-9bd2-26fabdbbcab0/resourceGroups/SocialGuard/providers/microsoft.insights/components/socialguard-api</ApplicationInsightsResourceId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.Identity.Mongo" Version="8.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-preview.2.21154.6" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.0-preview.2.21154.6" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.9.0" />
