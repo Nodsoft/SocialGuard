@@ -8,8 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
+
 namespace SocialGuard.Api.Controllers
 {
+	public record TrustlistImportModel(IEnumerable<TrustlistUser> Entries, Emitter Emitter, DateTime Timestamp);
 
 	[ApiController, Route("api/[controller]")]
 	public class UserController : ControllerBase
@@ -40,7 +43,7 @@ namespace SocialGuard.Api.Controllers
 
 
 		/// <summary>
-		/// Gets Trustlist record on user with specified Trustlist
+		/// Gets Trustlist record on user with specified ID
 		/// </summary>
 		/// <param name="id">ID of user</param>
 		/// <response code="200">Returns record</response>
@@ -53,6 +56,14 @@ namespace SocialGuard.Api.Controllers
 			return StatusCode(user is not null ? 200 : 404, user);
 		}
 
+
+		/// <summary>
+		/// Gets Trustlist records on users with specified IDs
+		/// </summary>
+		/// <param name="ids">IDs of users, in Array form</param>
+		/// <response code="200">Returns existing records</response>
+		/// <response code="204">If no matching record is found in DB</response>    
+		/// <returns>Trustlist info</returns>
 		[HttpPost("for"), ProducesResponseType(typeof(IEnumerable<TrustlistUser>), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> FetchUsers([FromBody] ulong[] ids)
 		{
@@ -90,6 +101,21 @@ namespace SocialGuard.Api.Controllers
 			}
 
 			return StatusCode(201);
+		}
+
+		/// <summary>
+		/// Imports entries into Trustlist
+		/// </summary>
+		/// <remarks>Can only be used by Admins</remarks>
+		/// 
+		/// <param name="import">Trustlist Import model</param>
+		/// <response code="202">Entries were processed by server.</response>
+		[HttpPost("import"), Authorize(Roles = UserRole.Admin)]
+		[ProducesResponseType(202)]
+		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistImportModel import)
+		{
+			await trustlistService.ImportEntriesAsync(import.Entries, import.Emitter, import.Timestamp);
+			return StatusCode(202);
 		}
 
 		/// <summary>
