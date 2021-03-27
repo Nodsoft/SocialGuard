@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialGuard.Api.Data.Models;
+using SocialGuard.Api.Services;
 using System.Threading.Tasks;
-using Transcom.SocialGuard.Api.Data.Models;
-using Transcom.SocialGuard.Api.Services;
-using Transcom.SocialGuard.Api.Services.Authentication;
 
 
 
-namespace Transcom.SocialGuard.Api.Controllers
+namespace SocialGuard.Api.Controllers
 {
 	[ApiController, Route("api/[controller]"), Authorize]
 	public class EmitterController : ControllerBase
@@ -41,7 +40,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <response code="200">Returns Emitter profile</response>
 		/// <response code="404">If user's Emitter profile is not found.</response>    
 		/// <returns>Emitter profile</returns>
-		[HttpGet("{id}"), AllowAnonymous] 
+		[HttpGet("{id}"), AllowAnonymous]
 		[ProducesResponseType(typeof(Emitter), 200), ProducesResponseType(404)]
 		public async Task<IActionResult> GetEmitterProfile(string id)
 		{
@@ -59,7 +58,7 @@ namespace Transcom.SocialGuard.Api.Controllers
 		/// <response code="200">Emitter profile was successfully created or updated.</response>
 		/// <returns></returns>
 		[HttpPost, ProducesResponseType(200)]
-		public async Task<IActionResult> UpdateEmitterProfile([FromBody] Emitter emitter) 
+		public async Task<IActionResult> UpdateEmitterProfile([FromBody] Emitter emitter)
 		{
 			await emitterService.CreateOrUpdateEmitterSelfAsync(emitter, HttpContext);
 			return StatusCode(200);

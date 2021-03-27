@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
-using System.Runtime.CompilerServices;
+using SocialGuard.Api.Data.Models;
 using System.Threading.Tasks;
-using Transcom.SocialGuard.Api.Data.Models;
 
 
 
-namespace Transcom.SocialGuard.Api.Services
+namespace SocialGuard.Api.Services
 {
 	public class EmitterService
 	{

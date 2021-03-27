@@ -1,12 +1,13 @@
-﻿using Transcom.SocialGuard.Api.Data.Models;
+﻿using MongoDB.Driver;
+using SocialGuard.Api.Data.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Driver;
 
 
 
-namespace Transcom.SocialGuard.Api.Services
+namespace SocialGuard.Api.Services
 {
 	public class TrustlistUserService
 	{
@@ -23,6 +24,8 @@ namespace Transcom.SocialGuard.Api.Services
 
 		public async Task<TrustlistUser> FetchUserAsync(ulong id) => await (await trustlistUsers.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
 
+		public async Task<IEnumerable<TrustlistUser>> FetchUsersAsync(ulong[] ids) => (await trustlistUsers.FindAsync(Builders<TrustlistUser>.Filter.In(u => u.Id, ids))).ToEnumerable();
+
 		public async Task InsertNewUserAsync(TrustlistUser user, Emitter emitter)
 		{
 			// Check if user exists already.
@@ -38,17 +41,35 @@ namespace Transcom.SocialGuard.Api.Services
 
 		public async Task EscalateUserAsync(TrustlistUser updated, Emitter emitter)
 		{
-			TrustlistUser current =	await FetchUserAsync(updated.Id) ?? throw new ArgumentOutOfRangeException(nameof(updated));
+			TrustlistUser current = await FetchUserAsync(updated.Id) ?? throw new ArgumentOutOfRangeException(nameof(updated));
 
 			if (current.EscalationLevel < updated.EscalationLevel)
 			{
-				await trustlistUsers.ReplaceOneAsync(u => u.Id == current.Id, current with 
+				await trustlistUsers.ReplaceOneAsync(u => u.Id == current.Id, current with
 				{
 					EscalationLevel = updated.EscalationLevel,
 					LastEscalated = DateTime.UtcNow,
 					EscalationNote = updated.EscalationNote,
 					Emitter = emitter
 				});
+			}
+		}
+
+		public async Task ImportEntriesAsync(IEnumerable<TrustlistUser> entries, Emitter commonEmitter, DateTime importTimestamp)
+		{
+			foreach (TrustlistUser entry in entries)
+			{
+				if (await FetchUserAsync(entry.Id) is null)
+				{
+					await trustlistUsers.InsertOneAsync(entry with
+					{
+						EscalationLevel = (byte)(entry.EscalationLevel is 0 ? 1 : entry.EscalationLevel),
+						EscalationNote = entry.EscalationNote ?? $"Imported from {commonEmitter.DisplayName}",
+						EntryAt = importTimestamp,
+						LastEscalated = importTimestamp,
+						Emitter = commonEmitter
+					});
+				}
 			}
 		}
 

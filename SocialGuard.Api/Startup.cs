@@ -1,26 +1,24 @@
-using System;
 using AspNetCore.Identity.Mongo;
-using AspNetCore.Identity.Mongo.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Transcom.SocialGuard.Api.Services.Authentication;
-using System.IO;
-using MongoDB.Driver;
-using Transcom.SocialGuard.Api.Services;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using SocialGuard.Api.Services;
+using SocialGuard.Api.Services.Authentication;
+using SocialGuard.Api.Services.Logging;
+using System;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.OpenApi.Extensions;
 
-namespace Transcom.SocialGuard.Api
+namespace SocialGuard.Api
 {
 	public class Startup
 	{
@@ -44,8 +42,8 @@ namespace Transcom.SocialGuard.Api
 					Title = "SocialGuard",
 					Version = Version,
 					Description = "Centralised Discord Trustlist to keep servers safe from known blacklisted users.",
-					Contact = new() { Name = "Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
-					License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") },
+					Contact = new() { Name = "NSYS / Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
+					License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") }
 				});
 
 				// Set the comments path for the Swagger JSON and UI.
@@ -82,7 +80,7 @@ namespace Transcom.SocialGuard.Api
 
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
-				mongo => 
+				mongo =>
 				{
 					IConfigurationSection config = Configuration.GetSection("Auth");
 					mongo.ConnectionString = config["ConnectionString"];
@@ -120,6 +118,12 @@ namespace Transcom.SocialGuard.Api
 
 			services.AddSingleton<TrustlistUserService>()
 					.AddSingleton<EmitterService>();
+			services.AddApplicationInsightsTelemetry(options =>
+			{
+#if DEBUG
+				options.DeveloperMode = true;
+#endif
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -143,12 +147,14 @@ namespace Transcom.SocialGuard.Api
 			{
 				app.UseForwardedHeaders(new ForwardedHeadersOptions
 				{
-					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+					ForwardedHeaders = ForwardedHeaders.All
 				});
 			}
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseMiddleware<RequestLoggingMiddleware>();
 
 			app.UseEndpoints(endpoints =>
 			{

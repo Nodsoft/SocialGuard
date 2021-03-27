@@ -2,7 +2,7 @@
 
 
 
-namespace Transcom.SocialGuard.Api
+namespace SocialGuard.Api
 {
 	public record RegisterModel
 	{
