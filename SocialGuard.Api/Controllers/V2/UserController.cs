@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialGuard.Api.Data.DTOs.V2;
 using SocialGuard.Api.Data.Models;
 using SocialGuard.Api.Services;
 using SocialGuard.Api.Services.Authentication;
@@ -10,11 +11,12 @@ using System.Threading.Tasks;
 
 
 
-namespace SocialGuard.Api.Controllers
+namespace SocialGuard.Api.Controllers.V2
 {
-	public record TrustlistImportModel(IEnumerable<TrustlistUser> Entries, Emitter Emitter, DateTime Timestamp);
+	public record TrustlistImportModel(IEnumerable<V2_TrustlistUser> Entries, Emitter Emitter, DateTime Timestamp);
 
-	[ApiController, Route("api/[controller]")]
+
+	[ApiController, Route("api/v{version:apiVersion}/[controller]"), ApiVersion("2.0")]
 	public class UserController : ControllerBase
 	{
 		private readonly TrustlistUserService trustlistService;
@@ -49,14 +51,20 @@ namespace SocialGuard.Api.Controllers
 		/// <response code="200">Returns record</response>
 		/// <response code="404">If user ID is not found in DB</response>    
 		/// <returns>Trustlist info</returns>
-		[HttpGet("{id}"), ProducesResponseType(typeof(TrustlistUser), 200), ProducesResponseType(404)]
+		[HttpGet("{id}"), ProducesResponseType(typeof(V2_TrustlistUser), 200), ProducesResponseType(404)]
 		public async Task<IActionResult> FetchUser(ulong id)
 		{
 			TrustlistUser user = await trustlistService.FetchUserAsync(id);
-			return StatusCode(user is not null ? 200 : 404, user);
+			TrustlistEntry lastEntry = user.Entries.Last();
+			V2_TrustlistUser v2_user = new()
+			{
+				Emitter = lastEntry.Emitter
+			};
+
+			return StatusCode(v2_user is not null ? 200 : 404, v2_user);
 		}
 
-
+		/*
 		/// <summary>
 		/// Gets Trustlist records on users with specified IDs
 		/// </summary>
@@ -64,15 +72,9 @@ namespace SocialGuard.Api.Controllers
 		/// <response code="200">Returns existing records</response>
 		/// <response code="204">If no matching record is found in DB</response>    
 		/// <returns>Trustlist info</returns>
-		[HttpPost("for"), ProducesResponseType(typeof(IEnumerable<TrustlistUser>), 200), ProducesResponseType(204)]
-		public async Task<IActionResult> FetchUsers([FromBody] ulong[] ids)
-		{
-			IEnumerable<TrustlistUser> users = await trustlistService.FetchUsersAsync(ids);
-			return users.Any()
-				? StatusCode(200, users)
-				: StatusCode(204);
-		}
-
+		[HttpPost("for"), ProducesResponseType(typeof(IEnumerable<V2_TrustlistUser>), 200), ProducesResponseType(204)]
+		public IActionResult FetchUsers([FromBody] ulong[] ids) => StatusCode(501);
+		*/
 
 		/// <summary>
 		/// Inserts record into Trustlist
@@ -82,7 +84,7 @@ namespace SocialGuard.Api.Controllers
 		/// <response code="409">If User record already exists</response> 
 		[HttpPost, Authorize(Roles = UserRole.Emitter)]
 		[ProducesResponseType(201), ProducesResponseType(409)]
-		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistUser userRecord)
+		public async Task<IActionResult> InsertUserRecord([FromBody] V2_TrustlistUser userRecord)
 		{
 			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
 
@@ -93,7 +95,14 @@ namespace SocialGuard.Api.Controllers
 
 			try
 			{
-				await trustlistService.InsertNewUserAsync(userRecord, emitter);
+				TrustlistEntry entry = new()
+				{
+					Emitter = emitter, 
+					EscalationNote = userRecord.EscalationNote,
+					EscalationLevel = userRecord.EscalationLevel
+				};
+
+				await trustlistService.InsertNewUserEntryAsync(userRecord.Id, entry, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -103,6 +112,7 @@ namespace SocialGuard.Api.Controllers
 			return StatusCode(201);
 		}
 
+		/*
 		/// <summary>
 		/// Imports entries into Trustlist
 		/// </summary>
@@ -110,13 +120,9 @@ namespace SocialGuard.Api.Controllers
 		/// 
 		/// <param name="import">Trustlist Import model</param>
 		/// <response code="202">Entries were processed by server.</response>
-		[HttpPost("import"), Authorize(Roles = UserRole.Admin)]
-		[ProducesResponseType(202)]
-		public async Task<IActionResult> InsertUserRecord([FromBody] TrustlistImportModel import)
-		{
-			await trustlistService.ImportEntriesAsync(import.Entries, import.Emitter, import.Timestamp);
-			return StatusCode(202);
-		}
+		[HttpPost("import"), Authorize(Roles = UserRole.Admin), ApiVersion("2.0", Deprecated = true)]
+		public IActionResult InsertUserRecord([FromBody] TrustlistImportModel import) => StatusCode(501);
+		*/
 
 		/// <summary>
 		/// Escalates existing record in Trustlist
@@ -126,7 +132,7 @@ namespace SocialGuard.Api.Controllers
 		/// <response code="404">If user ID is not found in DB</response>
 		[HttpPut, Authorize(Roles = UserRole.Emitter)]
 		[ProducesResponseType(202), ProducesResponseType(404)]
-		public async Task<IActionResult> EscalateUserRecord([FromBody] TrustlistUser userRecord)
+		public async Task<IActionResult> EscalateUserRecord([FromBody] V2_TrustlistUser userRecord)
 		{
 			Emitter emitter = await emitterService.GetEmitterAsync(HttpContext);
 
@@ -137,11 +143,18 @@ namespace SocialGuard.Api.Controllers
 
 			try
 			{
-				await trustlistService.EscalateUserAsync(userRecord, emitter);
+				TrustlistEntry entry = new()
+				{
+					Emitter = emitter,
+					EscalationNote = userRecord.EscalationNote,
+					EscalationLevel = userRecord.EscalationLevel
+				};
+
+				await trustlistService.EscalateUserAsync(userRecord.Id, entry, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
-				return StatusCode(404, "No user found in DB.");
+				return StatusCode(204, "No user found in DB.");
 			}
 
 			return StatusCode(202);
