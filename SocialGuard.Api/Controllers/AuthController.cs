@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialGuard.Api.Services.Authentication;
 using SocialGuard.Api.Services.Authentication.Models;
@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace SocialGuard.Api.Controllers
 {
-	[ApiController, Route("api/[controller]")]
+	[ApiController, Route("api/v{version:apiVersion}/[controller]")]
+	[ApiVersion("2.2"), ApiVersion("3.0")]
 	public class AuthController : ControllerBase
 	{
 		private readonly AuthenticationService service;
