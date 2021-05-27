@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using SocialGuard.Api.Infrastructure.Conversions;
 using SocialGuard.Api.Infrastructure.Swagger;
 using SocialGuard.Api.Services;
 using SocialGuard.Api.Services.Authentication;
@@ -38,7 +39,12 @@ namespace SocialGuard.Api
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllers();
+			services.AddControllers(config =>
+			{
+				config.ModelBinderProviders.Add(new CommaSeparatedArrayModelBinderProvider());
+			});
+
+
 			services.AddApiVersioning(config =>
 			{
 				config.DefaultApiVersion = new(3, 0, "beta");

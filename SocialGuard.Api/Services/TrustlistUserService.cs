@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using SharpCompress.Common;
 using SocialGuard.Api.Data.Models;
 using System;
@@ -28,6 +29,7 @@ namespace SocialGuard.Api.Services
 		{
 			entry = entry with
 			{
+				Id = ObjectId.GenerateNewId(),
 				EntryAt = DateTime.UtcNow,
 				LastEscalated = DateTime.UtcNow,
 				Emitter = emitter
