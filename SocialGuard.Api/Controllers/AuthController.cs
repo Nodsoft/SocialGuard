@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace SocialGuard.Api.Controllers
 {
-	[ApiController, Route("api/[controller]")]
+	[ApiController, Route("api/v{version:apiVersion}/[controller]")]
+	[ApiVersion("3.0"), ApiVersion("2.0")]
 	public class AuthController : ControllerBase
 	{
 		private readonly AuthenticationService service;

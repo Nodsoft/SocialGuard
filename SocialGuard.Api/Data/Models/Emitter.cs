@@ -12,7 +12,7 @@ namespace SocialGuard.Api.Data.Models
 	/// </summary>
 	public record Emitter
 	{
-		[BsonId, BsonRepresentation(BsonType.String)]
+		[BsonId, BsonRequired, BsonRepresentation(BsonType.String)]
 		public string Login { get; init; }
 
 		[Required]

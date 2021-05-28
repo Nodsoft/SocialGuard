@@ -3,15 +3,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using SocialGuard.Api.Infrastructure.Conversions;
+using SocialGuard.Api.Infrastructure.Swagger;
 using SocialGuard.Api.Services;
 using SocialGuard.Api.Services.Authentication;
 using SocialGuard.Api.Services.Logging;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
 using System.Reflection;
@@ -34,25 +39,43 @@ namespace SocialGuard.Api
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllers();
-			services.AddSwaggerGen(c =>
+			services.AddControllers(config =>
 			{
-				c.SwaggerDoc(Version, new OpenApiInfo
-				{
-					Title = "SocialGuard",
-					Version = Version,
-					Description = "Centralised Discord Trustlist to keep servers safe from known blacklisted users.",
-					Contact = new() { Name = "NSYS / Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
-					License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") }
-				});
+				config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider());
+			});
+
+
+			services.AddApiVersioning(config =>
+			{
+				config.DefaultApiVersion = new(3, 0, "beta");
+				config.AssumeDefaultVersionWhenUnspecified = true;
+				config.ReportApiVersions = true;
+			});
+
+			services.AddVersionedApiExplorer(options =>
+			{
+				// add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+				// note: the specified format code will format the version as "'v'major[.minor][-status]"
+				options.GroupNameFormat = "'v'VVV";
+
+				// note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+				// can also be used to control the format of the API version in route templates
+				options.SubstituteApiVersionInUrl = true;
+			});
+
+			services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+			services.AddSwaggerGen(options =>
+			{
+				options.OperationFilter<SwaggerDefaultValues>();
 
 				// Set the comments path for the Swagger JSON and UI.
 				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
 				string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-				c.IncludeXmlComments(xmlPath);
+				options.IncludeXmlComments(xmlPath);
 
 				// Bearer token authentication
-				c.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
 				{
 					Name = "bearer",
 					BearerFormat = "JWT",
@@ -72,7 +95,7 @@ namespace SocialGuard.Api
 					}
 				};
 
-				c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				options.AddSecurityRequirement(new OpenApiSecurityRequirement()
 				{
 					{ securityScheme, Array.Empty<string>() },
 				});
@@ -127,7 +150,7 @@ namespace SocialGuard.Api
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
 		{
 			if (env.IsDevelopment())
 			{
@@ -136,8 +159,16 @@ namespace SocialGuard.Api
 
 			app.UseStaticFiles();
 
-			app.UseSwagger();
-			app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/{Version}/swagger.json", $"SocialGuard {Version}"));
+			app.UseSwagger(options => { options.RouteTemplate = "swagger/{documentName}/swagger.json"; });
+			app.UseSwaggerUI(options =>
+			{
+				options.RoutePrefix = "swagger";
+
+				foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
+				{
+					options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToLowerInvariant());
+				}
+			});
 
 			app.UseHttpsRedirection();
 

@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace SocialGuard.Api.Controllers
 {
-	[ApiController, Route("api/[controller]"), Authorize]
+	[ApiController, Route("api/v{version:apiVersion}/[controller]"), Authorize]
+	[ApiVersion("3.0"), ApiVersion("2.0")]
 	public class EmitterController : ControllerBase
 	{
 		private readonly EmitterService emitterService;
