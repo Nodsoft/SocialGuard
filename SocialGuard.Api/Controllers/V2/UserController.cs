@@ -49,25 +49,29 @@ namespace SocialGuard.Api.Controllers.V2
 		/// </summary>
 		/// <param name="id">ID of user</param>
 		/// <response code="200">Returns record</response>
-		/// <response code="404">If user ID is not found in DB</response>    
+		/// <response code="204">If user ID is not found in DB</response>    
 		/// <returns>Trustlist info</returns>
 		[HttpGet("{id}"), ProducesResponseType(typeof(V2_TrustlistUser), 200), ProducesResponseType(404)]
 		public async Task<IActionResult> FetchUser(ulong id)
 		{
-			TrustlistUser user = await trustlistService.FetchUserAsync(id);
-			TrustlistEntry lastEntry = user.Entries.Last();
-
-			V2_TrustlistUser v2_user = new()
+			if (await trustlistService.FetchUserAsync(id) is TrustlistUser user)
 			{
-				Id = user.Id,
-				Emitter = lastEntry.Emitter,
-				EntryAt = lastEntry.EntryAt,
-				LastEscalated = lastEntry.LastEscalated,
-				EscalationNote = lastEntry.EscalationNote,
-				EscalationLevel = lastEntry.EscalationLevel
-			};
+				TrustlistEntry lastEntry = user.Entries.Last();
 
-			return StatusCode(v2_user is not null ? 200 : 404, v2_user);
+				V2_TrustlistUser v2_user = new()
+				{
+					Id = user.Id,
+					Emitter = lastEntry.Emitter,
+					EntryAt = lastEntry.EntryAt,
+					LastEscalated = lastEntry.LastEscalated,
+					EscalationNote = lastEntry.EscalationNote,
+					EscalationLevel = lastEntry.EscalationLevel
+				};
+
+				return StatusCode(200, v2_user);
+			}
+
+			return StatusCode(204);
 		}
 
 		/*
