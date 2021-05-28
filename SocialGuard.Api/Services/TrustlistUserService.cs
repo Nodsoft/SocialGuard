@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+
+
 namespace SocialGuard.Api.Services
 {
 	public class TrustlistUserService
@@ -29,7 +32,7 @@ namespace SocialGuard.Api.Services
 		{
 			entry = entry with
 			{
-				Id = ObjectId.GenerateNewId(),
+				Id = ObjectId.GenerateNewId().ToString(),
 				EntryAt = DateTime.UtcNow,
 				LastEscalated = DateTime.UtcNow,
 				Emitter = emitter
@@ -52,7 +55,7 @@ namespace SocialGuard.Api.Services
 			}
 		}
 
-		public async Task EscalateUserAsync(ulong userId, TrustlistEntry updated, Emitter emitter)
+		public async Task UpdateUserEntryAsync(ulong userId, TrustlistEntry updated, Emitter emitter)
 		{
 			TrustlistUser user = await FetchUserAsync(userId) ?? throw new ArgumentOutOfRangeException(nameof(userId), $"User {userId} not found.");
 			TrustlistEntry existing = user.Entries.First(e => e.Emitter.Login == emitter.Login);
@@ -62,6 +65,8 @@ namespace SocialGuard.Api.Services
 				& Builders<TrustlistUser>.Filter.ElemMatch(u => u.Entries, Builders<TrustlistEntry>.Filter.Eq(e => e.Emitter.Login, emitter.Login)),
 				Builders<TrustlistUser>.Update.Set(u => u.Entries[-1], updated with
 				{
+					Id = existing.Id,
+					EntryAt = existing.EntryAt,
 					LastEscalated = DateTime.UtcNow,
 					Emitter = emitter
 				})
@@ -73,10 +78,15 @@ namespace SocialGuard.Api.Services
 			throw new NotImplementedException();
 		}
 
-		public async Task DeleteUserRecordAsync(ulong id)
+		public async Task DeleteUserEntryAsync(ulong id, Emitter emitter)
 		{
 			TrustlistUser user = await FetchUserAsync(id) ?? throw new ArgumentException($"No user found with ID {id}", nameof(id));
-			await trustlistUsers.DeleteOneAsync(u => u.Id == id);
+			TrustlistEntry existing = user.Entries.First(e => e.Emitter.Login == emitter.Login);
+
+			await trustlistUsers.UpdateOneAsync(
+				Builders<TrustlistUser>.Filter.Eq(u => u.Id, id),
+				Builders<TrustlistUser>.Update.PullFilter(u => u.Entries, Builders<TrustlistEntry>.Filter.Eq(e => e.Emitter.Login, emitter.Login))
+			);
 		}
 	}
 }

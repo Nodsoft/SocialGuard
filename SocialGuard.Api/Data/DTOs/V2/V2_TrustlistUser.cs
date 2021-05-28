@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Attributes;
 using SocialGuard.Api.Data.Models;
+
+
 
 namespace SocialGuard.Api.Data.DTOs.V2
 {
@@ -13,7 +12,7 @@ namespace SocialGuard.Api.Data.DTOs.V2
 	/// </summary>
 	public record V2_TrustlistUser
 	{
-		[Required]
+		[Required, BsonId]
 		public ulong Id { get; init; }
 
 		public DateTime EntryAt { get; set; }

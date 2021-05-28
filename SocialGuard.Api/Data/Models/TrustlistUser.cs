@@ -12,9 +12,10 @@ namespace SocialGuard.Api.Data.Models
 	/// </summary>
 	public record TrustlistUser
 	{
-		[Required, BsonRequired]
+		[Required, BsonId, BsonRequired]
 		public ulong Id { get; init; }
 
+		[BsonRequired]
 		public List<TrustlistEntry> Entries { get; set; }
 	}
 }

@@ -56,9 +56,15 @@ namespace SocialGuard.Api.Controllers.V2
 		{
 			TrustlistUser user = await trustlistService.FetchUserAsync(id);
 			TrustlistEntry lastEntry = user.Entries.Last();
+
 			V2_TrustlistUser v2_user = new()
 			{
-				Emitter = lastEntry.Emitter
+				Id = user.Id,
+				Emitter = lastEntry.Emitter,
+				EntryAt = lastEntry.EntryAt,
+				LastEscalated = lastEntry.LastEscalated,
+				EscalationNote = lastEntry.EscalationNote,
+				EscalationLevel = lastEntry.EscalationLevel
 			};
 
 			return StatusCode(v2_user is not null ? 200 : 404, v2_user);
@@ -150,7 +156,7 @@ namespace SocialGuard.Api.Controllers.V2
 					EscalationLevel = userRecord.EscalationLevel
 				};
 
-				await trustlistService.EscalateUserAsync(userRecord.Id, entry, emitter);
+				await trustlistService.UpdateUserEntryAsync(userRecord.Id, entry, emitter);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -162,15 +168,20 @@ namespace SocialGuard.Api.Controllers.V2
 
 
 		/// <summary>
-		/// Wipes User record from Trustlist
+		/// Wipes logged-in Emitter's User entry from Trustlist
 		/// </summary>
 		/// <param name="id">ID of User to wipe</param>
 		/// <response code="200">Record was wiped (if any)</response>
 		[HttpDelete("{id}"), Authorize(Roles = UserRole.Admin)]
 		public async Task<IActionResult> DeleteUserRecord(ulong id)
 		{
-			await trustlistService.DeleteUserRecordAsync(id);
-			return StatusCode(200);
+			if ((await emitterService.GetEmitterAsync(HttpContext)) is Emitter emitter)
+			{
+				await trustlistService.DeleteUserEntryAsync(id, emitter);
+				return StatusCode(200);
+			}
+
+			return StatusCode(401, "No emitter profile set for logged-in user. Please setup emitter first.");
 		}
 	}
 }
