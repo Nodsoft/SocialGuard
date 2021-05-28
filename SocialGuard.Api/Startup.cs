@@ -41,7 +41,7 @@ namespace SocialGuard.Api
 		{
 			services.AddControllers(config =>
 			{
-				config.ModelBinderProviders.Add(new CommaSeparatedArrayModelBinderProvider());
+				config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider());
 			});
 
 
