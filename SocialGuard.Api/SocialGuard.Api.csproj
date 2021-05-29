@@ -20,18 +20,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.Identity.Mongo" Version="8.0.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-preview.2.21154.6" />
+    <PackageReference Include="AspNetCore.Identity.Mongo" Version="8.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.18.0-beta1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-preview.4.21253.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.0-preview.2.21154.6" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.9.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.12.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="4.0.1-dev-00219" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10284" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.0-preview.4.21253.5" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.11.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.13.0-beta1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.1-dev-00227" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10289" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
   </ItemGroup>
 
 </Project>
