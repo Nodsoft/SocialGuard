@@ -210,11 +210,13 @@ namespace SocialGuard.Api
 				 */
 				endpoints.MapGet("/", context =>
 				{
-					context.Response.Redirect("swagger/index.html");
+					context.Response.Redirect("/swagger/index.html");
 					return Task.CompletedTask;
 				});
 
 				endpoints.MapControllers();
+
+				endpoints.MapBlazorHub("/hubs/trustlist");
 			});
 		}
 	}
