@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using SocialGuard.Api.Hubs;
 using SocialGuard.Api.Infrastructure.Conversions;
 using SocialGuard.Api.Infrastructure.Swagger;
 using SocialGuard.Api.Services;
@@ -149,11 +150,13 @@ namespace SocialGuard.Api
 
 
 			services.AddTransient<AuthenticationService>();
+			services.AddTransient<TrustlistHub>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
 
 			services.AddSingleton<TrustlistUserService>()
 					.AddSingleton<EmitterService>();
+			
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
