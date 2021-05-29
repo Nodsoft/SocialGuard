@@ -23,6 +23,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
 namespace SocialGuard.Api
 {
 	public class Startup
@@ -43,7 +45,6 @@ namespace SocialGuard.Api
 			{
 				config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider());
 			});
-
 
 			services.AddApiVersioning(config =>
 			{
@@ -100,6 +101,18 @@ namespace SocialGuard.Api
 					{ securityScheme, Array.Empty<string>() },
 				});
 			});
+
+
+			services.AddSignalR(config =>
+			{
+				config.EnableDetailedErrors = true;
+
+				config.KeepAliveInterval = TimeSpan.FromSeconds(30);
+				config.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+			})
+			.AddMessagePackProtocol();
+			
+
 
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
