@@ -216,7 +216,7 @@ namespace SocialGuard.Api
 
 				endpoints.MapControllers();
 
-				endpoints.MapBlazorHub("/hubs/trustlist");
+				endpoints.MapHub<TrustlistHub>("/hubs/trustlist");
 			});
 		}
 	}
