@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using SocialGuard.Api.Hubs;
 using SocialGuard.Api.Infrastructure.Conversions;
 using SocialGuard.Api.Infrastructure.Swagger;
 using SocialGuard.Api.Services;
@@ -22,6 +23,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+
 
 namespace SocialGuard.Api
 {
@@ -43,7 +46,6 @@ namespace SocialGuard.Api
 			{
 				config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider());
 			});
-
 
 			services.AddApiVersioning(config =>
 			{
@@ -101,6 +103,18 @@ namespace SocialGuard.Api
 				});
 			});
 
+
+			services.AddSignalR(config =>
+			{
+				config.EnableDetailedErrors = true;
+
+				config.KeepAliveInterval = TimeSpan.FromSeconds(30);
+				config.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+			})
+			.AddMessagePackProtocol();
+			
+
+
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
 				mongo =>
@@ -136,11 +150,13 @@ namespace SocialGuard.Api
 
 
 			services.AddTransient<AuthenticationService>();
+			services.AddTransient<TrustlistHub>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
 
 			services.AddSingleton<TrustlistUserService>()
 					.AddSingleton<EmitterService>();
+			
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -194,11 +210,13 @@ namespace SocialGuard.Api
 				 */
 				endpoints.MapGet("/", context =>
 				{
-					context.Response.Redirect("swagger/index.html");
+					context.Response.Redirect("/swagger/index.html");
 					return Task.CompletedTask;
 				});
 
 				endpoints.MapControllers();
+
+				endpoints.MapHub<TrustlistHub>("/hubs/trustlist");
 			});
 		}
 	}
