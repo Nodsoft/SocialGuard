@@ -1,7 +1,9 @@
-﻿using MongoDB.Bson;
+using Microsoft.AspNetCore.SignalR;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using SharpCompress.Common;
 using SocialGuard.Api.Data.Models;
+using SocialGuard.Api.Hubs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,13 @@ namespace SocialGuard.Api.Services
 	{
 		private readonly IMongoCollection<TrustlistUser> trustlistUsers;
 		private readonly IMongoCollection<Emitter> emitters;
+		private readonly IHubContext<TrustlistHub> hubContext;
 
-		public TrustlistUserService(IMongoDatabase database)
+		public TrustlistUserService(IMongoDatabase database, IHubContext<TrustlistHub> hubContext)
 		{
 			trustlistUsers = database.GetCollection<TrustlistUser>(nameof(TrustlistUser));
 			emitters = database.GetCollection<Emitter>(nameof(Emitter));
+			this.hubContext = hubContext;
 		}
 
 		public IQueryable<ulong> ListUserIds() => from user in trustlistUsers.AsQueryable() select user.Id;
@@ -53,6 +57,8 @@ namespace SocialGuard.Api.Services
 					Builders<TrustlistUser>.Update.Push(u => u.Entries, entry)
 				);
 			}
+
+			await hubContext.Clients.All.SendAsync("NotifyNewEntry", userId, entry);
 		}
 
 		public async Task UpdateUserEntryAsync(ulong userId, TrustlistEntry updated, Emitter emitter)
@@ -60,17 +66,24 @@ namespace SocialGuard.Api.Services
 			TrustlistUser user = await FetchUserAsync(userId) ?? throw new ArgumentOutOfRangeException(nameof(userId), $"User {userId} not found.");
 			TrustlistEntry existing = user.Entries.First(e => e.Emitter.Login == emitter.Login);
 
+			updated = updated with
+			{
+				Id = existing.Id,
+				EntryAt = existing.EntryAt,
+				LastEscalated = DateTime.UtcNow,
+				Emitter = emitter
+			};
+
 			await trustlistUsers.UpdateOneAsync(
 				Builders<TrustlistUser>.Filter.Eq(u => u.Id, userId) 
 				& Builders<TrustlistUser>.Filter.ElemMatch(u => u.Entries, Builders<TrustlistEntry>.Filter.Eq(e => e.Emitter.Login, emitter.Login)),
-				Builders<TrustlistUser>.Update.Set(u => u.Entries[-1], updated with
-				{
-					Id = existing.Id,
-					EntryAt = existing.EntryAt,
-					LastEscalated = DateTime.UtcNow,
-					Emitter = emitter
-				})
+				Builders<TrustlistUser>.Update.Set(u => u.Entries[-1], updated)
 			);
+
+			if (updated.EscalationLevel > existing.EscalationLevel)
+			{
+				await hubContext.Clients.All.SendAsync("NotifyEscalatedEntry", userId, updated, existing.EscalationLevel);
+			}
 		}
 
 		public Task ImportEntriesAsync(IEnumerable<TrustlistUser> entries, Emitter commonEmitter, DateTime importTimestamp)
@@ -78,15 +91,17 @@ namespace SocialGuard.Api.Services
 			throw new NotImplementedException();
 		}
 
-		public async Task DeleteUserEntryAsync(ulong id, Emitter emitter)
+		public async Task DeleteUserEntryAsync(ulong userId, Emitter emitter)
 		{
-			TrustlistUser user = await FetchUserAsync(id) ?? throw new ArgumentException($"No user found with ID {id}", nameof(id));
+			TrustlistUser user = await FetchUserAsync(userId) ?? throw new ArgumentException($"No user found with ID {userId}", nameof(userId));
 			TrustlistEntry existing = user.Entries.First(e => e.Emitter.Login == emitter.Login);
 
 			await trustlistUsers.UpdateOneAsync(
-				Builders<TrustlistUser>.Filter.Eq(u => u.Id, id),
+				Builders<TrustlistUser>.Filter.Eq(u => u.Id, userId),
 				Builders<TrustlistUser>.Update.PullFilter(u => u.Entries, Builders<TrustlistEntry>.Filter.Eq(e => e.Emitter.Login, emitter.Login))
 			);
+
+			await hubContext.Clients.All.SendAsync("NotifyDeletedEntry", userId, existing);
 		}
 	}
 }

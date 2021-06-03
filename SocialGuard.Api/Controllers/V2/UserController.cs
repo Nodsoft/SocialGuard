@@ -56,7 +56,15 @@ namespace SocialGuard.Api.Controllers.V2
 		{
 			if (await trustlistService.FetchUserAsync(id) is TrustlistUser user)
 			{
-				TrustlistEntry lastEntry = user.Entries.Last();
+
+				TrustlistEntry lastEntry =
+					(from e in 
+						(from entry in user.Entries
+						group entry by entry.EscalationLevel into escalationGroup
+						orderby escalationGroup.Key descending
+						select escalationGroup).First()
+					orderby e.LastEscalated
+					select e).Last();
 
 				V2_TrustlistUser v2_user = new()
 				{
