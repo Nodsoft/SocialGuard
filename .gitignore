@@ -354,3 +354,5 @@ MigrationBackup/
 SocialGuard.Web/wwwroot/css/site.min.css
 
 SocialGuard.Web/wwwroot/css/site.css
+
+SocialGuard.Web/wwwroot/lib/
