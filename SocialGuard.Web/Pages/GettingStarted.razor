@@ -1,0 +1,44 @@
+﻿@layout CoverLayout
+@page "/getting-started"
+@inject PageContentLoader Loader
+
+<div class="my-5">
+	<h4 class="my-3">There are 2 ways to use SocialGuard, depending on your situation :</h4>
+
+	<div class="p-1 border border-secondary rounded-3">
+		<ul class="nav nav-pills nav-justified" style="cursor: pointer;">
+			<li class="nav-item"><a class="nav-link @(select is Select.Bot ? "active" : null)" @onclick="() => select = Select.Bot">I need a Bot.</a></li>
+			<li class="nav-item"><a class="nav-link @(select is Select.Self ? "active" : null)" @onclick="() => select = Select.Self">I have my own Bot.</a></li>
+		</ul>
+	</div>
+</div>
+
+@((MarkupString)(select switch
+{
+	Select.Bot => botMarkup,
+	Select.Self => selfMarkup,
+	_ => _default
+}))
+
+
+@code {
+	[CascadingParameter] CoverLayout Layout { get; set; }
+
+	static string BotGuideFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-bot.html");
+	static string SelfGuideFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-self.html");
+	private MarkupString _default, botMarkup, selfMarkup;
+
+	private Select select;
+
+	protected override async Task OnInitializedAsync()
+	{
+		Layout.SetCover("Getting Started", "Adding SocialGuard to your server.");
+		botMarkup = await Loader.LoadMarkupAsync(BotGuideFilePath);
+		selfMarkup = await Loader.LoadMarkupAsync(SelfGuideFilePath);
+	}
+
+	enum Select
+	{
+		None, Bot, Self
+	}
+}
