@@ -32,7 +32,12 @@ namespace SocialGuard.Web.Services
 			this.logger = logger;
 			this.env = env;
 			this.cache = cache;
-			watcher = new(env.WebRootPath, "*.html");
+
+			watcher = new(env.WebRootPath, "*.html")
+			{
+				EnableRaisingEvents = true,
+				IncludeSubdirectories = true
+		};
 		}
 
 		public void Dispose()
@@ -44,9 +49,9 @@ namespace SocialGuard.Web.Services
 
 		public async Task<MarkupString> LoadMarkupAsync(string path)
 		{
-			string content;
+			string content = await cache.GetStringAsync(path);
 
-			if ((content = await cache.GetStringAsync(path)) is null)
+			if (string.IsNullOrEmpty(content))
 			{
 				using StreamReader streamReader = new(env.WebRootFileProvider.GetFileInfo(path).CreateReadStream(), Encoding.UTF8);
 				content = await streamReader.ReadToEndAsync();
@@ -77,14 +82,14 @@ namespace SocialGuard.Web.Services
 			logger.LogInformation("Populated cache.");
 		}
 
-		private async void OnWatcherChanged(object _, FileSystemEventArgs e)
+		private async void OnFileUpdated(object _, FileSystemEventArgs e)
 		{
-			logger.LogDebug("File change detected ({type}) : {file}", e.ChangeType.ToString(), e.FullPath);
+			logger.LogInformation("File change detected ({type}) : {file}", e.ChangeType.ToString(), e.FullPath);
 
-			using FileStream fileStream = File.OpenRead(e.FullPath);
-			using StreamReader streamReader = new(fileStream);
+			string path = e.FullPath[(env.WebRootPath.Length + 1)..];
 
-			await cache.SetStringAsync(e.FullPath[env.WebRootPath.Length..], await streamReader.ReadToEndAsync(), CancellationToken.None);
+			await cache.SetStringAsync(path, string.Empty, CancellationToken.None);
+			logger.LogDebug("Cleared cache entry: {path}", path);
 		}
 
 		protected virtual void Dispose(bool disposing)
@@ -104,14 +109,22 @@ namespace SocialGuard.Web.Services
 		{
 			logger.LogInformation("Starting PageContentLoader background service. \nContents Path : {path}", env.WebRootPath);
 
-			watcher.Changed += OnWatcherChanged;
+			watcher.Changed += OnFileUpdated;
+			watcher.Created += OnFileUpdated;
+			watcher.Deleted += OnFileUpdated;
+			watcher.Renamed += OnFileUpdated;
+
 			await PopulatePageCacheAsync(Path.Combine(env.WebRootPath, WebRootPageContentsPath), cancellationToken);
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
 			logger.LogInformation("Stopped PageContentLoader background service.", env.WebRootPath);
-			watcher.Changed -= OnWatcherChanged;
+
+			watcher.Changed -= OnFileUpdated;
+			watcher.Created -= OnFileUpdated;
+			watcher.Deleted -= OnFileUpdated;
+			watcher.Renamed -= OnFileUpdated;
 
 			return Task.CompletedTask;
 		}
