@@ -1,0 +1,37 @@
+﻿<div class="my-5">
+	<h1 class="mb-3">Integrating SocialGuard</h1>
+	<p class="lead">You can create your own implementation of SocialGuard, and integrate it with your own Discord Bot.</p>
+</div>
+
+<div class="my-5">
+	<h3>Using our API</h3>
+
+	<p>
+		All our API Requests are documented thorougly on our <a target="_blank" href="/swagger">Swagger</a>, 
+		to help you with Development of SocialGuard functionality.
+	</p>
+
+	<div class="my-4">
+		<h4>List User Records</h4>
+
+		<p>
+			Listing user records is the simplest function possible on our API : <br />
+			<a class="font-monospace" href="https://socialguard.net/api/v3/User/list" target="_blank">https://socialguard.net/api/v3/User/list</a>
+		</p>
+	</div>
+
+	<div class="my-4">
+		<h4>Fetch a User Record</h4>
+
+		<p>
+			You can fetch a User's record by using this API Request : <span class="font-monospace">https://socialguard.net/api/v3/User/<b>{ids}</b></span> <br />
+			<i>(Where <b class="font-monospace">{ids}</b> is replaced by a list of Discord Snowflakes/IDs, comma-delimited : <b class="font-monospace">ID1,ID2,ID3</b>)</i>
+		</p>
+		
+
+		<p>
+			Taking Snowflake <span class="font-monospace">611621392286482441</span> as an example, you call this endpoint to fetch its record : <br />
+			<a class="font-monospace" href="https://socialguard.net/api/v3/User/611621392286482441" target="_blank">https://socialguard.net/api/v3/User/611621392286482441</a>
+		</p>
+	</div>
+</div>
