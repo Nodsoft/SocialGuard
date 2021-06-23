@@ -26,7 +26,6 @@ namespace SocialGuard.Web
 			services.AddDistributedMemoryCache();
 
 			services.AddSingleton<PageContentLoader>();
-			services.AddHostedService<PageContentLoader>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

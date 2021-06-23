@@ -24,17 +24,17 @@
 @code {
 	[CascadingParameter] CoverLayout Layout { get; set; }
 
-	static string BotGuideFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-bot.html");
-	static string SelfGuideFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-self.html");
-	private MarkupString _default, botMarkup, selfMarkup;
+	static string BotGuideFilePath = Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-bot.html");
+	static string SelfGuideFilePath = Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-self.html");
+	private string _default, botMarkup, selfMarkup;
 
 	private Select select;
 
 	protected override async Task OnInitializedAsync()
 	{
 		Layout.SetCover("Getting Started", "Adding SocialGuard to your server.");
-		botMarkup = await Loader.LoadMarkupAsync(BotGuideFilePath);
-		selfMarkup = await Loader.LoadMarkupAsync(SelfGuideFilePath);
+		botMarkup = await Loader.LoadContent(BotGuideFilePath, CancellationToken.None);
+		selfMarkup = await Loader.LoadContent(SelfGuideFilePath, CancellationToken.None);
 	}
 
 	enum Select
