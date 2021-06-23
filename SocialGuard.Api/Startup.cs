@@ -104,14 +104,8 @@ namespace SocialGuard.Api
 			});
 
 
-			services.AddSignalR(config =>
-			{
-				config.EnableDetailedErrors = true;
-
-				config.KeepAliveInterval = TimeSpan.FromSeconds(30);
-				config.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
-			})
-			.AddMessagePackProtocol();
+			services.AddSignalR(config => config.EnableDetailedErrors = true)
+				.AddMessagePackProtocol();
 			
 
 
