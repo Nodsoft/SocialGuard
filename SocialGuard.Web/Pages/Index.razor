@@ -1,18 +1,14 @@
 ﻿@layout CoverLayout
 @page "/"
-@inject PageContentLoader Loader
 
-@markup
+<FileContent ContentFilePath="assets/content/indexcontent.html" />
 
 @code {
 	[CascadingParameter] CoverLayout Layout { get; set; }
 
-	static string ContentFilePath = Path.Join(PageContentLoader.WebRootPageContentsPath, "indexcontent.html");
-	private MarkupString markup;
-
 	protected override async Task OnInitializedAsync()
 	{
 		Layout.SetCover("NSYS SocialGuard", "Security for your Community.", true, true);
-		markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
+		await base.OnInitializedAsync();
 	}
 }
