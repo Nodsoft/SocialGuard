@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialGuard.Api.Data.Models;
+using SocialGuard.Common.Data.Models;
 using SocialGuard.Api.Services;
 using System.Threading.Tasks;
 

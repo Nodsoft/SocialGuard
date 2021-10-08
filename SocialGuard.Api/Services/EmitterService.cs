@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
-using SocialGuard.Api.Data.Models;
+using SocialGuard.Common.Data.Models;
 using System.Threading.Tasks;
 
 
