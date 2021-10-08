@@ -5,9 +5,10 @@ using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
+
+
 
 namespace SocialGuard.Api.Services.Logging
 {

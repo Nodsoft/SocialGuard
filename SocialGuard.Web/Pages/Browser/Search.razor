@@ -1,0 +1,47 @@
+﻿@layout CoverLayout
+@page "/browse"
+
+
+<div class="row justify-content-around text-center mb-5">
+	<div class="col col-lg-8">
+		<h3 class="my-3">Search for Records :</h3>
+
+		<EditForm Model=Model OnValidSubmit=OnValidSubmitAsync>
+			<DataAnnotationsValidator />
+
+			<div class="input-group input-group-lg">
+				<InputText @bind-Value=Model.SearchStr class="form-control" placeholder="User Snowflake" />
+				<button class="btn btn-primary px-5" type="submit">Search</button>
+			</div>
+
+			<p class="lead text-start m-2">
+				<ValidationMessage For="() => Model.SearchStr" />
+			</p>
+		</EditForm>
+	</div>
+</div>
+
+
+@code {
+	[CascadingParameter] CoverLayout Layout { get; set; }
+	public SearchModel Model { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		Layout.SetCover("View Records", "", true);
+		await base.OnInitializedAsync();
+	}
+
+	public async Task OnValidSubmitAsync()
+	{
+		
+	}
+
+	public record SearchModel
+	{
+		[Required, RegularExpression("^(\\d{17,21})$", ErrorMessage = "Invalid Snowflake.")]
+		public string SearchStr { get; set; }
+
+		public ulong? SearchId => ulong.Parse(SearchStr);
+	}
+}
