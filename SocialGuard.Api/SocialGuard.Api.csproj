@@ -36,4 +36,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SocialGuard.Common\SocialGuard.Common.csproj" />
+  </ItemGroup>
+
 </Project>
