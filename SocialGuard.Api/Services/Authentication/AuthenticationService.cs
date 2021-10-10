@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SocialGuard.Api.Services.Authentication.Models;
+using SocialGuard.Common.Data.Models.Authentication;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
