@@ -1,21 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
 
-namespace SocialGuard.Common.Services
+namespace SocialGuard.Common.Services;
+
+public abstract class RestClientBase
 {
-	public abstract class RestClientBase
+	protected const string JsonMimeType = "application/json";
+
+	protected HttpClient HttpClient { get; init; }
+
+	protected static JsonSerializerOptions SerializerOptions => new()
 	{
-		protected HttpClient HttpClient { get; init; }
+		PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+	};
 
-		protected RestClientBase(HttpClient client)
-		{
-			HttpClient = client;
-		}
-
-		public virtual void SetBaseUri(Uri uri) => HttpClient.BaseAddress = uri;
+	protected RestClientBase(HttpClient client)
+	{
+		HttpClient = client;
 	}
+
+	public virtual void SetBaseUri(Uri uri) => HttpClient.BaseAddress = uri;
+
+	public static Task<TData?> ParseResponseFullAsync<TData>(HttpResponseMessage response) => response.Content.ReadFromJsonAsync<TData>(SerializerOptions);
 }

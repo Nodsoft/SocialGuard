@@ -2,6 +2,7 @@
 using SocialGuard.Api.Services;
 using SocialGuard.Common.Data.Models;
 using SocialGuard.Common.Hubs;
+using System.Threading.Tasks;
 
 namespace SocialGuard.Api.Hubs
 {

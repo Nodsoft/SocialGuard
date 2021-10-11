@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SocialGuard.Common.Services
+
+
+namespace SocialGuard.Common.Services;
+
+public static class RestClientExtensions
 {
-	public static class RestClientExtensions
+	public const string MainHost = "https://api.socialguard.net";
+
+	public static HttpRequestMessage WithAuthentication(this HttpRequestMessage message, string token)
 	{
-		public static HttpRequestMessage WithAuthentication(this HttpRequestMessage message, string token)
-		{
-			message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			return message;
-		}
+		message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+		return message;
 	}
+
+
 }
