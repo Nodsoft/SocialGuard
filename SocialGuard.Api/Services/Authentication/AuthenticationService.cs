@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SocialGuard.Common.Data.Models.Authentication;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -77,7 +78,7 @@ namespace SocialGuard.Api.Services.Authentication
 					Response = Response.SuccessResponse() with
 					{
 						Message = "Login Successful.",
-						Details = new { token = new JwtSecurityTokenHandler().WriteToken(token), expiration = token.ValidTo }
+						Details = new TokenResult(new JwtSecurityTokenHandler().WriteToken(token), token.ValidTo)
 					}
 				};
 			}
@@ -127,13 +128,15 @@ namespace SocialGuard.Api.Services.Authentication
 				audience: configuration["JWT:ValidAudience"],
 				expires: DateTime.Now.AddHours(1),
 				claims: authClaims,
-				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
+				signingCredentials: new(authSigningKey, SecurityAlgorithms.HmacSha256));
 	}
 
-	public record AuthServiceResponse
+	public record AuthServiceResponse<T>
 	{
 		public int StatusCode { get; init; }
-		public Response Response { get; init; }
+		public Response<T> Response { get; init; }
 		internal object InternalDetails { get; init; }
 	}
+
+	public record AuthServiceResponse : AuthServiceResponse<object> { }
 }

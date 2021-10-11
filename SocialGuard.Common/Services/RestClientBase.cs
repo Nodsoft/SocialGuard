@@ -18,6 +18,7 @@ public abstract class RestClientBase
 	protected RestClientBase(HttpClient client)
 	{
 		HttpClient = client;
+		HttpClient.BaseAddress ??= new Uri(RestClientExtensions.MainHost);
 	}
 
 	public virtual void SetBaseUri(Uri uri) => HttpClient.BaseAddress = uri;

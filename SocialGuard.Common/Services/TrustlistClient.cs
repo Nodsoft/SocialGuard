@@ -2,41 +2,48 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Threading;
 
 namespace SocialGuard.Common.Services;
 
 public class TrustlistClient : RestClientBase
 {
-	public TrustlistClient(HttpClient httpClient) : base(httpClient)
-	{
-		HttpClient.BaseAddress ??= new Uri(RestClientExtensions.MainHost);
-	}
+	public TrustlistClient(HttpClient httpClient) : base(httpClient) { }
 
-	public async Task<TrustlistUser?> LookupUserAsync(ulong userId) => (await LookupUsersAsync(new ulong[] { userId }))?[0];
 
-	public async Task<TrustlistUser[]> LookupUsersAsync(ulong[] usersId)
+	public Task<TrustlistUser?> LookupUserAsync(ulong userId) => LookupUserAsync(userId, CancellationToken.None);
+	public async Task<TrustlistUser?> LookupUserAsync(ulong userId, CancellationToken ct) => (await LookupUsersAsync(new ulong[] { userId }, ct))?[0];
+
+
+	public Task<TrustlistUser[]> LookupUsersAsync(ulong[] usersId) => LookupUsersAsync(usersId, CancellationToken.None);
+	public async Task<TrustlistUser[]> LookupUsersAsync(ulong[] usersId, CancellationToken ct)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Get, $"/api/v3/user/{string.Join(',', usersId)}");
-		using HttpResponseMessage response = await HttpClient.SendAsync(request);
+		using HttpResponseMessage response = await HttpClient.SendAsync(request, ct);
 
-		return await ParseResponseFullAsync<TrustlistUser[]>(response) is TrustlistUser[] parsed and { Length: not 0 } ? parsed	: Array.Empty<TrustlistUser>();
+		return await response.Content.ReadFromJsonAsync<TrustlistUser[]>(SerializerOptions, ct) is TrustlistUser[] parsed
+			? parsed
+			: Array.Empty<TrustlistUser>();
 	}
 
-	public async Task<ulong[]> ListKnownUsersAsync()
+	public Task<ulong[]> ListKnownUsersAsync() => ListKnownUsersAsync(CancellationToken.None);
+	public async Task<ulong[]> ListKnownUsersAsync(CancellationToken ct)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Get, "/api/v3/user/list");
-		using HttpResponseMessage response = await HttpClient.SendAsync(request);
+		using HttpResponseMessage response = await HttpClient.SendAsync(request, ct);
 
-		return await ParseResponseFullAsync<ulong[]>(response) ?? Array.Empty<ulong>();
+		return await response.Content.ReadFromJsonAsync<ulong[]>(SerializerOptions, ct) ?? Array.Empty<ulong>();
 	}
 
-	public async Task SubmitEntryAsync(ulong userId, TrustlistEntry entry, string authToken)
+
+	public Task SubmitEntryAsync(ulong userId, TrustlistEntry entry, string authToken) => SubmitEntryAsync(userId, entry, authToken);
+	public async Task SubmitEntryAsync(ulong userId, TrustlistEntry entry, string authToken, CancellationToken ct)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Post, $"/api/v3/user/{userId}");
 		request.Content = JsonContent.Create(entry, new(JsonMimeType), SerializerOptions);
 		request.Headers.Authorization = new("bearer", authToken);
 
-		using HttpResponseMessage response = await HttpClient.SendAsync(request);
+		using HttpResponseMessage response = await HttpClient.SendAsync(request, ct);
 
 		if (!response.IsSuccessStatusCode)
 		{
