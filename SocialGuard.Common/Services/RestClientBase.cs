@@ -6,6 +6,7 @@ namespace SocialGuard.Common.Services;
 
 public abstract class RestClientBase
 {
+	public const string MainHost = "https://api.socialguard.net";
 	protected const string JsonMimeType = "application/json";
 
 	protected HttpClient HttpClient { get; init; }
@@ -18,7 +19,7 @@ public abstract class RestClientBase
 	protected RestClientBase(HttpClient client)
 	{
 		HttpClient = client;
-		HttpClient.BaseAddress ??= new Uri(RestClientExtensions.MainHost);
+		HttpClient.BaseAddress ??= new Uri(MainHost);
 	}
 
 	public virtual void SetBaseUri(Uri uri) => HttpClient.BaseAddress = uri;

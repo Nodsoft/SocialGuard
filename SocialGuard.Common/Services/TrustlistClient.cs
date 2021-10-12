@@ -1,10 +1,12 @@
 ﻿using SocialGuard.Common.Data.Models;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading;
 
+
 namespace SocialGuard.Common.Services;
+
 
 public class TrustlistClient : RestClientBase
 {
@@ -12,7 +14,7 @@ public class TrustlistClient : RestClientBase
 
 
 	public Task<TrustlistUser?> LookupUserAsync(ulong userId) => LookupUserAsync(userId, CancellationToken.None);
-	public async Task<TrustlistUser?> LookupUserAsync(ulong userId, CancellationToken ct) => (await LookupUsersAsync(new ulong[] { userId }, ct))?[0];
+	public async Task<TrustlistUser?> LookupUserAsync(ulong userId, CancellationToken ct) => (await LookupUsersAsync(new ulong[] { userId }, ct)).FirstOrDefault();
 
 
 	public Task<TrustlistUser[]> LookupUsersAsync(ulong[] usersId) => LookupUsersAsync(usersId, CancellationToken.None);
@@ -31,6 +33,8 @@ public class TrustlistClient : RestClientBase
 	{
 		using HttpRequestMessage request = new(HttpMethod.Get, "/api/v3/user/list");
 		using HttpResponseMessage response = await HttpClient.SendAsync(request, ct);
+
+		response.EnsureSuccessStatusCode();
 
 		return await response.Content.ReadFromJsonAsync<ulong[]>(SerializerOptions, ct) ?? Array.Empty<ulong>();
 	}
