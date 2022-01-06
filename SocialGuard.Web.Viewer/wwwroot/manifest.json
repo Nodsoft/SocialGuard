@@ -1,10 +1,10 @@
 {
-  "name": "SocialGuard.Web.Viewer",
-  "short_name": "SocialGuard.Web.Viewer",
+  "name": "NSYS SocialGuard Records Browser",
+  "short_name": "SocialGuard Browser",
   "start_url": "./",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "display": "minimal-ui",
+  "background_color": "#111111",
+  "theme_color": "#004144",
   "prefer_related_applications": false,
   "icons": [
     {
