@@ -23,6 +23,7 @@ namespace SocialGuard.Web
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
 			services.AddDistributedMemoryCache();
+			services.AddDirectoryBrowser();
 
 			services.AddSingleton<PageContentLoader>();
 		}
@@ -52,7 +53,7 @@ namespace SocialGuard.Web
 			{
 				endpoints.MapBlazorHub();
 				endpoints.MapFallbackToPage("/_Host");
-				endpoints.MapFallbackToFile("/viewer", "app/index.html");
+				endpoints.MapFallbackToFile("/viewer", "viewer/index.html");
 			});
 		}
 	}

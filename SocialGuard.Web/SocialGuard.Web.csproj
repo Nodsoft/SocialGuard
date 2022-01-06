@@ -23,4 +23,8 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SocialGuard.Web.Viewer\SocialGuard.Web.Viewer.csproj" />
+  </ItemGroup>
+
 </Project>
