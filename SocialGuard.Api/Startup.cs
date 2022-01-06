@@ -142,6 +142,11 @@ namespace SocialGuard.Api
 				};
 			});
 
+			services.AddCors(c => c.AddDefaultPolicy(builder => builder
+				.AllowAnyOrigin()
+				.AllowAnyHeader()
+				.AllowAnyMethod()));
+
 
 			services.AddTransient<AuthenticationService>();
 			services.AddTransient<TrustlistHub>();
@@ -183,6 +188,7 @@ namespace SocialGuard.Api
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+			app.UseCors();
 
 			if (env.IsProduction()) // Nginx configuration step
 			{
