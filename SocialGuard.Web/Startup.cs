@@ -33,6 +33,7 @@ namespace SocialGuard.Web
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				app.UseWebAssemblyDebugging();
 			}
 			else
 			{
@@ -43,6 +44,7 @@ namespace SocialGuard.Web
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
+			app.UseBlazorFrameworkFiles("/viewer");
 
 			app.UseRouting();
 
@@ -50,6 +52,7 @@ namespace SocialGuard.Web
 			{
 				endpoints.MapBlazorHub();
 				endpoints.MapFallbackToPage("/_Host");
+				endpoints.MapFallbackToFile("/viewer", "app/index.html");
 			});
 		}
 	}
