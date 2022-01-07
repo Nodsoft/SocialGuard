@@ -14,6 +14,7 @@ builder.Services.AddHttpClient("", config =>
 	config.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
 });
 
+builder.Services.AddSingleton<EmitterClient>();
 builder.Services.AddSingleton<TrustlistClient>();
 
 WebAssemblyHost? host = builder.Build();

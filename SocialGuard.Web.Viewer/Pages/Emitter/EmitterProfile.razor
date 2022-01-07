@@ -1,0 +1,74 @@
+﻿@inject EmitterClient Emitters
+
+@if (Loaded)
+{
+<div>
+    @if (Emitter is null)
+    {
+        <h3 class="text-warning">No Emitter found.</h3>
+    }
+    else
+    {
+        <h3 class="my-5">Emitter :<span class="ms-3">@Emitter.DisplayName</span></h3>
+
+        <table class="table table-borderless">
+            <tbody>
+                <tr>
+                    <th>SG Directory</th>
+
+                    <td>
+                        <a target="_blank" href=@TrustlistClient.MainHost>
+                            @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
+                        </a>
+                    </td>
+                </tr>
+
+                <tr><th>ID / Login</th><td>@Emitter.Login</td></tr>
+
+                <tr>
+                    <th>Snowflake</th>
+
+                    <td>
+                        @if (Emitter.EmitterType is EmitterType.User)
+                        {
+                            <a href="/user/@Emitter.Snowflake">@Emitter.Snowflake</a>
+                        }
+                        else
+                        {
+                            @Emitter.Snowflake
+                        }
+                    </td>
+                </tr>
+
+                <tr><th>Type</th><td>@Emitter.EmitterType.GetEmitterTypeDisplayName()</td></tr>
+            </tbody>
+        </table>
+    }
+</div>
+}
+else
+{
+	<div class="d-flex flex-column justify-content-center align-items-center">
+		<div class="lds-dual-ring m-3"></div>
+		<h3>Loading...</h3>
+	</div>
+}
+
+
+
+
+
+@code {
+    [Parameter] public string EmitterName { get; set; } = string.Empty;
+
+    public Emitter? Emitter { get; set; }
+
+    public bool Loaded { get; set; } = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Emitter = await Emitters.GetEmitterAsync(EmitterName);
+        await base.OnParametersSetAsync();
+        Loaded = true;
+    }
+}

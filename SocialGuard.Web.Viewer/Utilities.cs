@@ -19,4 +19,11 @@ public static class Utilities
 		1 => "Suspicious",
 		_ => "Clean"
 	};
+
+	public static string GetEmitterTypeDisplayName(this EmitterType type) => type switch
+	{
+		EmitterType.User => "User",
+		EmitterType.Server => "Guild / Server",
+		_ => "Unknown / Other",
+	};
 }
