@@ -30,6 +30,18 @@ namespace SocialGuard.Common.Services
 				: null;
 		}
 
+		public Task<Emitter?> GetEmitterAsync(string emitterId) => GetEmitterAsync(emitterId, CancellationToken.None);
+		public async Task<Emitter?> GetEmitterAsync(string emitterId, CancellationToken ct)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Get, $"/api/v3/emitter/{emitterId}");
+
+			using HttpResponseMessage response = await HttpClient.SendAsync(request, ct);
+
+			return response.StatusCode is HttpStatusCode.OK
+				? await response.Content.ReadFromJsonAsync<Emitter>(SerializerOptions, ct)
+				: null;
+		}
+
 		public Task SetEmitterAsync(Emitter emitter, TokenResult token) => SetEmitterAsync(emitter, token, CancellationToken.None);
 		public async Task SetEmitterAsync(Emitter emitter, TokenResult token, CancellationToken ct)
 		{
