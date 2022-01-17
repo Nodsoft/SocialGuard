@@ -1,11 +1,13 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30803.129
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialGuard.Api", "SocialGuard.Api\SocialGuard.Api.csproj", "{A406CC3F-6F0E-474E-9F5D-826EF320724E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialGuard.Web", "SocialGuard.Web\SocialGuard.Web.csproj", "{4D269A20-BF97-4B42-A5DD-E703B688570D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialGuard.Common", "SocialGuard.Common\SocialGuard.Common.csproj", "{F62F1422-6B19-448E-ABAF-A3449EC13D7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{4D269A20-BF97-4B42-A5DD-E703B688570D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D269A20-BF97-4B42-A5DD-E703B688570D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D269A20-BF97-4B42-A5DD-E703B688570D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F62F1422-6B19-448E-ABAF-A3449EC13D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F62F1422-6B19-448E-ABAF-A3449EC13D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F62F1422-6B19-448E-ABAF-A3449EC13D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F62F1422-6B19-448E-ABAF-A3449EC13D7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

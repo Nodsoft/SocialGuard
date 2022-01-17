@@ -1,7 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using SocialGuard.Api.Services.Authentication;
-using SocialGuard.Api.Services.Authentication.Models;
+using SocialGuard.Common.Data.Models.Authentication;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 
@@ -55,12 +60,11 @@ namespace SocialGuard.Api.Controllers
 		/// <response code="200">Returns full authentication info</response>
 		/// <response code="401">Authentication failure response</response>   
 		/// <returns>Full Auth info</returns>
-		[HttpGet("whoami"), Authorize]
-		[ProducesResponseType(200), ProducesResponseType(401)]
+		[HttpGet("whoami")]
+		[ProducesResponseType(200)]
 		public IActionResult Whoami()
 		{
-			AuthServiceResponse result = service.Whoami(HttpContext);
-			return StatusCode(result.StatusCode, result.Response);
+			return StatusCode(200, User?.Claims);
 		}
 	}
 }

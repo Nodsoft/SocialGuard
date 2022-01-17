@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using SocialGuard.Api.Services;
+using SocialGuard.Common.Data.Models;
+using SocialGuard.Common.Hubs;
+using System.Threading.Tasks;
 
 namespace SocialGuard.Api.Hubs
 {
-	public class TrustlistHub : Hub
+	public class TrustlistHub : Hub<ITrustlistHubPush>, ITrustlistHubInvoke
 	{
 		private readonly TrustlistUserService userService;
 
@@ -18,9 +16,9 @@ namespace SocialGuard.Api.Hubs
 		}
 
 
-		public async Task GetUserRecord(ulong id)
+		public Task<TrustlistUser> GetUserRecord(ulong id)
 		{
-			await Clients.Caller.SendAsync("ResultUserRecord", await userService.FetchUserAsync(id));
+			return userService.FetchUserAsync(id);
 		}
 	}
 }

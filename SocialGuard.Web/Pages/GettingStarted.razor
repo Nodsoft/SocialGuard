@@ -1,6 +1,5 @@
 ﻿@layout CoverLayout
 @page "/getting-started"
-@inject PageContentLoader Loader
 
 <div class="my-5">
 	<h4 class="my-3">There are 2 ways to get SocialGuard, depending on your needs :</h4>
@@ -13,28 +12,25 @@
 	</div>
 </div>
 
-@((MarkupString)(select switch
+@if (select is Select.Bot)
 {
-	Select.Bot => botMarkup,
-	Select.Self => selfMarkup,
-	_ => _default
-}))
+	<FileContent ContentFilePath="assets/content/gettingstarted-bot.html" />
+}
+else if (select is Select.Self)
+{
+	<FileContent ContentFilePath="assets/content/gettingstarted-self.html" />
+}
 
 
 @code {
 	[CascadingParameter] CoverLayout Layout { get; set; }
-
-	static string BotGuideFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-bot.html");
-	static string SelfGuideFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "gettingstarted-self.html");
-	private MarkupString _default, botMarkup, selfMarkup;
 
 	private Select select;
 
 	protected override async Task OnInitializedAsync()
 	{
 		Layout.SetCover("Getting Started", "Adding SocialGuard to your server.");
-		botMarkup = await Loader.LoadMarkupAsync(BotGuideFilePath);
-		selfMarkup = await Loader.LoadMarkupAsync(SelfGuideFilePath);
+		await base.OnInitializedAsync();
 	}
 
 	enum Select

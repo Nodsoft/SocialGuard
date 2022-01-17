@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.SignalR;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using SharpCompress.Common;
-using SocialGuard.Api.Data.Models;
+using SocialGuard.Common.Data.Models;
+using SocialGuard.Common.Hubs;
 using SocialGuard.Api.Hubs;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,9 @@ namespace SocialGuard.Api.Services
 	{
 		private readonly IMongoCollection<TrustlistUser> trustlistUsers;
 		private readonly IMongoCollection<Emitter> emitters;
-		private readonly IHubContext<TrustlistHub> hubContext;
+		private readonly IHubContext<TrustlistHub, ITrustlistHubPush> hubContext;
 
-		public TrustlistUserService(IMongoDatabase database, IHubContext<TrustlistHub> hubContext)
+		public TrustlistUserService(IMongoDatabase database, IHubContext<TrustlistHub, ITrustlistHubPush> hubContext)
 		{
 			trustlistUsers = database.GetCollection<TrustlistUser>(nameof(TrustlistUser));
 			emitters = database.GetCollection<Emitter>(nameof(Emitter));
@@ -58,7 +59,7 @@ namespace SocialGuard.Api.Services
 				);
 			}
 
-			await hubContext.Clients.All.SendAsync("NotifyNewEntry", userId, entry);
+			await hubContext.Clients.All.NotifyNewEntry(userId, entry);
 		}
 
 		public async Task UpdateUserEntryAsync(ulong userId, TrustlistEntry updated, Emitter emitter)
@@ -82,7 +83,7 @@ namespace SocialGuard.Api.Services
 
 			if (updated.EscalationLevel > existing.EscalationLevel)
 			{
-				await hubContext.Clients.All.SendAsync("NotifyEscalatedEntry", userId, updated, existing.EscalationLevel);
+				await hubContext.Clients.All.NotifyEscalatedEntry(userId, updated, existing.EscalationLevel);
 			}
 		}
 
@@ -101,7 +102,7 @@ namespace SocialGuard.Api.Services
 				Builders<TrustlistUser>.Update.PullFilter(u => u.Entries, Builders<TrustlistEntry>.Filter.Eq(e => e.Emitter.Login, emitter.Login))
 			);
 
-			await hubContext.Clients.All.SendAsync("NotifyDeletedEntry", userId, existing);
+			await hubContext.Clients.All.NotifyDeletedEntry(userId, existing);
 		}
 	}
 }
