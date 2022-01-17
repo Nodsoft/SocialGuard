@@ -40,7 +40,7 @@ public class TrustlistClient : RestClientBase
 	}
 
 
-	public Task SubmitEntryAsync(ulong userId, TrustlistEntry entry, string authToken) => SubmitEntryAsync(userId, entry, authToken);
+	public Task SubmitEntryAsync(ulong userId, TrustlistEntry entry, string authToken) => SubmitEntryAsync(userId, entry, authToken, default);
 	public async Task SubmitEntryAsync(ulong userId, TrustlistEntry entry, string authToken, CancellationToken ct)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Post, $"/api/v3/user/{userId}");
