@@ -2,49 +2,49 @@
 
 @if (Loaded)
 {
-<div>
-    @if (Emitter is null)
-    {
-        <h3 class="text-warning">No Emitter found.</h3>
-    }
-    else
-    {
-        <h3 class="my-5">Emitter :<span class="ms-3">@Emitter.DisplayName</span></h3>
+    <div>
+        @if (Emitter is null)
+        {
+            <h3 class="text-warning">No Emitter found.</h3>
+        }
+        else
+        {
+            <h3 class="my-5">Emitter :<span class="ms-3">@Emitter.DisplayName</span></h3>
 
-        <table class="table table-borderless">
-            <tbody>
-                <tr>
-                    <th>SG Directory</th>
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <th>SG Directory</th>
 
-                    <td>
-                        <a target="_blank" href=@TrustlistClient.MainHost>
-                            @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
-                        </a>
-                    </td>
-                </tr>
+                        <td>
+                            <a target="_blank" href=@TrustlistClient.MainHost>
+                                @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
+                            </a>
+                        </td>
+                    </tr>
 
-                <tr><th>ID / Login</th><td>@Emitter.Login</td></tr>
+                    <tr><th>ID / Login</th><td>@Emitter.Login</td></tr>
 
-                <tr>
-                    <th>Snowflake</th>
+                    <tr>
+                        <th>Snowflake</th>
 
-                    <td>
-                        @if (Emitter.EmitterType is EmitterType.User)
-                        {
-                            <a href="/user/@Emitter.Snowflake">@Emitter.Snowflake</a>
-                        }
-                        else
-                        {
-                            @Emitter.Snowflake
-                        }
-                    </td>
-                </tr>
+                        <td>
+                            @if (Emitter.EmitterType is EmitterType.User)
+                            {
+                                <a href="/user/@Emitter.Snowflake">@Emitter.Snowflake</a>
+                            }
+                            else
+                            {
+                                @Emitter.Snowflake
+                            }
+                        </td>
+                    </tr>
 
-                <tr><th>Type</th><td>@Emitter.EmitterType.GetEmitterTypeDisplayName()</td></tr>
-            </tbody>
-        </table>
-    }
-</div>
+                    <tr><th>Type</th><td>@Emitter.EmitterType.GetEmitterTypeDisplayName()</td></tr>
+                </tbody>
+            </table>
+        }
+    </div>
 }
 else
 {

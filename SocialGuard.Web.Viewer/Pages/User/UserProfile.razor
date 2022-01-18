@@ -4,45 +4,86 @@
 {
 	<h3 class="my-5">Trustlist User : <span class="font-monospace">@Snowflake</span></h3>
 
-	<div>
-		@if (User is null)
-		{
-			<h3 class="text-success">User is not present on the Trustlist.</h3>
-		}
-		else
-		{
-			<div class="card bg-body border-@(User.GetTrustlistLevelBootstrapColor()) mb-5 p-4">
-				<h3 class="mb-4 text-@User.GetTrustlistLevelBootstrapColor()">@User.GetTrustlistLevelDisplayString() User</h3>
+    <div class="my-5">
+        @if (User is null)
+        {
+            <h3 class="text-success">User is not present on the Trustlist.</h3>
+        }
+        else
+        {
+            <div class="card bg-body border-@(LastMaxEntry!.GetTrustlistLevelBootstrapColor()) mb-5 p-4">
+                <h3 class="mb-4 text-@LastMaxEntry!.GetTrustlistLevelBootstrapColor()">@LastMaxEntry!.GetTrustlistLevelDisplayString() User</h3>
 
-				<div class="row">
-					<div class="col-8">
-						<h5>Last Reason</h5>
-						<p class="my-3" style="white-space: pre-wrap;">@LastMaxEntry?.EscalationNote</p>
-					</div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Last Reason</h5>
+                        <p class="my-3" style="white-space: pre-wrap;">@LastMaxEntry?.EscalationNote</p>
+                    </div>
 
-					<div class="col-4">
-						<table class="table table-borderless">
-							<tbody>
-								<tr>
-									<th>SG Directory</th>
+                    <div class="col-md-4">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th>SG Directory</th>
 
-									<td>
-										<a class="text-secondary" target="_blank" href=@TrustlistClient.MainHost>
-											@(new Uri(TrustlistClient.MainHost).DnsSafeHost)
-										</a>
-									</td>
-								</tr>
+                                    <td>
+                                        <a class="text-secondary" target="_blank" href=@TrustlistClient.MainHost>
+                                            @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
+                                        </a>
+                                    </td>
+                                </tr>
 
-								<tr><th>Entered by</th><td>@LastMaxEntry.Emitter?.DisplayName <span class="text-muted">(@LastMaxEntry.Emitter.Login)</span></td></tr>
-								<tr><th>Entered at</th><td>@LastMaxEntry.EntryAt</td></tr>
-								<tr><th>Total Entries</th><td>@(User.Entries?.Count ?? 0)</td></tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		}
-	</div>
+                                <tr><th>Entered by</th><td>@LastMaxEntry!.Emitter!.DisplayName <span class="text-muted">(@LastMaxEntry!.Emitter!.Login)</span></td></tr>
+                                <tr><th>Entered at</th><td>@LastMaxEntry.EntryAt</td></tr>
+                                <tr><th>Total Entries</th><td>@(User.Entries?.Count ?? 0)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @if (User.Entries is not null and { Count: > 1 })
+            {
+                <hr />
+
+                <h3 class="my-5">All Entries</h3>
+
+                @foreach (TrustlistEntry entry in User.Entries)
+                {
+                    <div class="card mb-3 border-@entry.GetTrustlistLevelBootstrapColor() bg-dark">
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="card-body" style="white-space: pre-wrap;">
+                                    @entry.EscalationNote
+                                </div>
+                            </div>
+
+                            <div class="col-md-auto">
+                                <div class="card-body">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <th>SG Directory</th>
+
+                                                <td>
+                                                    <a class="text-secondary" target="_blank" href=@TrustlistClient.MainHost>
+                                                        @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
+                                                    </a>
+                                                </td>
+                                            </tr>
+
+                                            <tr><th>Emitter</th><td>@entry.Emitter!.DisplayName <span class="text-muted">(@entry.Emitter!.Login)</span></td></tr>
+                                            <tr><th>Entered at</th><td>@entry.EntryAt</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
 }
 else
 {

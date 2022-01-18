@@ -4,7 +4,7 @@ namespace SocialGuard.Web.Viewer;
 
 public static class Utilities
 {
-	public static string GetTrustlistLevelBootstrapColor(this TrustlistUser user) => user.Entries?.Max(e => e.EscalationLevel) switch
+	public static string GetTrustlistLevelBootstrapColor(this TrustlistEntry entry) => entry.EscalationLevel switch
 	{
 		>= 3 => "danger",
 		2 => "warning",
@@ -12,7 +12,7 @@ public static class Utilities
 		_ => "success"
 	};
 
-	public static string GetTrustlistLevelDisplayString(this TrustlistUser user) => user.Entries?.Max(e => e.EscalationLevel) switch
+	public static string GetTrustlistLevelDisplayString(this TrustlistEntry entry) => entry.EscalationLevel switch
 	{
 		>= 3 => "Dangerous",
 		2 => "Untrusted",

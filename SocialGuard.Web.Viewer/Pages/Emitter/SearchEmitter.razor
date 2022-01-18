@@ -25,7 +25,15 @@
 {
     <hr class="my-5" />
 
-    <EmitterProfile EmitterName=@EmitterName />
+    <ErrorBoundary>
+        <ChildContent>
+            <EmitterProfile EmitterName=@EmitterName />
+        </ChildContent>
+
+        <ErrorContent>
+            <h3 class="text-danger">An error occured loading Emitter "@EmitterName".</h3>
+        </ErrorContent>
+    </ErrorBoundary>
 }
 
 

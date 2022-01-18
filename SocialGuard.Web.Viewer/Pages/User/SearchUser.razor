@@ -21,7 +21,9 @@
     </div>
 
     <div class="col col-lg-auto">
-        <LastEnteredUsers />
+        <ErrorBoundary>
+            <LastEnteredUsers />
+        </ErrorBoundary>
     </div>
 </div>
 
@@ -29,7 +31,15 @@
 {
     <hr class="my-5" />
 
-    <UserProfile Snowflake=SearchId />
+    <ErrorBoundary @ref=_lookupErrorBound>
+        <ChildContent>
+            <UserProfile Snowflake=SearchId />
+        </ChildContent>
+
+        <ErrorContent>
+            <h3 class="text-danger">An error occured while loading record for user <span class="font-monospace">@SearchId</span>.</h3>
+        </ErrorContent>
+    </ErrorBoundary>
 }
 
 
@@ -44,6 +54,8 @@
     protected SearchModel Model { get; set; } = new();
     protected EditContext? EditContext { get; set; }
 
+    private ErrorBoundary _lookupErrorBound = new();
+
     protected override Task OnParametersSetAsync()
     {
         EditContext = new(Model);
@@ -55,6 +67,7 @@
 
             if (EditContext!.Validate())
             {
+                _lookupErrorBound.Recover();
                 SearchId = Convert.ToUInt64(Model.SearchStr);
                 loaded = true;
             }
@@ -70,6 +83,7 @@
 
         if (EditContext!.Validate())
         {
+            _lookupErrorBound.Recover();
             SearchId = Convert.ToUInt64(Model.SearchStr);
             loaded = true;
         }
