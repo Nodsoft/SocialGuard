@@ -19,7 +19,10 @@ using SocialGuard.Api.Services.Authentication;
 using SocialGuard.Api.Services.Logging;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -171,6 +174,26 @@ namespace SocialGuard.Api
 			{
 				app.UseDeveloperExceptionPage();
 			}
+			else if (env.IsProduction())
+			{
+				IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
+
+				// Nginx configuration step
+				ForwardedHeadersOptions forwardedHeadersOptions = new()
+				{
+					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+				};
+
+				if (allowedProxies is not null && allowedProxies.Any())
+				{
+					forwardedHeadersOptions.KnownProxies.Clear();
+
+					foreach (IPAddress address in allowedProxies)
+					{
+						forwardedHeadersOptions.KnownProxies.Add(address);
+					}
+				}
+			}
 
 			app.UseStaticFiles();
 
@@ -189,14 +212,6 @@ namespace SocialGuard.Api
 
 			app.UseRouting();
 			app.UseCors();
-
-			if (env.IsProduction()) // Nginx configuration step
-			{
-				app.UseForwardedHeaders(new ForwardedHeadersOptions
-				{
-					ForwardedHeaders = ForwardedHeaders.All
-				});
-			}
 
 			app.UseAuthentication();
 			app.UseAuthorization();
