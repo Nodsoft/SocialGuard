@@ -1,0 +1,21 @@
+{
+  "name": "NSYS SocialGuard Records Browser",
+  "short_name": "SocialGuard Browser",
+  "start_url": "./",
+  "display": "minimal-ui",
+  "background_color": "#111111",
+  "theme_color": "#004144",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "assets/icons/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "assets/icons/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ]
+}

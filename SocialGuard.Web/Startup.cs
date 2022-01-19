@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SocialGuard.Web.Services;
+using System.Collections.Generic;
 
 namespace SocialGuard.Web
 {
@@ -23,6 +24,12 @@ namespace SocialGuard.Web
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
 			services.AddDistributedMemoryCache();
+			services.AddDirectoryBrowser();
+
+			services.AddCors(c => c.AddDefaultPolicy(builder => builder
+				.AllowAnyOrigin()
+				.AllowAnyHeader()
+				.AllowAnyMethod()));
 
 			services.AddSingleton<PageContentLoader>();
 		}
@@ -33,6 +40,7 @@ namespace SocialGuard.Web
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				app.UseWebAssemblyDebugging();
 			}
 			else
 			{
@@ -43,12 +51,16 @@ namespace SocialGuard.Web
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
+			app.UseStaticFiles("/viewer");
+			app.UseBlazorFrameworkFiles("/viewer");
 
 			app.UseRouting();
+			app.UseCors();
 
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapBlazorHub();
+				endpoints.MapFallbackToFile("/viewer/{*path:nonfile}", "viewer/index.html");
 				endpoints.MapFallbackToPage("/_Host");
 			});
 		}

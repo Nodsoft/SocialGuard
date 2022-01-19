@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+@using System.Reflection
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <div>
+                <span class="text-muted">SocialGuard API @CommonPackageVersion</span>
+            </div>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code 
+{
+    public static string CommonPackageVersion { get; set; } = 'v' + typeof(SocialGuard.Common.Services.RestClientBase).Assembly
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+}
