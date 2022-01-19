@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SocialGuard.Web.Services;
+using SocialGuard.Web.Services.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -71,6 +72,9 @@ namespace SocialGuard.Web
 			}
 
 			app.UseHttpsRedirection();
+
+			app.UseMiddleware<RequestLoggingMiddleware>();
+
 			app.UseStaticFiles();
 			app.UseStaticFiles("/viewer");
 			app.UseBlazorFrameworkFiles("/viewer");
