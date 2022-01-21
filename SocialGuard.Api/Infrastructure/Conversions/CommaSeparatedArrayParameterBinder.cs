@@ -37,14 +37,18 @@ namespace SocialGuard.Api.Infrastructure.Conversions
 
 			ValueProviderResult valueProviderResult = bindingContext.ValueProvider.GetValue(bindingContext.ModelName);
 
-			if (valueProviderResult.FirstValue.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) is string[] stringArray)
+			try
 			{
-				if (bindingContext.ModelType.GetElementType() is Type elementType)
+				if (valueProviderResult.FirstValue.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) is string[] stringArray)
 				{
-					bindingContext.Result = ModelBindingResult.Success(CopyAndConvertArray(stringArray, elementType));
-					return Task.CompletedTask;
+					if (bindingContext.ModelType.GetElementType() is Type elementType)
+					{
+						bindingContext.Result = ModelBindingResult.Success(CopyAndConvertArray(stringArray, elementType));
+						return Task.CompletedTask;
+					}
 				}
 			}
+			catch (ArgumentException) { } // Fall trhough if failed parsing.
 
 			bindingContext.Result = ModelBindingResult.Failed();
 			return Task.CompletedTask;
@@ -67,9 +71,12 @@ namespace SocialGuard.Api.Infrastructure.Conversions
 			return targetArray;
 		}
 
-		internal static bool IsSupportedModelType(Type modelType) => modelType.IsArray
-			&& modelType.GetArrayRank() is 1
-			&& modelType.HasElementType
-			&& supportedElementTypes.Contains(modelType.GetElementType());
+		internal static bool IsSupportedModelType(Type modelType)
+		{
+			return modelType.IsArray
+				&& modelType.GetArrayRank() is 1
+				&& modelType.HasElementType
+				&& supportedElementTypes.Contains(modelType.GetElementType());
+		}
 	}
 }

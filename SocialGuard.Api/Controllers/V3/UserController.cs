@@ -53,6 +53,11 @@ namespace SocialGuard.Api.Controllers.V3
 		[HttpGet("{ids}"), ProducesResponseType(typeof(TrustlistUser[]), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> FetchUsers([FromRoute] ulong[] ids)
 		{
+			if (ids is null)
+			{
+				return BadRequest();
+			}
+
 			IEnumerable<TrustlistUser> users = await trustlistService.FetchUsersAsync(ids);
 			return StatusCode(users is not null ? 200 : 204, users);
 		}
