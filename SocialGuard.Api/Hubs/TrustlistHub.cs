@@ -8,9 +8,9 @@ namespace SocialGuard.Api.Hubs
 {
 	public class TrustlistHub : Hub<ITrustlistHubPush>, ITrustlistHubInvoke
 	{
-		private readonly TrustlistUserService userService;
+		private readonly ITrustlistUserService userService;
 
-		public TrustlistHub(TrustlistUserService userService)
+		public TrustlistHub(ITrustlistUserService userService)
 		{
 			this.userService = userService;
 		}

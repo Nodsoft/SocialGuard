@@ -39,7 +39,7 @@ namespace SocialGuard.Api
 		}
 
 		public IConfiguration Configuration { get; }
-		public static string Version { get; } = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+		public static string Version { get; } = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -80,7 +80,7 @@ namespace SocialGuard.Api
 				options.IncludeXmlComments(xmlPath);
 
 				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				options.AddSecurityDefinition("jwt_auth", new()
 				{
 					Name = "bearer",
 					BearerFormat = "JWT",
@@ -100,9 +100,9 @@ namespace SocialGuard.Api
 					}
 				};
 
-				options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				options.AddSecurityRequirement(new()
 				{
-					{ securityScheme, Array.Empty<string>() },
+					{ securityScheme, Array.Empty<string>() }
 				});
 			});
 
@@ -156,8 +156,8 @@ namespace SocialGuard.Api
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
 
-			services.AddSingleton<TrustlistUserService>()
-					.AddSingleton<EmitterService>();
+			services.AddSingleton<ITrustlistUserService, TrustlistUserService>()
+					.AddSingleton<IEmitterService, EmitterService>();
 			
 			services.AddApplicationInsightsTelemetry(options =>
 			{
