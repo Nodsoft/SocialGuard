@@ -34,6 +34,7 @@ namespace SocialGuard.Api.Services.Authentication
 		public async Task<AuthServiceResponse> HandleRegister(RegisterModel model)
 		{
 			ApplicationUser userExists = await userManager.FindByNameAsync(model.Username);
+			
 			if (userExists is not null)
 			{
 				return new() { StatusCode = 409, Response = Response.ErrorResponse() with { Message = "User already exists." } };
@@ -45,7 +46,7 @@ namespace SocialGuard.Api.Services.Authentication
 
 			if (!result.Succeeded)
 			{
-				return new() { StatusCode = 500, Response = Response.ErrorResponse() with { Message = $"User creation has failed.", Details = result.Errors } };
+				return new() { StatusCode = 500, Response = Response.ErrorResponse() with { Message = "User creation has failed.", Details = result.Errors } };
 			}
 
 			if (firstUser)
@@ -62,13 +63,12 @@ namespace SocialGuard.Api.Services.Authentication
 
 			if (user is not null && await userManager.CheckPasswordAsync(user, model.Password))
 			{
-				IList<string> userRoles = await userManager.GetRolesAsync(user);
 				List<Claim> authClaims = new()
 				{
-					new Claim(ClaimTypes.Name, user.UserName),
-					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+					new(ClaimTypes.Name, user.UserName),
+					new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 				};
-				authClaims.AddRange(from string userRole in userRoles select new Claim(ClaimTypes.Role, userRole));
+				authClaims.AddRange(await userManager.GetClaimsAsync(user));
 
 				JwtSecurityToken token = GetToken(authClaims);
 
@@ -91,7 +91,7 @@ namespace SocialGuard.Api.Services.Authentication
 		{
 			if (roleManager.Roles.Count() is 0)
 			{
-				await roleManager.CreateAsync(new(UserRole.Admin));
+				await roleManager.CreateAsync(new(UserRole.Emitter));
 				await roleManager.CreateAsync(new(UserRole.Emitter));
 
 				await userManager.AddToRoleAsync(firstUser, UserRole.Admin);
@@ -104,7 +104,7 @@ namespace SocialGuard.Api.Services.Authentication
 
 		public AuthServiceResponse Whoami(HttpContext context)
 		{
-			object identity = new { context.User.Identity.Name, context.User.Identity.AuthenticationType };
+			object identity = new { context.User.Identity?.Name, context.User.Identity?.AuthenticationType };
 
 			List<object> claims = new(from claim in context.User.Claims select claim.Value);
 
@@ -123,7 +123,7 @@ namespace SocialGuard.Api.Services.Authentication
 			};
 		}
 
-		private static JwtSecurityToken GetToken(List<Claim> authClaims) => new(
+		private static JwtSecurityToken GetToken(IEnumerable<Claim> authClaims) => new(
 				issuer: configuration["JWT:ValidIssuer"],
 				audience: configuration["JWT:ValidAudience"],
 				expires: DateTime.Now.AddHours(1),
@@ -135,7 +135,6 @@ namespace SocialGuard.Api.Services.Authentication
 	{
 		public int StatusCode { get; init; }
 		public Response<T> Response { get; init; }
-		internal object InternalDetails { get; init; }
 	}
 
 	public record AuthServiceResponse : AuthServiceResponse<object> { }

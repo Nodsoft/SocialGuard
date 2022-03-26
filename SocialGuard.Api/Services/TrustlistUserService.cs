@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using SharpCompress.Common;
 using SocialGuard.Common.Data.Models;
 using SocialGuard.Common.Hubs;
 using SocialGuard.Api.Hubs;
@@ -38,7 +37,7 @@ public class TrustlistUserService : ITrustlistUserService
 	{
 		entry = entry with
 		{
-			Id = ObjectId.GenerateNewId().ToString(),
+			Id = Guid.NewGuid(),
 			EntryAt = DateTime.UtcNow,
 			LastEscalated = DateTime.UtcNow,
 			Emitter = emitter

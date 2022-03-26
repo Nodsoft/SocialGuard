@@ -26,7 +26,9 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SocialGuard.Api.Data;
 
 
 namespace SocialGuard.Api
@@ -67,6 +69,22 @@ namespace SocialGuard.Api
 				// can also be used to control the format of the API version in route templates
 				options.SubstituteApiVersionInUrl = true;
 			});
+
+			string dbConnectionString = Configuration.GetConnectionString("Database");
+
+			services.AddDbContextPool<ApiDbContext>(
+				o => o.UseNpgsql(dbConnectionString,
+					p => { p.EnableRetryOnFailure(); }
+				)
+					.UseSnakeCaseNamingConvention()
+			);
+
+			services.AddDbContextPool<AuthDbContext>(o =>
+				o.UseNpgsql(dbConnectionString,
+						p => { p.EnableRetryOnFailure(); }
+					)
+					.UseSnakeCaseNamingConvention()
+			);
 
 			services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
@@ -111,7 +129,7 @@ namespace SocialGuard.Api
 				.AddMessagePackProtocol();
 			
 
-
+			/*
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
 				mongo =>
@@ -122,6 +140,13 @@ namespace SocialGuard.Api
 					mongo.RolesCollection = config["Tables:Role"];
 					mongo.UsersCollection = config["Tables:User"];
 				});
+			*/
+
+			// Add Identity
+			services.AddIdentity<ApplicationUser, UserRole>()
+				.AddEntityFrameworkStores<AuthDbContext>()
+				.AddDefaultTokenProviders();
+
 
 			services.AddAuthentication(options =>
 			{
@@ -152,6 +177,7 @@ namespace SocialGuard.Api
 
 
 			services.AddTransient<AuthenticationService>();
+			
 			services.AddTransient<TrustlistHub>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
