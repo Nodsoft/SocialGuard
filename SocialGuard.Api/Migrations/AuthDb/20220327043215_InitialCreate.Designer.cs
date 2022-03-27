@@ -12,7 +12,7 @@ using SocialGuard.Api.Data;
 namespace SocialGuard.Api.Migrations.AuthDb
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20220326231245_InitialCreate")]
+    [Migration("20220327043215_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,8 +42,8 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasColumnType("text")
                         .HasColumnName("claim_value");
 
-                    b.Property<decimal>("RoleId")
-                        .HasColumnType("numeric(20,0)")
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
                         .HasColumnName("role_id");
 
                     b.HasKey("Id")
@@ -55,7 +55,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                     b.ToTable("AspNetRoleClaims", "auth");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,8 +72,8 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasColumnType("text")
                         .HasColumnName("claim_value");
 
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
@@ -85,7 +85,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                     b.ToTable("AspNetUserClaims", "auth");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text")
@@ -99,8 +99,8 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasColumnType("text")
                         .HasColumnName("provider_display_name");
 
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("LoginProvider", "ProviderKey")
@@ -112,14 +112,14 @@ namespace SocialGuard.Api.Migrations.AuthDb
                     b.ToTable("AspNetUserLogins", "auth");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<decimal>("RoleId")
-                        .HasColumnType("numeric(20,0)")
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
                         .HasColumnName("role_id");
 
                     b.HasKey("UserId", "RoleId")
@@ -131,10 +131,10 @@ namespace SocialGuard.Api.Migrations.AuthDb
                     b.ToTable("AspNetUserRoles", "auth");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.Property<string>("LoginProvider")
@@ -157,12 +157,10 @@ namespace SocialGuard.Api.Migrations.AuthDb
 
             modelBuilder.Entity("SocialGuard.Api.Services.Authentication.ApplicationUser", b =>
                 {
-                    b.Property<decimal>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<decimal>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer")
@@ -240,12 +238,10 @@ namespace SocialGuard.Api.Migrations.AuthDb
 
             modelBuilder.Entity("SocialGuard.Api.Services.Authentication.UserRole", b =>
                 {
-                    b.Property<decimal>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<decimal>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -274,19 +270,19 @@ namespace SocialGuard.Api.Migrations.AuthDb
                     b.HasData(
                         new
                         {
-                            Id = 1m,
-                            ConcurrencyStamp = "166d46c3-f8ec-461e-930d-2adca4df18a5",
+                            Id = new Guid("c82a3685-cee9-453f-a3f6-a4a5f719cc5d"),
+                            ConcurrencyStamp = "77bfa38b-01bc-4b05-a33e-35f72a9076be",
                             Name = "admin"
                         },
                         new
                         {
-                            Id = 2m,
-                            ConcurrencyStamp = "cbf95d6d-9eb5-485d-ae58-9bdb38c77037",
+                            Id = new Guid("8d9ed78d-7961-4452-a249-93a9c30754d1"),
+                            ConcurrencyStamp = "bff4989f-37dc-49cd-9b6e-f2e3634424a1",
                             Name = "emitter"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("SocialGuard.Api.Services.Authentication.UserRole", null)
                         .WithMany()
@@ -296,7 +292,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasConstraintName("fk_asp_net_role_claims_asp_net_roles_role_id");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("SocialGuard.Api.Services.Authentication.ApplicationUser", null)
                         .WithMany()
@@ -306,7 +302,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasConstraintName("fk_asp_net_user_claims_asp_net_users_user_id");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.HasOne("SocialGuard.Api.Services.Authentication.ApplicationUser", null)
                         .WithMany()
@@ -316,7 +312,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasConstraintName("fk_asp_net_user_logins_asp_net_users_user_id");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
                     b.HasOne("SocialGuard.Api.Services.Authentication.UserRole", null)
                         .WithMany()
@@ -333,7 +329,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                         .HasConstraintName("fk_asp_net_user_roles_asp_net_users_user_id");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<ulong>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
                     b.HasOne("SocialGuard.Api.Services.Authentication.ApplicationUser", null)
                         .WithMany()

@@ -18,8 +18,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 schema: "auth",
                 columns: table => new
                 {
-                    id = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     concurrency_stamp = table.Column<string>(type: "text", nullable: true)
@@ -34,8 +33,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 schema: "auth",
                 columns: table => new
                 {
-                    id = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -63,7 +61,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    role_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
                     claim_type = table.Column<string>(type: "text", nullable: true),
                     claim_value = table.Column<string>(type: "text", nullable: true)
                 },
@@ -86,7 +84,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     claim_type = table.Column<string>(type: "text", nullable: true),
                     claim_value = table.Column<string>(type: "text", nullable: true)
                 },
@@ -110,7 +108,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                     login_provider = table.Column<string>(type: "text", nullable: false),
                     provider_key = table.Column<string>(type: "text", nullable: false),
                     provider_display_name = table.Column<string>(type: "text", nullable: true),
-                    user_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,8 +127,8 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 schema: "auth",
                 columns: table => new
                 {
-                    user_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    role_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -156,7 +154,7 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 schema: "auth",
                 columns: table => new
                 {
-                    user_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     login_provider = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     value = table.Column<string>(type: "text", nullable: true)
@@ -179,8 +177,8 @@ namespace SocialGuard.Api.Migrations.AuthDb
                 columns: new[] { "id", "concurrency_stamp", "name", "normalized_name" },
                 values: new object[,]
                 {
-                    { 1m, "166d46c3-f8ec-461e-930d-2adca4df18a5", "admin", null },
-                    { 2m, "cbf95d6d-9eb5-485d-ae58-9bdb38c77037", "emitter", null }
+                    { new Guid("8d9ed78d-7961-4452-a249-93a9c30754d1"), "bff4989f-37dc-49cd-9b6e-f2e3634424a1", "emitter", null },
+                    { new Guid("c82a3685-cee9-453f-a3f6-a4a5f719cc5d"), "77bfa38b-01bc-4b05-a33e-35f72a9076be", "admin", null }
                 });
 
             migrationBuilder.CreateIndex(

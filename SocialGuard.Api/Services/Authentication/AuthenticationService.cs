@@ -18,31 +18,31 @@ namespace SocialGuard.Api.Services.Authentication
 {
 	public class AuthenticationService
 	{
-		private readonly UserManager<ApplicationUser> userManager;
-		private readonly RoleManager<UserRole> roleManager;
-		private static IConfiguration configuration;
-		private static SymmetricSecurityKey authSigningKey;
+		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly RoleManager<UserRole> _roleManager;
+		private static IConfiguration _configuration;
+		private static SymmetricSecurityKey _authSigningKey;
 
 		public AuthenticationService(UserManager<ApplicationUser> userManager, RoleManager<UserRole> roleManager, IConfiguration configuration)
 		{
-			this.userManager = userManager;
-			this.roleManager = roleManager;
-			AuthenticationService.configuration ??= configuration;
-			authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_configuration ??= configuration;
+			_authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
 		}
 
 		public async Task<AuthServiceResponse> HandleRegister(RegisterModel model)
 		{
-			ApplicationUser userExists = await userManager.FindByNameAsync(model.Username);
+			ApplicationUser userExists = await _userManager.FindByNameAsync(model.Username);
 			
 			if (userExists is not null)
 			{
 				return new() { StatusCode = 409, Response = Response.ErrorResponse() with { Message = "User already exists." } };
 			}
 
-			bool firstUser = userManager.Users.Count() is 0;
+			bool firstUser = _userManager.Users.Count() is 0;
 			ApplicationUser user = new(model.Username) { Email = model.Email, SecurityStamp = Guid.NewGuid().ToString() };
-			IdentityResult result = await userManager.CreateAsync(user, model.Password);
+			IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
 			if (!result.Succeeded)
 			{
@@ -59,16 +59,16 @@ namespace SocialGuard.Api.Services.Authentication
 
 		public async Task<AuthServiceResponse> HandleLogin(LoginModel model)
 		{
-			ApplicationUser user = await userManager.FindByNameAsync(model.Username);
+			ApplicationUser user = await _userManager.FindByNameAsync(model.Username);
 
-			if (user is not null && await userManager.CheckPasswordAsync(user, model.Password))
+			if (user is not null && await _userManager.CheckPasswordAsync(user, model.Password))
 			{
 				List<Claim> authClaims = new()
 				{
 					new(ClaimTypes.Name, user.UserName),
 					new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 				};
-				authClaims.AddRange(await userManager.GetClaimsAsync(user));
+				authClaims.AddRange(await _userManager.GetClaimsAsync(user));
 
 				JwtSecurityToken token = GetToken(authClaims);
 
@@ -89,17 +89,7 @@ namespace SocialGuard.Api.Services.Authentication
 
 		private async Task ProvisionFirstUseAsync(ApplicationUser firstUser)
 		{
-			if (roleManager.Roles.Count() is 0)
-			{
-				await roleManager.CreateAsync(new(UserRole.Emitter));
-				await roleManager.CreateAsync(new(UserRole.Emitter));
-
-				await userManager.AddToRoleAsync(firstUser, UserRole.Admin);
-			}
-			else
-			{
-				throw new ApplicationException("Inconsistent Authentication Database state.");
-			}
+			await _userManager.AddToRoleAsync(firstUser, UserRole.Admin);
 		}
 
 		public AuthServiceResponse Whoami(HttpContext context)
@@ -124,11 +114,11 @@ namespace SocialGuard.Api.Services.Authentication
 		}
 
 		private static JwtSecurityToken GetToken(IEnumerable<Claim> authClaims) => new(
-				issuer: configuration["JWT:ValidIssuer"],
-				audience: configuration["JWT:ValidAudience"],
+				issuer: _configuration["JWT:ValidIssuer"],
+				audience: _configuration["JWT:ValidAudience"],
 				expires: DateTime.Now.AddHours(1),
 				claims: authClaims,
-				signingCredentials: new(authSigningKey, SecurityAlgorithms.HmacSha256));
+				signingCredentials: new(_authSigningKey, SecurityAlgorithms.HmacSha256));
 	}
 
 	public record AuthServiceResponse<T>

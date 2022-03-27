@@ -48,4 +48,8 @@
     <ProjectReference Include="..\SocialGuard.Common\SocialGuard.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\AuthDb" />
+  </ItemGroup>
+
 </Project>
