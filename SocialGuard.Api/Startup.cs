@@ -72,16 +72,16 @@ namespace SocialGuard.Api
 
 			string dbConnectionString = Configuration.GetConnectionString("Database");
 
-			services.AddDbContextPool<ApiDbContext>(
-				o => o.UseNpgsql(dbConnectionString,
-					p => { p.EnableRetryOnFailure(); }
-				)
+			services.AddDbContextPool<ApiDbContext>(o =>
+				o.UseNpgsql(dbConnectionString, p =>
+						p.EnableRetryOnFailure()
+					)
 					.UseSnakeCaseNamingConvention()
 			);
 
 			services.AddDbContextPool<AuthDbContext>(o =>
-				o.UseNpgsql(dbConnectionString,
-						p => { p.EnableRetryOnFailure(); }
+				o.UseNpgsql(dbConnectionString, p => 
+						p.EnableRetryOnFailure()
 					)
 					.UseSnakeCaseNamingConvention()
 			);
