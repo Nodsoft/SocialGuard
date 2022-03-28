@@ -13,7 +13,7 @@ public static class Mappings
 	{
 		TypeAdapterConfig<MongoTrustlistEntry, TrustlistEntry>
 			.NewConfig()
-			.Map(dest => dest.Id, src => new ObjectId(src.Id).ToGuid());
+			.Map(dest => dest.Id, src => Guid.NewGuid());
 
 		TypeAdapterConfig<MongoUser<string>, ApplicationUser>
 			.NewConfig()
@@ -26,7 +26,7 @@ public static class Mappings
 	
 	internal static Guid ToGuid(this ObjectId oid)
 	{            
-		byte[] bytes = oid.ToByteArray().Concat(new byte[] { 5, 5, 5, 5 }).ToArray();
+		byte[] bytes = oid.ToByteArray().Concat(new byte[] { 0, 0, 0, 0 }).ToArray();
 		return new(bytes);
 	}
 }

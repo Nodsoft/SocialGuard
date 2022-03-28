@@ -23,7 +23,8 @@ public class DbMigrator : BackgroundService
 	protected override async Task ExecuteAsync(CancellationToken ct)
 	{
 		_logger.LogInformation("Starting Database migrations...");
-		await Task.WhenAll(MigrateAuthDatabase(ct), MigrateApiDatabase(ct));
+		await MigrateApiDatabase(ct);
+		await MigrateAuthDatabase(ct);
 		_logger.LogInformation("Migrations completed !");
 	}
 
@@ -48,9 +49,18 @@ public class DbMigrator : BackgroundService
 
 		// Migrate entities to the PostgreSQL database
 		_logger.LogInformation("Migrating users...");
-		await context.Users.UpsertRange(users.Adapt<IEnumerable<ApplicationUser>>()).RunAsync(ct);
+		await context.Users.UpsertRange(users.Adapt<IEnumerable<ApplicationUser>>())
+			.UpdateIf((u1, u2) => u1.Email == u2.Email)
+			.AllowIdentityMatch()
+			.RunAsync(ct);
+
 		_logger.LogInformation("Migrating roles...");
-		await context.Roles.UpsertRange(roles.Adapt<UserRole>()).RunAsync(ct);
+		await context.Roles.UpsertRange(roles.Adapt<UserRole>())
+			.UpdateIf((r1, r2) => r1.Name == r2.Name)
+			.AllowIdentityMatch()
+			.RunAsync(ct);
+		
+		await context.SaveChangesAsync(ct);
 		
 		_logger.LogInformation("Migration of Auth database complete.");
 	}
@@ -58,7 +68,6 @@ public class DbMigrator : BackgroundService
 	/// <summary>
 	/// Migrates all Application-related entities from the MongoDB database to the PostgreSQL database.
 	/// </summary>
-	/// <param name="ct"></param>
 	private async Task MigrateApiDatabase(CancellationToken ct)
 	{
 		// Setup scope services
@@ -71,16 +80,28 @@ public class DbMigrator : BackgroundService
 		
 		// Perform MongoDB introspection for application entities
 		Emitter[] emitters = mongoDatabase.GetCollection<Emitter>(nameof(Emitter)).AsQueryable().ToArray();
-		MongoTrustlistUser[] users = mongoDatabase.GetCollection<MongoTrustlistUser>(nameof(TrustlistUser)).AsQueryable().ToArray();
+		IQueryable<MongoTrustlistUser> users = mongoDatabase.GetCollection<MongoTrustlistUser>(nameof(TrustlistUser)).AsQueryable();
 		
-		_logger.LogInformation("Detected an estimated {EmitterCount} Emitters and {UserCount} TrustlistUsers within the API database.", emitters.Length, users.Length);
+		List<TrustlistEntry> entries = (
+			from user in users.ToList()
+			from entry in user.Entries
+			select entry.Adapt<TrustlistEntry>() with { UserId = user.Id, EmitterId = entry.Emitter.Login }).Distinct().ToList();
+
+
+		_logger.LogInformation("Detected an estimated {EmitterCount} Emitters and {EntryCount} TrustlistEntries within the API database.", emitters.Length, entries.Count);
 	
 		// Migrate entities to the PostgreSQL database
 		_logger.LogInformation("Performing migration of Emitters...");
-		await context.Emitters.UpsertRange(emitters).RunAsync(ct);
-		
-		_logger.LogInformation("Performing migration of TrustlistUsers...");
-		await context.TrustlistUsers.UpsertRange(users.Adapt<IEnumerable<TrustlistUser>>()).RunAsync(ct);
+		await context.Emitters.UpsertRange(emitters)
+			.UpdateIf((e1, e2) => e1.Login == e2.Login)
+			.AllowIdentityMatch()
+			.RunAsync(ct);
+
+		_logger.LogInformation("Performing migration of TrustlistEntries...");
+		await context.TrustlistEntries.UpsertRange(entries)
+			.UpdateIf((u1, u2) => u1.UserId == u2.UserId && u1.EmitterId == u2.EmitterId)
+			.AllowIdentityMatch()
+			.RunAsync(ct);
 		
 		_logger.LogInformation("Migration of API database complete.");
 	}

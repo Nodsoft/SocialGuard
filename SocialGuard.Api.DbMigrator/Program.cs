@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using Serilog;
 using SocialGuard.Api.Data;
-using SocialGuard.Api.DbMigrator;
-using SocialGuard.Api.DbMigrator.Models.Mongo;
 
 namespace SocialGuard.Api.DbMigrator;
 
@@ -33,12 +31,16 @@ public static class Program
 			{
 				o.UseNpgsql(hostContext.Configuration.GetConnectionString("Postgres"));
 				o.UseSnakeCaseNamingConvention();
+				o.EnableDetailedErrors();
+				o.EnableSensitiveDataLogging();
 			}
 		);
 		services.AddDbContext<AuthDbContext>(o =>
 			{
 				o.UseNpgsql(hostContext.Configuration.GetConnectionString("Postgres"));
 				o.UseSnakeCaseNamingConvention();
+				o.EnableDetailedErrors();
+				o.EnableSensitiveDataLogging();
 			}
 		);
 		services.AddSingleton<IMongoClient>(_ => new MongoClient(hostContext.Configuration.GetConnectionString("Mongo")));

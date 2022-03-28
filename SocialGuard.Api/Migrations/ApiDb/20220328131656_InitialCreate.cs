@@ -24,52 +24,37 @@ namespace SocialGuard.Api.Migrations.ApiDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "trustlist_users",
-                columns: table => new
-                {
-                    id = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_trustlist_users", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "trustlist_entries",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     entry_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     last_escalated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     escalation_level = table.Column<byte>(type: "smallint", nullable: false),
                     escalation_note = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
-                    emitter_login = table.Column<string>(type: "text", nullable: true),
-                    trustlist_user_id = table.Column<decimal>(type: "numeric(20,0)", nullable: true)
+                    emitter_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_trustlist_entries", x => x.id);
                     table.ForeignKey(
-                        name: "fk_trustlist_entries_emitters_emitter_login",
-                        column: x => x.emitter_login,
+                        name: "fk_trustlist_entries_emitters_emitter_id",
+                        column: x => x.emitter_id,
                         principalTable: "emitters",
-                        principalColumn: "login");
-                    table.ForeignKey(
-                        name: "fk_trustlist_entries_trustlist_users_trustlist_user_id",
-                        column: x => x.trustlist_user_id,
-                        principalTable: "trustlist_users",
-                        principalColumn: "id");
+                        principalColumn: "login",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_trustlist_entries_emitter_login",
+                name: "ix_trustlist_entries_emitter_id",
                 table: "trustlist_entries",
-                column: "emitter_login");
+                column: "emitter_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_trustlist_entries_trustlist_user_id",
+                name: "ix_trustlist_entries_user_id",
                 table: "trustlist_entries",
-                column: "trustlist_user_id");
+                column: "user_id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -79,9 +64,6 @@ namespace SocialGuard.Api.Migrations.ApiDb
 
             migrationBuilder.DropTable(
                 name: "emitters");
-
-            migrationBuilder.DropTable(
-                name: "trustlist_users");
         }
     }
 }

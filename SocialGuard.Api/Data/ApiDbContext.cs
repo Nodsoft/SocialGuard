@@ -5,7 +5,6 @@ namespace SocialGuard.Api.Data;
 
 public class ApiDbContext : DbContext
 {
-	public DbSet<TrustlistUser> TrustlistUsers { get; init; }
 	public DbSet<TrustlistEntry> TrustlistEntries { get; init; }
 	public DbSet<Emitter> Emitters { get; init; }
 
@@ -14,5 +13,8 @@ public class ApiDbContext : DbContext
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.Entity<TrustlistEntry>()
+			.HasIndex(e => e.UserId);
 	}
 }

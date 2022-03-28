@@ -12,7 +12,7 @@ using SocialGuard.Api.Data;
 namespace SocialGuard.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20220326213748_InitialCreate")]
+    [Migration("20220328131656_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,9 +56,10 @@ namespace SocialGuard.Api.Migrations.ApiDb
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("EmitterLogin")
+                    b.Property<string>("EmitterId")
+                        .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("emitter_login");
+                        .HasColumnName("emitter_id");
 
                     b.Property<DateTime>("EntryAt")
                         .HasColumnType("timestamp with time zone")
@@ -78,53 +79,32 @@ namespace SocialGuard.Api.Migrations.ApiDb
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_escalated");
 
-                    b.Property<decimal?>("TrustlistUserId")
+                    b.Property<decimal>("UserId")
                         .HasColumnType("numeric(20,0)")
-                        .HasColumnName("trustlist_user_id");
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id")
                         .HasName("pk_trustlist_entries");
 
-                    b.HasIndex("EmitterLogin")
-                        .HasDatabaseName("ix_trustlist_entries_emitter_login");
+                    b.HasIndex("EmitterId")
+                        .HasDatabaseName("ix_trustlist_entries_emitter_id");
 
-                    b.HasIndex("TrustlistUserId")
-                        .HasDatabaseName("ix_trustlist_entries_trustlist_user_id");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_trustlist_entries_user_id");
 
                     b.ToTable("trustlist_entries", (string)null);
-                });
-
-            modelBuilder.Entity("SocialGuard.Common.Data.Models.TrustlistUser", b =>
-                {
-                    b.Property<decimal>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_trustlist_users");
-
-                    b.ToTable("trustlist_users", (string)null);
                 });
 
             modelBuilder.Entity("SocialGuard.Common.Data.Models.TrustlistEntry", b =>
                 {
                     b.HasOne("SocialGuard.Common.Data.Models.Emitter", "Emitter")
                         .WithMany()
-                        .HasForeignKey("EmitterLogin")
-                        .HasConstraintName("fk_trustlist_entries_emitters_emitter_login");
-
-                    b.HasOne("SocialGuard.Common.Data.Models.TrustlistUser", null)
-                        .WithMany("Entries")
-                        .HasForeignKey("TrustlistUserId")
-                        .HasConstraintName("fk_trustlist_entries_trustlist_users_trustlist_user_id");
+                        .HasForeignKey("EmitterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_trustlist_entries_emitters_emitter_id");
 
                     b.Navigation("Emitter");
-                });
-
-            modelBuilder.Entity("SocialGuard.Common.Data.Models.TrustlistUser", b =>
-                {
-                    b.Navigation("Entries");
                 });
 #pragma warning restore 612, 618
         }
