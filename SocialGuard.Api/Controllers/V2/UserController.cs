@@ -19,10 +19,10 @@ namespace SocialGuard.Api.Controllers.V2
 	[ApiController, Route("api/v{version:apiVersion}/[controller]"), ApiVersion("2.0")]
 	public class UserController : ControllerBase
 	{
-		private readonly ITrustlistUserService trustlistService;
+		private readonly ITrustlistService trustlistService;
 		private readonly IEmitterService emitterService;
 
-		public UserController(ITrustlistUserService trustlistService, IEmitterService emitterService)
+		public UserController(ITrustlistService trustlistService, IEmitterService emitterService)
 		{
 			this.trustlistService = trustlistService;
 			this.emitterService = emitterService;

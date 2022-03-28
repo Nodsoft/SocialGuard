@@ -8,17 +8,17 @@ namespace SocialGuard.Api.Hubs
 {
 	public class TrustlistHub : Hub<ITrustlistHubPush>, ITrustlistHubInvoke
 	{
-		private readonly ITrustlistUserService userService;
+		private readonly ITrustlistService _service;
 
-		public TrustlistHub(ITrustlistUserService userService)
+		public TrustlistHub(ITrustlistService service)
 		{
-			this.userService = userService;
+			this._service = service;
 		}
 
 
 		public Task<TrustlistUser> GetUserRecord(ulong id)
 		{
-			return userService.FetchUserAsync(id);
+			return _service.FetchUserAsync(id);
 		}
 	}
 }

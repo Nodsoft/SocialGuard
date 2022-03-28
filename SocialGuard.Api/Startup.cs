@@ -182,8 +182,8 @@ namespace SocialGuard.Api
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
 
-			services.AddSingleton<ITrustlistUserService, TrustlistUserService>()
-					.AddSingleton<IEmitterService, EmitterService>();
+			services.AddScoped<ITrustlistService, PostgresTrustlistService>()
+					.AddScoped<IEmitterService, PostgresEmitterService>();
 			
 			services.AddApplicationInsightsTelemetry(options =>
 			{

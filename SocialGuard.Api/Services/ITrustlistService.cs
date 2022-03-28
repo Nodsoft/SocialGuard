@@ -6,7 +6,7 @@ using SocialGuard.Common.Data.Models;
 
 namespace SocialGuard.Api.Services;
 
-public interface ITrustlistUserService
+public interface ITrustlistService
 {
 	IQueryable<ulong> ListUserIds();
 	

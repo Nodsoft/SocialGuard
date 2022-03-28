@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace SocialGuard.Api.Services;
 
-public class TrustlistUserService : ITrustlistUserService
+public class MongoTrustlistService : ITrustlistService
 {
 	private readonly IMongoCollection<TrustlistUser> trustlistUsers;
 	private readonly IMongoCollection<Emitter> emitters;
 	private readonly IHubContext<TrustlistHub, ITrustlistHubPush> hubContext;
 
-	public TrustlistUserService(IMongoDatabase database, IHubContext<TrustlistHub, ITrustlistHubPush> hubContext)
+	public MongoTrustlistService(IMongoDatabase database, IHubContext<TrustlistHub, ITrustlistHubPush> hubContext)
 	{
 		trustlistUsers = database.GetCollection<TrustlistUser>(nameof(TrustlistUser));
 		emitters = database.GetCollection<Emitter>(nameof(Emitter));
