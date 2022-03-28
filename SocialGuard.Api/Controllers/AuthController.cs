@@ -17,11 +17,11 @@ namespace SocialGuard.Api.Controllers
 	[ApiVersion("3.0"), ApiVersion("2.0")]
 	public class AuthController : ControllerBase
 	{
-		private readonly AuthenticationService service;
+		private readonly AuthenticationService _service;
 
 		public AuthController(AuthenticationService authenticationService)
 		{
-			service = authenticationService;
+			_service = authenticationService;
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace SocialGuard.Api.Controllers
 		[ProducesResponseType(200), ProducesResponseType(401)]
 		public async Task<IActionResult> Login([FromBody] LoginModel model)
 		{
-			AuthServiceResponse result = await service.HandleLogin(model);
+			AuthServiceResponse result = await _service.HandleLogin(model);
 			return StatusCode(result.StatusCode, result.Response);
 		}
 
@@ -49,7 +49,7 @@ namespace SocialGuard.Api.Controllers
 		[ProducesResponseType(201)]
 		public async Task<IActionResult> Register([FromBody] RegisterModel model)
 		{
-			AuthServiceResponse result = await service.HandleRegister(model);
+			AuthServiceResponse result = await _service.HandleRegister(model);
 			return StatusCode(result.StatusCode, result.Response);
 		}
 
@@ -60,11 +60,11 @@ namespace SocialGuard.Api.Controllers
 		/// <response code="200">Returns full authentication info</response>
 		/// <response code="401">Authentication failure response</response>   
 		/// <returns>Full Auth info</returns>
-		[HttpGet("whoami")]
+		[HttpGet("whoami"), Authorize]
 		[ProducesResponseType(200)]
 		public IActionResult Whoami()
 		{
-			return StatusCode(200, User?.Claims);
+			return StatusCode(200, AuthenticationService.Whoami(HttpContext));
 		}
 	}
 }

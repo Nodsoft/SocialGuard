@@ -68,6 +68,7 @@ namespace SocialGuard.Api.Services.Authentication
 					new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 				};
 				authClaims.AddRange(await _userManager.GetClaimsAsync(user));
+				authClaims.AddRange((await _userManager.GetRolesAsync(user)).Select(r => new Claim(ClaimTypes.Role, r)));
 
 				JwtSecurityToken token = GetToken(authClaims);
 
@@ -91,7 +92,7 @@ namespace SocialGuard.Api.Services.Authentication
 			await _userManager.AddToRoleAsync(firstUser, UserRole.Admin);
 		}
 
-		public AuthServiceResponse Whoami(HttpContext context)
+		public static AuthServiceResponse Whoami(HttpContext context)
 		{
 			object identity = new { context.User.Identity?.Name, context.User.Identity?.AuthenticationType };
 
