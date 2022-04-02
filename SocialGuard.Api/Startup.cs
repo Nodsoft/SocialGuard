@@ -202,7 +202,7 @@ namespace SocialGuard.Api
 			}
 			else if (env.IsProduction())
 			{
-				IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
+				List<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToList();
 
 				// Nginx configuration step
 				ForwardedHeadersOptions forwardedHeadersOptions = new()
@@ -210,7 +210,7 @@ namespace SocialGuard.Api
 					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 				};
 
-				if (allowedProxies is not null && allowedProxies.Any())
+				if (allowedProxies is { Count: > 0 })
 				{
 					forwardedHeadersOptions.KnownProxies.Clear();
 
