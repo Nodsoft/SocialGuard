@@ -41,7 +41,7 @@ jobs:
           # VERSION_STATIC: 1.0.0
 
           # Flag to toggle git tagging, enabled by default
-          TAG_COMMIT: false
+          TAG_COMMIT: true
 
           # Format of the git tag, [*] gets replaced with actual version
           # TAG_FORMAT: v*
