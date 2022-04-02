@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
@@ -21,7 +22,7 @@ namespace SocialGuard.Api.Infrastructure.Swagger
 		{
 			// add a swagger document for each discovered API version
 			// note: you might choose to skip or document deprecated API versions differently
-			foreach (ApiVersionDescription description in _provider.ApiVersionDescriptions)
+			foreach (ApiVersionDescription description in _provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
 			{
 				options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
 			}
@@ -34,7 +35,7 @@ namespace SocialGuard.Api.Infrastructure.Swagger
 				Title = "SocialGuard",
 				Version = description.ApiVersion.ToString(),
 				Description = "Centralised Discord Trustlist to keep servers safe from known blacklisted users.",
-				Contact = new() { Name = "NSYS / Transcom-DT", Url = new("https://github.com/Transcom-DT/SocialGuard") },
+				Contact = new() { Name = "Nodsoft Systems", Url = new("https://github.com/Nodsoft/SocialGuard") },
 				License = new() { Name = "GNU GPLv3", Url = new("https://www.gnu.org/licenses/gpl-3.0.html") }
 			};
 
