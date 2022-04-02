@@ -23,18 +23,19 @@ public class PostgresTrustlistService : ITrustlistService
 	}
 
 
-	public IQueryable<ulong> ListUserIds() => _context.TrustlistEntries.Select(u => u.UserId).Distinct();
+	public IQueryable<ulong> ListUserIds() => _context.TrustlistEntries.Include(e => e.Emitter).Select(u => u.UserId).Distinct();
 
 	public async Task<TrustlistUser> FetchUserAsync(ulong id)
 	{
-		List<TrustlistEntry> entries = await _context.TrustlistEntries.Where(u => u.UserId == id).ToListAsync();
+		List<TrustlistEntry> entries = await _context.TrustlistEntries.Include(e => e.Emitter)
+			.Where(u => u.UserId == id).ToListAsync();
 
 		return entries.Count > 0 
 			? new TrustlistUser { Id = id, Entries = entries } 
 			: null; 
 	}
 
-	public async Task<List<TrustlistUser>> FetchUsersAsync(IEnumerable<ulong> ids) => await _context.TrustlistEntries
+	public async Task<List<TrustlistUser>> FetchUsersAsync(IEnumerable<ulong> ids) => await _context.TrustlistEntries.Include(e => e.Emitter)
 		.Where(u => ids.Contains(u.UserId))
 		.GroupBy(u => u.UserId)
 		.Select(g => new TrustlistUser { Id = g.Key, Entries = g.ToList() })
@@ -59,7 +60,8 @@ public class PostgresTrustlistService : ITrustlistService
 
 	public async Task UpdateUserEntryAsync(ulong userId, TrustlistEntry updated, Emitter emitter)
 	{
-		TrustlistEntry current = await _context.TrustlistEntries.FirstOrDefaultAsync(u => u.UserId == userId && u.EmitterId == emitter.Login)
+		TrustlistEntry current = await _context.TrustlistEntries.Include(e => e.Emitter)
+				.FirstOrDefaultAsync(u => u.UserId == userId && u.EmitterId == emitter.Login)
 			?? throw new ArgumentException($"No entry found for user {userId} and emitter {emitter.Login}. Cannot update.");
 		
 		current.EscalationLevel = updated.EscalationLevel;
@@ -77,7 +79,8 @@ public class PostgresTrustlistService : ITrustlistService
 
 	public async Task DeleteUserEntryAsync(ulong userId, Emitter emitter)
 	{
-		TrustlistEntry entry = await _context.TrustlistEntries.FirstOrDefaultAsync(u => u.UserId == userId && u.EmitterId == emitter.Login)
+		TrustlistEntry entry = await _context.TrustlistEntries.Include(e => e.Emitter)
+				.FirstOrDefaultAsync(u => u.UserId == userId && u.EmitterId == emitter.Login)
 			?? throw new ArgumentException($"No entry found for user {userId} and emitter {emitter.Login}. Cannot delete.");
 
 		_context.TrustlistEntries.Remove(entry);
