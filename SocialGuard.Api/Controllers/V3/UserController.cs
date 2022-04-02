@@ -18,10 +18,10 @@ namespace SocialGuard.Api.Controllers.V3
 	[ApiController, Route("api/v{version:apiVersion}/[controller]"), ApiVersion("3.0")]
 	public class UserController : ControllerBase
 	{
-		private readonly TrustlistUserService trustlistService;
-		private readonly EmitterService emitterService;
+		private readonly ITrustlistService trustlistService;
+		private readonly IEmitterService emitterService;
 
-		public UserController(TrustlistUserService trustlistService, EmitterService emitterService)
+		public UserController(ITrustlistService trustlistService, IEmitterService emitterService)
 		{
 			this.trustlistService = trustlistService;
 			this.emitterService = emitterService;
@@ -53,6 +53,11 @@ namespace SocialGuard.Api.Controllers.V3
 		[HttpGet("{ids}"), ProducesResponseType(typeof(TrustlistUser[]), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> FetchUsers([FromRoute] ulong[] ids)
 		{
+			if (ids is null)
+			{
+				return BadRequest();
+			}
+
 			IEnumerable<TrustlistUser> users = await trustlistService.FetchUsersAsync(ids);
 			return StatusCode(users is not null ? 200 : 204, users);
 		}

@@ -12,9 +12,9 @@ namespace SocialGuard.Api.Controllers
 	[ApiVersion("3.0"), ApiVersion("2.0")]
 	public class EmitterController : ControllerBase
 	{
-		private readonly EmitterService emitterService;
+		private readonly IEmitterService emitterService;
 
-		public EmitterController(EmitterService emitterService)
+		public EmitterController(IEmitterService emitterService)
 		{
 			this.emitterService = emitterService;
 		}

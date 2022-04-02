@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using SocialGuard.Common.Data.Models.Authentication;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -14,129 +13,118 @@ using System.Threading.Tasks;
 
 
 
-namespace SocialGuard.Api.Services.Authentication
+namespace SocialGuard.Api.Services.Authentication;
+
+public class AuthenticationService
 {
-	public class AuthenticationService
+	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly RoleManager<UserRole> _roleManager;
+	private static IConfiguration _configuration;
+	private static SymmetricSecurityKey _authSigningKey;
+
+	public AuthenticationService(UserManager<ApplicationUser> userManager, RoleManager<UserRole> roleManager, IConfiguration configuration)
 	{
-		private readonly UserManager<ApplicationUser> userManager;
-		private readonly RoleManager<UserRole> roleManager;
-		private static IConfiguration configuration;
-		private static SymmetricSecurityKey authSigningKey;
+		_userManager = userManager;
+		_roleManager = roleManager;
+		_configuration ??= configuration;
+		_authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+	}
 
-		public AuthenticationService(UserManager<ApplicationUser> userManager, RoleManager<UserRole> roleManager, IConfiguration configuration)
+	public async Task<AuthServiceResponse> HandleRegister(RegisterModel model)
+	{
+		ApplicationUser userExists = await _userManager.FindByNameAsync(model.Username);
+			
+		if (userExists is not null)
 		{
-			this.userManager = userManager;
-			this.roleManager = roleManager;
-			AuthenticationService.configuration ??= configuration;
-			authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+			return new() { StatusCode = 409, Response = Response.ErrorResponse() with { Message = "User already exists." } };
 		}
 
-		public async Task<AuthServiceResponse> HandleRegister(RegisterModel model)
+		bool firstUser = _userManager.Users.Count() is 0;
+		ApplicationUser user = new(model.Username) { Email = model.Email, SecurityStamp = Guid.NewGuid().ToString() };
+		IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+
+		if (!result.Succeeded)
 		{
-			ApplicationUser userExists = await userManager.FindByNameAsync(model.Username);
-			if (userExists is not null)
-			{
-				return new() { StatusCode = 409, Response = Response.ErrorResponse() with { Message = "User already exists." } };
-			}
-
-			bool firstUser = userManager.Users.Count() is 0;
-			ApplicationUser user = new(model.Username) { Email = model.Email, SecurityStamp = Guid.NewGuid().ToString() };
-			IdentityResult result = await userManager.CreateAsync(user, model.Password);
-
-			if (!result.Succeeded)
-			{
-				return new() { StatusCode = 500, Response = Response.ErrorResponse() with { Message = $"User creation has failed.", Details = result.Errors } };
-			}
-
-			if (firstUser)
-			{
-				await ProvisionFirstUseAsync(user);
-			}
-
-			return new() { StatusCode = 201, Response = Response.SuccessResponse() with { Message = "User created successfuly." } };
+			return new() { StatusCode = 500, Response = Response.ErrorResponse() with { Message = "User creation has failed.", Details = result.Errors } };
 		}
 
-		public async Task<AuthServiceResponse> HandleLogin(LoginModel model)
+		if (firstUser)
 		{
-			ApplicationUser user = await userManager.FindByNameAsync(model.Username);
-
-			if (user is not null && await userManager.CheckPasswordAsync(user, model.Password))
-			{
-				IList<string> userRoles = await userManager.GetRolesAsync(user);
-				List<Claim> authClaims = new()
-				{
-					new Claim(ClaimTypes.Name, user.UserName),
-					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-				};
-				authClaims.AddRange(from string userRole in userRoles select new Claim(ClaimTypes.Role, userRole));
-
-				JwtSecurityToken token = GetToken(authClaims);
-
-				return new()
-				{
-					StatusCode = 200,
-					Response = Response.SuccessResponse() with
-					{
-						Message = "Login Successful.",
-						Details = new TokenResult(new JwtSecurityTokenHandler().WriteToken(token), token.ValidTo)
-					}
-				};
-			}
-
-			return new() { StatusCode = 401, Response = Response.ErrorResponse() with { Message = "Login Failed." } };
+			await ProvisionFirstUseAsync(user);
 		}
 
+		return new() { StatusCode = 201, Response = Response.SuccessResponse() with { Message = "User created successfuly." } };
+	}
 
-		private async Task ProvisionFirstUseAsync(ApplicationUser firstUser)
+	public async Task<AuthServiceResponse> HandleLogin(LoginModel model)
+	{
+		ApplicationUser user = await _userManager.FindByNameAsync(model.Username);
+
+		if (user is not null && await _userManager.CheckPasswordAsync(user, model.Password))
 		{
-			if (roleManager.Roles.Count() is 0)
+			List<Claim> authClaims = new()
 			{
-				await roleManager.CreateAsync(new(UserRole.Admin));
-				await roleManager.CreateAsync(new(UserRole.Emitter));
+				new(ClaimTypes.Name, user.UserName),
+				new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+			};
+			authClaims.AddRange(await _userManager.GetClaimsAsync(user));
+			authClaims.AddRange((await _userManager.GetRolesAsync(user)).Select(r => new Claim(ClaimTypes.Role, r)));
 
-				await userManager.AddToRoleAsync(firstUser, UserRole.Admin);
-			}
-			else
-			{
-				throw new ApplicationException("Inconsistent Authentication Database state.");
-			}
-		}
-
-		public AuthServiceResponse Whoami(HttpContext context)
-		{
-			object identity = new { context.User.Identity.Name, context.User.Identity.AuthenticationType };
-
-			List<object> claims = new(from claim in context.User.Claims select claim.Value);
-
+			JwtSecurityToken token = GetToken(authClaims);
 
 			return new()
 			{
 				StatusCode = 200,
 				Response = Response.SuccessResponse() with
 				{
-					Details = new
-					{
-						Identity = identity,
-						Claims = claims
-					}
+					Message = "Login Successful.",
+					Details = new TokenResult(new JwtSecurityTokenHandler().WriteToken(token), token.ValidTo)
 				}
 			};
 		}
 
-		private static JwtSecurityToken GetToken(List<Claim> authClaims) => new(
-				issuer: configuration["JWT:ValidIssuer"],
-				audience: configuration["JWT:ValidAudience"],
-				expires: DateTime.Now.AddHours(1),
-				claims: authClaims,
-				signingCredentials: new(authSigningKey, SecurityAlgorithms.HmacSha256));
+		return new() { StatusCode = 401, Response = Response.ErrorResponse() with { Message = "Login Failed." } };
 	}
 
-	public record AuthServiceResponse<T>
+
+	private async Task ProvisionFirstUseAsync(ApplicationUser firstUser)
 	{
-		public int StatusCode { get; init; }
-		public Response<T> Response { get; init; }
-		internal object InternalDetails { get; init; }
+		await _userManager.AddToRoleAsync(firstUser, UserRole.Admin);
 	}
 
-	public record AuthServiceResponse : AuthServiceResponse<object> { }
+	public static AuthServiceResponse Whoami(HttpContext context)
+	{
+		object identity = new { context.User.Identity?.Name, context.User.Identity?.AuthenticationType };
+
+		List<object> claims = new(from claim in context.User.Claims select claim.Value);
+
+
+		return new()
+		{
+			StatusCode = 200,
+			Response = Response.SuccessResponse() with
+			{
+				Details = new
+				{
+					Identity = identity,
+					Claims = claims
+				}
+			}
+		};
+	}
+
+	private static JwtSecurityToken GetToken(IEnumerable<Claim> authClaims) => new(
+		issuer: _configuration["JWT:ValidIssuer"],
+		audience: _configuration["JWT:ValidAudience"],
+		expires: DateTime.Now.AddHours(1),
+		claims: authClaims,
+		signingCredentials: new(_authSigningKey, SecurityAlgorithms.HmacSha256));
 }
+
+public record AuthServiceResponse<T>
+{
+	public int StatusCode { get; init; }
+	public Response<T> Response { get; init; }
+}
+
+public record AuthServiceResponse : AuthServiceResponse<object>;

@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialGuard.Common", "Socia
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialGuard.Web.Viewer", "SocialGuard.Web.Viewer\SocialGuard.Web.Viewer.csproj", "{8BE7255C-54C9-4DD7-940F-E2C659F5F4EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialGuard.Api.DbMigrator", "SocialGuard.Api.DbMigrator\SocialGuard.Api.DbMigrator.csproj", "{1B671790-B21F-4331-87DE-9EA1E9DB990E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{8BE7255C-54C9-4DD7-940F-E2C659F5F4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BE7255C-54C9-4DD7-940F-E2C659F5F4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BE7255C-54C9-4DD7-940F-E2C659F5F4EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B671790-B21F-4331-87DE-9EA1E9DB990E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B671790-B21F-4331-87DE-9EA1E9DB990E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B671790-B21F-4331-87DE-9EA1E9DB990E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B671790-B21F-4331-87DE-9EA1E9DB990E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
