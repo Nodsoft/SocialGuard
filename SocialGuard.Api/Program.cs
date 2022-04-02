@@ -6,6 +6,8 @@ using MongoDB.Bson.Serialization.Conventions;
 using Serilog;
 using Serilog.Events;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SocialGuard.Api.Data;
 
 namespace SocialGuard.Api
 {
@@ -35,15 +37,24 @@ namespace SocialGuard.Api
 //				.WriteTo.Logger(fileLogger)
 				.CreateLogger();
 
+			await using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<ApiDbContext>())
+			{
+				await db.Database.MigrateAsync();
+			}
+
+			await using (AuthDbContext db = scope.ServiceProvider.GetRequiredService<AuthDbContext>())
+			{
+				await db.Database.MigrateAsync();
+			}
+
+			
 			await host.RunAsync();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder.UseStartup<Startup>();
-					webBuilder.UseSerilog();
-				});
+				.ConfigureWebHostDefaults(webBuilder => 
+					webBuilder.UseStartup<Startup>())
+				.UseSerilog();
 	}
 }

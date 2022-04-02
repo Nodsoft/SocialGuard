@@ -26,7 +26,9 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SocialGuard.Api.Data;
 
 
 namespace SocialGuard.Api
@@ -39,7 +41,7 @@ namespace SocialGuard.Api
 		}
 
 		public IConfiguration Configuration { get; }
-		public static string Version { get; } = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+		public static string Version { get; } = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -68,6 +70,22 @@ namespace SocialGuard.Api
 				options.SubstituteApiVersionInUrl = true;
 			});
 
+			string dbConnectionString = Configuration.GetConnectionString("Database");
+
+			services.AddDbContextPool<ApiDbContext>(o =>
+				o.UseNpgsql(dbConnectionString, p =>
+						p.EnableRetryOnFailure()
+					)
+					.UseSnakeCaseNamingConvention()
+			);
+
+			services.AddDbContextPool<AuthDbContext>(o =>
+				o.UseNpgsql(dbConnectionString, p => 
+						p.EnableRetryOnFailure()
+					)
+					.UseSnakeCaseNamingConvention()
+			);
+
 			services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 			services.AddSwaggerGen(options =>
@@ -80,7 +98,7 @@ namespace SocialGuard.Api
 				options.IncludeXmlComments(xmlPath);
 
 				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				options.AddSecurityDefinition("jwt_auth", new()
 				{
 					Name = "bearer",
 					BearerFormat = "JWT",
@@ -100,9 +118,9 @@ namespace SocialGuard.Api
 					}
 				};
 
-				options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				options.AddSecurityRequirement(new()
 				{
-					{ securityScheme, Array.Empty<string>() },
+					{ securityScheme, Array.Empty<string>() }
 				});
 			});
 
@@ -111,7 +129,7 @@ namespace SocialGuard.Api
 				.AddMessagePackProtocol();
 			
 
-
+			/*
 			services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
 				options => { },
 				mongo =>
@@ -122,6 +140,13 @@ namespace SocialGuard.Api
 					mongo.RolesCollection = config["Tables:Role"];
 					mongo.UsersCollection = config["Tables:User"];
 				});
+			*/
+
+			// Add Identity
+			services.AddIdentity<ApplicationUser, UserRole>()
+				.AddEntityFrameworkStores<AuthDbContext>()
+				.AddDefaultTokenProviders();
+
 
 			services.AddAuthentication(options =>
 			{
@@ -152,12 +177,13 @@ namespace SocialGuard.Api
 
 
 			services.AddTransient<AuthenticationService>();
+			
 			services.AddTransient<TrustlistHub>();
 
 			services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
 
-			services.AddSingleton<TrustlistUserService>()
-					.AddSingleton<EmitterService>();
+			services.AddScoped<ITrustlistService, PostgresTrustlistService>()
+					.AddScoped<IEmitterService, PostgresEmitterService>();
 			
 			services.AddApplicationInsightsTelemetry(options =>
 			{

@@ -2,8 +2,11 @@
 
 public record TrustlistEntry
 {
-	[BsonRequired, BsonId(IdGenerator = typeof(StringObjectIdGenerator)), BsonRepresentation(BsonType.ObjectId)]
-	public string Id { get; init; } = string.Empty;
+	[Key, Required, BsonRequired, BsonId(IdGenerator = typeof(CombGuidGenerator))]
+	public Guid Id { get; init; } = Guid.NewGuid();
+	
+	[Required, BsonRequired]
+	public virtual ulong UserId { get; init; }
 
 	[BsonRequired]
 	public DateTime EntryAt { get; init; }
@@ -14,9 +17,11 @@ public record TrustlistEntry
 	[Required, BsonRequired, Range(0, 3)]
 	public byte EscalationLevel { get; set; }
 
-	[Required, DisallowNull, BsonRequired, MinLength(5), MaxLength(2000)]
+	[Required, BsonRequired, MinLength(5), MaxLength(2000)]
 	public string EscalationNote { get; set; } = string.Empty;
 
+	[Required, BsonRequired]
+	public string EmitterId { get; set; } = string.Empty;
 	[BsonRequired, DisallowNull]
 	public Emitter? Emitter { get; set; }
 }

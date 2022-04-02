@@ -5,7 +5,7 @@
 /// </summary>
 public record Emitter
 {
-	[BsonId, NotNull, BsonRequired, BsonRepresentation(BsonType.String)]
+	[Key, Required, BsonId, BsonRequired, BsonRepresentation(BsonType.String)]
 	public string Login { get; init; } = string.Empty;
 
 	[Required]

@@ -5,7 +5,7 @@
 /// </summary>
 public record TrustlistUser
 {
-	[Required, BsonId, BsonRequired]
+	[Key, Required, BsonId, BsonRequired]
 	public ulong Id { get; init; }
 
 	[Required, BsonRequired, DisallowNull]
