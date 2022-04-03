@@ -3,14 +3,14 @@ name: Publish NuGet package
 # Controls when the action will run. 
 on:
   push:
-    branches: [ master ]
+    branches: main
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  publish:
-    name: build, pack & publish
+  publish-nuget:
+    name: Build, Pack, and Publish package to NuGet
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
       # Publish
       - name: Publish to NuGet
         id: publish_nuget
-        uses: rohith/publish-nuget@v2
+        uses: Rebel028/publish-nuget@v2.7.0
         with:
           # Filepath of the project to be packaged, relative to root of repository
           PROJECT_FILE_PATH: SocialGuard.Common/SocialGuard.Common.csproj
@@ -41,7 +41,7 @@ jobs:
           # VERSION_STATIC: 1.0.0
 
           # Flag to toggle git tagging, enabled by default
-          TAG_COMMIT: false
+          TAG_COMMIT: true
 
           # Format of the git tag, [*] gets replaced with actual version
           # TAG_FORMAT: v*
@@ -55,11 +55,21 @@ jobs:
           # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
           # INCLUDE_SYMBOLS: false
 
+  publish-github:
+    name: Build, Pack, and Publish package to GitHub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+          
       # Publish
       - name: Publish to GH Packages
         id: publish_ghpackages
-        uses: Rebel028/publish-nuget@2.6.1
+        uses: Rebel028/publish-nuget@2.7.0
         with:
           # Filepath of the project to be packaged, relative to root of repository
           PROJECT_FILE_PATH: SocialGuard.Common/SocialGuard.Common.csproj
