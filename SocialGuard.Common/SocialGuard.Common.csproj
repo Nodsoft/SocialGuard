@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
 
-    <Version>3.1-rc1</Version>
+    <Version>3.1-rc2</Version>
     <Authors>Sakura Akeno Isayeki</Authors>
     <Company>Nodsoft Systems</Company>
     <PackageProjectUrl>https://socialguard.net/</PackageProjectUrl>
