@@ -54,7 +54,7 @@ namespace SocialGuard.Api
 
 			services.AddApiVersioning(config =>
 			{
-				config.DefaultApiVersion = new(3, 0, "beta");
+				config.DefaultApiVersion = new(3, 1, "rc1");
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
 			});
@@ -228,7 +228,7 @@ namespace SocialGuard.Api
 			{
 				options.RoutePrefix = "swagger";
 
-				foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
+				foreach (ApiVersionDescription description in provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
 				{
 					options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToLowerInvariant());
 				}

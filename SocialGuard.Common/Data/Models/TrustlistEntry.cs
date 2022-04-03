@@ -20,8 +20,9 @@ public record TrustlistEntry
 	[Required, BsonRequired, MinLength(5), MaxLength(2000)]
 	public string EscalationNote { get; set; } = string.Empty;
 
-	[Required, BsonRequired]
+	[BsonRequired]
 	public string EmitterId { get; set; } = string.Empty;
+	
 	[BsonRequired, DisallowNull]
 	public Emitter? Emitter { get; set; }
 }
