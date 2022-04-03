@@ -22,7 +22,7 @@ namespace SocialGuard.Api.Infrastructure.Swagger
 		{
 			// add a swagger document for each discovered API version
 			// note: you might choose to skip or document deprecated API versions differently
-			foreach (ApiVersionDescription description in _provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
+			foreach (ApiVersionDescription description in _provider.ApiVersionDescriptions)
 			{
 				options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
 			}
