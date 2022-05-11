@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using SocialGuard.Api.Services.Authentication;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Http;
 
 
 namespace SocialGuard.Api.Controllers
@@ -36,6 +37,7 @@ namespace SocialGuard.Api.Controllers
 		public async Task<IActionResult> Login([FromBody] LoginModel model)
 		{
 			AuthServiceResponse result = await _service.HandleLogin(model);
+
 			return StatusCode(result.StatusCode, result.Response);
 		}
 
@@ -50,6 +52,7 @@ namespace SocialGuard.Api.Controllers
 		public async Task<IActionResult> Register([FromBody] RegisterModel model)
 		{
 			AuthServiceResponse result = await _service.HandleRegister(model);
+
 			return StatusCode(result.StatusCode, result.Response);
 		}
 
@@ -65,6 +68,30 @@ namespace SocialGuard.Api.Controllers
 		public IActionResult Whoami()
 		{
 			return StatusCode(200, AuthenticationService.Whoami(HttpContext));
+		}
+
+		/// <summary>
+		/// Allows a user to change their password, provided verification of the current one.
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+		[HttpGet("change-password"), Authorize]
+		[ProducesResponseType(205)]
+		public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordModel model)
+		{
+			try
+			{
+				await _service.ChangeUserPasswordAsync(User.Identity!.Name, model.OldPassword, model.NewPassword);
+				return StatusCode(205);
+			}
+			catch (Exception e)
+			{
+				return Problem(
+					detail: e.StackTrace,
+					statusCode: StatusCodes.Status500InternalServerError,
+					title: e.Message
+				);
+			}
 		}
 	}
 }

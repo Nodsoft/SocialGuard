@@ -1,0 +1,6 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="API - Deploy to Gateway" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" platform="Any CPU" ready_to_run="true" runtime="linux-x64" target_folder="Z:/opt/socialguard/api" target_framework="net6.0" uuid_high="-6627385228810893490" uuid_low="-6963266035807915442" />
+    <method v="2" />
+  </configuration>
+</component>

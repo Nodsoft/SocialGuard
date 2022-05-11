@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SocialGuard.Api.Data.Authentication;
 using V2_TrustlistUser = SocialGuard.Common.Data.DTOs.V2.TrustlistUser;
 using TrustlistUser = SocialGuard.Common.Data.Models.TrustlistUser;
 
