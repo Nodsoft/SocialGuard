@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialGuard.Api.Data.Authentication;
 using SocialGuard.Api.Services.Admin;
-using SocialGuard.Api.Services.Authentication;
 
 namespace SocialGuard.Api.Controllers;
 

@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SocialGuard.Api.Data.Authentication;
-using SocialGuard.Api.Services.Authentication;
 
 namespace SocialGuard.Api.Data;
 

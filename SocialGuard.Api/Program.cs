@@ -1,11 +1,5 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization.Conventions;
 using Serilog;
-using Serilog.Events;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SocialGuard.Api.Data;
 

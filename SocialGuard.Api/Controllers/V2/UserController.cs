@@ -1,13 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialGuard.Common.Data.DTOs.V2;
 using SocialGuard.Common.Data.Models;
 using SocialGuard.Api.Services;
-using SocialGuard.Api.Services.Authentication;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SocialGuard.Api.Data.Authentication;
 using V2_TrustlistUser = SocialGuard.Common.Data.DTOs.V2.TrustlistUser;
 using TrustlistUser = SocialGuard.Common.Data.Models.TrustlistUser;

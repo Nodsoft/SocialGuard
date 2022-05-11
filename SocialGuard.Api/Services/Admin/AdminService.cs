@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using SocialGuard.Api.Data.Authentication;
-using SocialGuard.Api.Services.Authentication;
 
 namespace SocialGuard.Api.Services.Admin;
 

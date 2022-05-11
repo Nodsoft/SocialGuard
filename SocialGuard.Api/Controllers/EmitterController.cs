@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SocialGuard.Common.Data.Models;
 using SocialGuard.Api.Services;
-using System.Threading.Tasks;
-
 
 
 namespace SocialGuard.Api.Controllers

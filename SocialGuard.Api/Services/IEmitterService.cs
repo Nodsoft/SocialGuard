@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using SocialGuard.Common.Data.Models;
+﻿using SocialGuard.Common.Data.Models;
 
 namespace SocialGuard.Api.Services;
 

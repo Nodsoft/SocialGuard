@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using SocialGuard.Common.Data.Models;
-using System.Threading.Tasks;
-
 
 
 namespace SocialGuard.Api.Services;

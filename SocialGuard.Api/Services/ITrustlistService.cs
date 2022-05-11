@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SocialGuard.Common.Data.Models;
+﻿using SocialGuard.Common.Data.Models;
 
 namespace SocialGuard.Api.Services;
 

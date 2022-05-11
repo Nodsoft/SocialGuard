@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SocialGuard.Api.Data;
 using SocialGuard.Api.Hubs;
@@ -23,7 +19,9 @@ public class PostgresTrustlistService : ITrustlistService
 	}
 
 
-	public IQueryable<ulong> ListUserIds() => _context.TrustlistEntries.Include(e => e.Emitter).Select(u => u.UserId).Distinct();
+	public IQueryable<ulong> ListUserIds() => _context.TrustlistEntries
+		.OrderBy(e => e.EntryAt)
+		.Select(u => u.UserId);
 
 	public async Task<TrustlistUser> FetchUserAsync(ulong id)
 	{
