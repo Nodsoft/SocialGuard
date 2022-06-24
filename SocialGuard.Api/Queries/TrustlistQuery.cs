@@ -20,4 +20,10 @@ public class TrustlistQuery
 	public IQueryable<TrustlistEntry> GetEntries(ApiDbContext context) => context.TrustlistEntries
 		.Include(e => e.Emitter)
 		.AsNoTracking();
+
+	/// <summary>
+	/// Fetches trustlist emitters
+	/// </summary>
+	[UseProjection, UseFiltering, UseSorting]
+	public IQueryable<Emitter> GetEmitters(ApiDbContext context) => context.Emitters.AsNoTracking();
 }
