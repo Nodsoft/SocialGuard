@@ -15,10 +15,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using HotChocolate.Types;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SocialGuard.Api.Data;
 using SocialGuard.Api.Data.Authentication;
+using SocialGuard.Api.Queries;
 using SocialGuard.Api.Services.Admin;
 
 
@@ -59,6 +61,17 @@ namespace SocialGuard.Api
 					options.SubstituteApiVersionInUrl = true;
 				}
 			);
+			
+			services.AddGraphQLServer()
+				.RegisterDbContext<ApiDbContext>()
+				.AddProjections()
+				.AddFiltering()
+				.AddSorting()
+				
+				.BindRuntimeType<ulong, UnsignedLongType>()
+				.AddQueryType<TrustlistQuery>();
+			
+			
 
 			string dbConnectionString = Configuration.GetConnectionString("Database");
 
@@ -247,9 +260,6 @@ namespace SocialGuard.Api
 
 			app.UseEndpoints(endpoints =>
 				{
-					/*
-					* Remove once proper website is built.
-					*/
 					endpoints.MapGet("/", context =>
 						{
 							context.Response.Redirect("/swagger/index.html");
@@ -259,6 +269,8 @@ namespace SocialGuard.Api
 					);
 
 					endpoints.MapControllers();
+
+					endpoints.MapGraphQL();
 
 					endpoints.MapHub<TrustlistHub>("/hubs/trustlist");
 				}

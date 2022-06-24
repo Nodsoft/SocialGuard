@@ -360,3 +360,5 @@ SocialGuard.Web/wwwroot/lib/
 SocialGuard.Web.Viewer/wwwroot/lib/
 
 .idea/
+
+SocialGuard.Api/schema.graphql
