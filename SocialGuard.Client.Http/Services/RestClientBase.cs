@@ -1,8 +1,7 @@
-﻿using System.Net.Http;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace SocialGuard.Common.Services;
+namespace SocialGuard.Client.Http.Services;
 
 public abstract class RestClientBase
 {

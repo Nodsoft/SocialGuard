@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using SocialGuard.Common.Services;
+using SocialGuard.Client.Http.Services;
 using SocialGuard.Web.Viewer;
 
 
