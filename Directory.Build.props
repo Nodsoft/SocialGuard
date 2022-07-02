@@ -1,0 +1,17 @@
+<Project>
+    <PropertyGroup>
+        <Deterministic>true</Deterministic>
+        <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+        <AnalysisLevel>latest</AnalysisLevel>
+
+        <VersionPrefix>3.1</VersionPrefix>
+        <VersionSuffix>rc2</VersionSuffix>
+        
+        <Authors>Sakura Akeno Isayeki</Authors>
+        <Company>Nodsoft Systems</Company>
+        <Product>NSYS SocialGuard</Product>
+        <PackageProjectUrl>https://socialguard.net/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Nodsoft/SocialGuard</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+    </PropertyGroup>
+</Project>
