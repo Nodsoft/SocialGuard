@@ -5,13 +5,14 @@ using SocialGuard.Api.Data;
 using SocialGuard.Api.Services;
 using SocialGuard.Common.Data.Models;
 
-namespace SocialGuard.Api.Queries;
 
+namespace SocialGuard.Api.Queries;
+// ReSharper disable UnusedMember.Global
 
 /// <summary>
 /// GraphQL query for fetching trustlist user records.
 /// </summary>
-public class TrustlistQuery
+public partial class Query
 {
 	/// <summary>
 	/// Fetches trustlist entries

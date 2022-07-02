@@ -15,6 +15,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using HotChocolate.Data;
 using HotChocolate.Types;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -67,9 +68,8 @@ namespace SocialGuard.Api
 				.AddProjections()
 				.AddFiltering()
 				.AddSorting()
-				
 				.BindRuntimeType<ulong, UnsignedLongType>()
-				.AddQueryType<TrustlistQuery>();
+				.AddQueryType<Query>();
 			
 			
 
