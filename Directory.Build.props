@@ -14,4 +14,8 @@
         <RepositoryUrl>https://github.com/Nodsoft/SocialGuard</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
     </PropertyGroup>
+
+    <ItemGroup Condition="exists('LICENSE')">
+        <None Include="LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
 </Project>

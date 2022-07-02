@@ -5,19 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Remove="compilerconfig.json"/>
-        <Content Remove="libman.json"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <_ContentIncludedByDefault Remove="wwwroot\css\site.css"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="compilerconfig.json"/>
-        <None Include="libman.json">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
     <ItemGroup>

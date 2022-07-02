@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
@@ -19,9 +18,4 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
         <PackageReference Include="MongoDB.Bson" Version="2.*" />
     </ItemGroup>
-
-    <ItemGroup>
-        <None Include="LICENSE" Pack="true" PackagePath="" />
-    </ItemGroup>
-
 </Project>
