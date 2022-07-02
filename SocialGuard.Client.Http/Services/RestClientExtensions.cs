@@ -1,9 +1,6 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 
-
-
-namespace SocialGuard.Common.Services;
+namespace SocialGuard.Client.Http.Services;
 
 public static class RestClientExtensions
 {
