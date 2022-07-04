@@ -1,4 +1,4 @@
-name: Publish NuGet package
+name: Publish NuGet packages
 
 # Controls when the action will run. 
 on:
@@ -11,7 +11,7 @@ on:
   
 jobs:
   publish-nuget:
-    name: Build, Pack, and Publish package to NuGet
+    name: Publish NuGet package
     runs-on: ubuntu-latest
 
     strategy:
@@ -37,7 +37,7 @@ jobs:
           dotnet-version: 6.0.x
 
       # Publish
-      - name: Publish ${{ matrix.project.name }} to ${{ matrix.nuget.name }}
+      - name: Build, Pack & Publish ${{ matrix.project.name }} to ${{ matrix.nuget.name }}
         id: publish_nuget
         uses: Rebel028/publish-nuget@v2.7.0
         with:
