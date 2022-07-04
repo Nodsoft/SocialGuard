@@ -24,8 +24,8 @@ jobs:
         
         # Sources to publish to
         nuget: [ 
-          { name: "NuGet", source: "https://api.nuget.org", key: "${{ secrets.NUGET_TOKEN }}" }, 
-          { name: "GitHub Packages", source: "https://nuget.pkg.github.com/Nodsoft", key: "${{ secrets.GITHUB_TOKEN }}" } 
+          { name: "NuGet", source: "https://api.nuget.org", keyname: "NUGET_TOKEN" }, 
+          { name: "GitHub Packages", source: "https://nuget.pkg.github.com/Nodsoft", keyname: "GITHUB_TOKEN" } 
         ]
         
     steps:
@@ -63,7 +63,7 @@ jobs:
           # TAG_FORMAT: v*
 
           # API key to authenticate with NuGet server
-          NUGET_KEY: ${{ matrix.nuget.key }}
+          NUGET_KEY: ${{ secrets[matrix.nuget.keyname] }}
 
           # NuGet server uri hosting the packages, defaults to https://api.nuget.org
           NUGET_SOURCE: ${{ matrix.nuget.source }}
