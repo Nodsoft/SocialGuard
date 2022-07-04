@@ -18,13 +18,15 @@ jobs:
       fail-fast: false
       matrix:
         # Projects to publish
-        project: 
-        - { name: "SocialGuard Common", path: "SocialGuard.Common/SocialGuard.Common.csproj" }
+        project: [ 
+          { name: "SocialGuard Common", path: "SocialGuard.Common/SocialGuard.Common.csproj" } 
+        ]
         
         # Sources to publish to
-        nuget: 
-        - { name: "NuGet", source: "https://api.nuget.org", key: "${{ secrets.NUGET_TOKEN }}" }
-        - { name: "GitHub Packages", source: "https://nuget.pkg.github.com/Nodsoft", key: "${{ secrets.GITHUB_TOKEN }}" }
+        nuget: [ 
+          { name: "NuGet", source: "https://api.nuget.org", key: "${{ secrets.NUGET_TOKEN }}" }, 
+          { name: "GitHub Packages", source: "https://nuget.pkg.github.com/Nodsoft", key: "${{ secrets.GITHUB_TOKEN }}" } 
+        ]
         
     steps:
       - uses: actions/checkout@v2
