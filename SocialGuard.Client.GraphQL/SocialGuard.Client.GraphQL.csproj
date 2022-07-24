@@ -7,12 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="StrawberryShake.CodeGeneration.CSharp.Analyzers" Version="12.11.1" />
-      <PackageReference Include="StrawberryShake.Transport.Http" Version="12.11.1" />
+      <ProjectReference Include="..\SocialGuard.Common\SocialGuard.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SocialGuard.Common\SocialGuard.Common.csproj" />
+      <PackageReference Include="GraphQLinq.Client" Version="1.1.0-beta" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services" />
     </ItemGroup>
 
 </Project>
