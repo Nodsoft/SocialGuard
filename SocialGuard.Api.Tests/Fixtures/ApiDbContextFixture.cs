@@ -8,6 +8,7 @@ public class ApiDbContextFixture : IDisposable
 
 	public void Dispose()
 	{
+		Context.Database.EnsureDeleted();
 		Context.Dispose();
 		GC.SuppressFinalize(this);
 	}
