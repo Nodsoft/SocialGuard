@@ -200,24 +200,22 @@ namespace SocialGuard.Api
 			{
 				app.UseDeveloperExceptionPage();
 			}
-			else if (env.IsProduction())
+
+			List<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToList();
+
+			// Nginx configuration step
+			ForwardedHeadersOptions forwardedHeadersOptions = new()
 			{
-				List<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToList();
+				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+			};
 
-				// Nginx configuration step
-				ForwardedHeadersOptions forwardedHeadersOptions = new()
+			if (allowedProxies is { Count: > 0 })
+			{
+				forwardedHeadersOptions.KnownProxies.Clear();
+
+				foreach (IPAddress address in allowedProxies)
 				{
-					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-				};
-
-				if (allowedProxies is { Count: > 0 })
-				{
-					forwardedHeadersOptions.KnownProxies.Clear();
-
-					foreach (IPAddress address in allowedProxies)
-					{
-						forwardedHeadersOptions.KnownProxies.Add(address);
-					}
+					forwardedHeadersOptions.KnownProxies.Add(address);
 				}
 			}
 
@@ -240,6 +238,8 @@ namespace SocialGuard.Api
 			app.UseRouting();
 			app.UseCors();
 
+			app.UseForwardedHeaders(forwardedHeadersOptions);
+			
 			app.UseAuthentication();
 			app.UseAuthorization();
 
