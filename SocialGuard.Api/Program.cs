@@ -1,6 +1,7 @@
 using MongoDB.Bson.Serialization.Conventions;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
+using Serilog.Events;
 using SocialGuard.Api.Data;
 
 namespace SocialGuard.Api
