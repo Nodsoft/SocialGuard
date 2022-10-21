@@ -27,7 +27,7 @@
     </div>
 </div>
 
-@if (loaded)
+@if (_loaded)
 {
     <hr class="my-5" />
 
@@ -44,15 +44,15 @@
 
 
 @code {
-    public const string SnowflakeRegex = "^(\\d{17,21})$";
+    public const string SnowflakeRegex = /*lang=regex*/"^(\\d{17,21})$";
 
     [Parameter] public string? UserIdStr { get; set; }
     public ulong SearchId { get; set; }
 
-    private bool loaded = false;
+    private bool _loaded = false;
 
     protected SearchModel Model { get; set; } = new();
-    protected EditContext? EditContext { get; set; }
+    protected EditContext EditContext { get; set; } = null!;
 
     private ErrorBoundary _lookupErrorBound = new();
 
@@ -65,11 +65,11 @@
         {
             Model.SearchStr = UserIdStr;
 
-            if (EditContext!.Validate())
+            if (EditContext.Validate())
             {
                 _lookupErrorBound.Recover();
                 SearchId = Convert.ToUInt64(Model.SearchStr);
-                loaded = true;
+                _loaded = true;
             }
         }
 
@@ -79,19 +79,19 @@
 
     public void SetCurrentProfileSnowflake(object? _1, FieldChangedEventArgs _2)
     {
-        loaded = false;
+        _loaded = false;
 
-        if (EditContext!.Validate())
+        if (EditContext.Validate())
         {
             _lookupErrorBound.Recover();
             SearchId = Convert.ToUInt64(Model.SearchStr);
-            loaded = true;
+            _loaded = true;
         }
     }
 
-    public record SearchModel
+    public sealed record SearchModel
     {
-        [Required, RegularExpression("^(\\d{17,21})$", ErrorMessage = "Invalid Snowflake.")]
+        [Required, RegularExpression(SnowflakeRegex, ErrorMessage = "Invalid Snowflake.")]
         public string? SearchStr { get; set; }
     }
 }

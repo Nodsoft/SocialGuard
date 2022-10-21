@@ -1,0 +1,12 @@
+﻿ @* ReSharper disable file InconsistentNaming *@
+ @code {
+	
+	public static RenderFragment LoadingSpinner { get; } = __builder =>
+	{
+		<div class="d-flex flex-column justify-content-center align-items-center">
+			<div class="lds-dual-ring m-3"></div>
+			<h3>Loading...</h3>
+		</div>
+	};
+
+}

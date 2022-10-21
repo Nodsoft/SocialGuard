@@ -27,13 +27,24 @@
                                     <th>SG Directory</th>
 
                                     <td>
-                                        <a class="text-secondary" target="_blank" href=@TrustlistClient.MainHost>
-                                            @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
+                                        <a class="text-secondary" target="_blank" href=@RestClientBase.MainHost>
+                                            @(new Uri(RestClientBase.MainHost).DnsSafeHost)
                                         </a>
                                     </td>
                                 </tr>
 
-                                <tr><th>Entered by</th><td>@LastMaxEntry!.Emitter!.DisplayName <span class="text-muted">(@LastMaxEntry!.Emitter!.Login)</span></td></tr>
+                                <tr>
+                                    @{ Emitter emitter = LastMaxEntry!.Emitter!; }
+                                    <th>Entered by</th>
+                                    
+                                    <td>
+                                        <a class="text-secondary" href="/emitter/@(emitter.Login)">
+                                            @emitter.DisplayName
+                                            <span class="text-muted">(@emitter.Login)</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                
                                 <tr><th>Entered at</th><td>@LastMaxEntry.EntryAt</td></tr>
                                 <tr><th>Total Entries</th><td>@(User.Entries?.Count ?? 0)</td></tr>
                             </tbody>
@@ -42,7 +53,7 @@
                 </div>
             </div>
 
-            @if (User.Entries is not null and { Count: > 1 })
+            @if (User.Entries is { Count: > 1 })
             {
                 <hr />
 
@@ -53,9 +64,7 @@
                     <div class="card mb-3 border-@entry.GetTrustlistLevelBootstrapColor() bg-dark">
                         <div class="row">
                             <div class="col-md">
-                                <div class="card-body" style="white-space: pre-wrap;">
-                                    @entry.EscalationNote
-                                </div>
+                                <div class="card-body" style="white-space: pre-wrap;">@entry.EscalationNote</div>
                             </div>
 
                             <div class="col-md-auto">
@@ -72,7 +81,17 @@
                                                 </td>
                                             </tr>
 
-                                            <tr><th>Emitter</th><td>@entry.Emitter!.DisplayName <span class="text-muted">(@entry.Emitter!.Login)</span></td></tr>
+                                            <tr>
+                                                <th>Emitter</th>
+                                                
+                                                <td>
+                                                    <a class="text-secondary" href="/emitter/@(entry.Emitter!.Login)">
+                                                        @entry.Emitter!.DisplayName
+                                                        <span class="text-muted">(@entry.Emitter!.Login)</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            
                                             <tr><th>Entered at</th><td>@entry.EntryAt</td></tr>
                                         </tbody>
                                     </table>
@@ -87,10 +106,7 @@
 }
 else
 {
-	<div class="d-flex flex-column justify-content-center align-items-center">
-		<div class="lds-dual-ring m-3"></div>
-		<h3>Loading...</h3>
-	</div>
+	@LoadingSpinner
 }
 
 

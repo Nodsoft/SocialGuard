@@ -13,31 +13,27 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <i class="bi bi-house-fill me-2" aria-hidden="true"></i>Home
+                <i class="bi bi-house-fill me-3" aria-hidden="true"></i>Home
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="user">
-                <i class="bi bi-person-lines-fill me-2" aria-hidden="true"></i>Users Records
+                <i class="bi bi-person-lines-fill me-3" aria-hidden="true"></i>Users Records
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="emitter">
-                <i class="bi bi-patch-check-fill me-2" aria-hidden="true"></i>Emitters
+                <i class="bi bi-patch-check-fill me-3" aria-hidden="true"></i>Emitters
             </NavLink>
         </div>
     </nav>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool _collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
+    private void ToggleNavMenu() => _collapseNavMenu = !_collapseNavMenu;
 }
