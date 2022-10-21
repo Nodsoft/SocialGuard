@@ -21,7 +21,7 @@
     </div>
 </div>
 
-@if (loaded)
+@if (_loaded)
 {
     <hr class="my-5" />
 
@@ -40,7 +40,7 @@
 @code {
     [Parameter] public string? EmitterName { get; set; }
 
-    private bool loaded = false;
+    private bool _loaded = false;
 
     protected SearchModel Model { get; set; } = new();
     protected EditContext? EditContext { get; set; }
@@ -53,7 +53,7 @@
         if (EmitterName is not null)
         {
             Model.SearchStr = EmitterName;
-            loaded = true;
+            _loaded = true;
         }
 
         return base.OnParametersSetAsync();
@@ -62,16 +62,16 @@
 
     public void SetCurrentEmitterId(object? _1, FieldChangedEventArgs _2)
     {
-        loaded = false;
+        _loaded = false;
 
         if (EditContext!.Validate())
         {
             EmitterName = Model.SearchStr;
-            loaded = true;
+            _loaded = true;
         }
     }
 
-    public record SearchModel
+    public sealed record SearchModel
     {
         [Required, MaxLength(100)]
         public string? SearchStr { get; set; }
