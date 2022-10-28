@@ -17,16 +17,46 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="user">
-                <i class="bi bi-person-lines-fill me-3" aria-hidden="true"></i>Users Records
-            </NavLink>
-        </div>
+        <div id="category-lookup" class="nav-category my-3">
+            <div class="nav-item ms-3 px-3">
+                <h5 class="nav-category-title">
+                    <i aria-hidden="true" class="bi bi-search me-3"></i>
+                    Lookup
+                </h5>
+            </div>
+            
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/user">
+                    <i class="bi bi-person-lines-fill me-3" aria-hidden="true"></i>Users Records
+                </NavLink>
+            </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="emitter">
-                <i class="bi bi-patch-check-fill me-3" aria-hidden="true"></i>Emitters
-            </NavLink>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/emitter">
+                    <i class="bi bi-patch-check-fill me-3" aria-hidden="true"></i>Emitters
+                </NavLink>
+            </div>
+        </div>
+        
+        <div id="category-options" class="nav-category my-3">
+            <div class="nav-item ms-3 px-3">
+                <h5 class="nav-category-title">
+                    <i aria-hidden="true" class="bi bi-nut-fill me-3"></i>
+                    Options
+                </h5>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/directory">
+                    <i aria-hidden="true" class="bi bi-server me-3"></i>Select Directory
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/settings">
+                    <i aria-hidden="true" class="bi bi-wrench me-3"></i>Settings
+                </NavLink>
+            </div>
         </div>
     </nav>
 </div>

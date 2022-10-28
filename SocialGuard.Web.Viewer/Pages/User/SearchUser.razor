@@ -20,9 +20,17 @@
         </EditForm>
     </div>
 
-    <div class="col-lg-auto">
+    <div class="col-lg-auto col-xl-4">
         <ErrorBoundary>
-            <LastEnteredUsers />
+            <ChildContent>
+                <LastEnteredUsers />
+            </ChildContent>
+            
+            <ErrorContent>
+                <p class="lead text-danger">
+                    An error occured while loading the latest records.
+                </p>
+            </ErrorContent>
         </ErrorBoundary>
     </div>
 </div>
