@@ -1,0 +1,83 @@
+﻿@page "/docs/{*VaultPath}"
+@layout DocsLayout
+
+@using SocialGuard.Web.Shared.Docs
+
+@inject IVault Vault
+
+<div class="page">
+	<VaultSidebar Vault="@Vault" />
+
+    <main>
+        <article class="content px-4 my-5">
+	        @BuildBreadcrumb(VaultPath)
+
+	        <ObsidianVaultDisplay Vault="@Vault" BasePath="@this.GetCallingBaseVaultPath()" CurrentPath="@VaultPath">
+	            <NotFound>
+            		<h3 class="text-warning">Not Found</h3>
+            		<p>The requested page could not be found.</p>
+            	</NotFound>
+            </ObsidianVaultDisplay>
+        </article>
+    </main>
+</div>
+
+
+
+@code {
+	
+	[Parameter]
+	public string VaultPath { get; set; }
+
+	/// <summary>
+	/// Builds a Bootstrap breadcrumb using a slash-separated path string.
+	/// </summary>
+	/// <param name="path">The slash-separated path string.</param>
+	/// <returns>The RenderFragment for the breadcrumb.</returns>
+	RenderFragment BuildBreadcrumb(string path) => __builder =>
+	{
+		path ??= string.Empty;
+		
+		List<string> paths = new() { "." };
+		paths.AddRange(path.Split('/'));
+
+		<ul class="breadcrumb px-3">
+			@for (int i = 0; i < paths.Count; i++)
+			{
+				if (i is 0)
+				{
+					if (paths.Count is 1) 
+					{
+						// Render inactive home link
+						<li aria-current="page" class="breadcrumb-item active">~</li>
+					}
+					else
+					{
+						// Render active home link
+						<li class="breadcrumb-item">
+							<a href="">~</a>
+						</li>
+					}
+					
+					continue;
+				}
+				
+				string pathName = paths[i];
+				string pathUrl = $"{string.Join("/", paths.Take(i + 1))}";
+
+				if (i < paths.Count - 1)
+				{
+					// Active breadcrumb item with link
+					<li class="breadcrumb-item">
+						<a href="@pathUrl">@pathName</a>
+					</li>
+				}
+				else
+				{
+					// Inactive breadcrumb item without link
+					<li aria-current="page" class="breadcrumb-item active">@pathName</li>
+				}
+			}
+		</ul>
+	};
+}

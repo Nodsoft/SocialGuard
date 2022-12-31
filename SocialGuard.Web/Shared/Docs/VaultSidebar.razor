@@ -1,0 +1,56 @@
+﻿<div class="sidebar">
+	<div class="top-row ps-3 navbar navbar-dark">
+		<div class="container-fluid">
+			<div class="navbar-brand">
+				<span>@Vault.Name</span>
+			</div>
+		</div>
+	</div>
+
+	<div>
+		<nav class="flex-column">
+			@FolderNavigationTree(Vault.Root, isRoot: true)
+		</nav>
+	</div>
+</div>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public IVault Vault { get; set; }
+
+	private static @RenderFragment FolderNavigationTree(IVaultFolder folder, bool isRoot = false) => __builder =>
+	{
+		// Merge all subfolders and files into a single list.
+		IOrderedEnumerable<KeyValuePair<string, IVaultEntity>> items = folder.Subfolders
+			.Where(f => !isRoot || f.Name != ".obsidian")
+			.Cast<IVaultEntity>()
+			.Concat(folder.Files)
+			.Select(x => new KeyValuePair<string, IVaultEntity>(x.Path, x))
+			.OrderBy(x => x.Key);
+
+		// Display the list.
+		@foreach (KeyValuePair<string, IVaultEntity> item in items)
+		{
+			@if (item.Value is IVaultFolder subfolder)
+			{
+				<div @key="@subfolder.Path" id="@subfolder.Name" class="nav-category my-1">
+					<div class="nav-item ms-3 px-1">
+						<a class="vault-folder-title nav-link" href="@subfolder.Path/">@subfolder.Name</a>
+						@FolderNavigationTree(subfolder)
+                    </div>
+				</div>
+			}
+			else if (item.Value is IVaultNote file)
+			{
+				// The file's path should be filtered to remove the file's extension (".md").
+				<div class="nav-item px-1 ms-3">
+					<a class="vault-item-title nav-link" href="@(file.Path[..^3])">
+						@file.Name[..^3]
+					</a>
+				</div>
+			}
+		}
+	};
+
+}
