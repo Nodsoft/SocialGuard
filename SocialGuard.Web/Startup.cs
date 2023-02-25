@@ -9,6 +9,8 @@ using SocialGuard.Web.Services.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using Nodsoft.MoltenObsidian.Blazor;
 
 namespace SocialGuard.Web
 {
@@ -29,6 +31,11 @@ namespace SocialGuard.Web
 			services.AddServerSideBlazor();
 			services.AddDistributedMemoryCache();
 			services.AddDirectoryBrowser();
+			
+			// Add the MoltenObsidian Vault
+			services.AddHttpClient("Docs", client => client.BaseAddress = new(Configuration["Docs:WebRoot"]));
+			services.AddMoltenObsidianHttpVault(static services => services.GetRequiredService<IHttpClientFactory>().CreateClient("Docs"));
+			services.AddMoltenObsidianBlazorIntegration();
 
 			services.AddCors(c => c.AddDefaultPolicy(builder => builder
 				.AllowAnyOrigin()
@@ -44,7 +51,6 @@ namespace SocialGuard.Web
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseWebAssemblyDebugging();
 			}
 			else if (env.IsProduction())
 			{
@@ -76,8 +82,8 @@ namespace SocialGuard.Web
 			app.UseMiddleware<RequestLoggingMiddleware>();
 
 			app.UseStaticFiles();
-			app.UseStaticFiles("/viewer");
-			app.UseBlazorFrameworkFiles("/viewer");
+			// app.UseStaticFiles("/viewer");
+			// app.UseBlazorFrameworkFiles("/viewer");
 
 			app.UseRouting();
 			app.UseCors();
