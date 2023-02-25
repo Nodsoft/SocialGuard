@@ -51,7 +51,6 @@ namespace SocialGuard.Web
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseWebAssemblyDebugging();
 			}
 			else if (env.IsProduction())
 			{
@@ -83,8 +82,8 @@ namespace SocialGuard.Web
 			app.UseMiddleware<RequestLoggingMiddleware>();
 
 			app.UseStaticFiles();
-			app.UseStaticFiles("/viewer");
-			app.UseBlazorFrameworkFiles("/viewer");
+			// app.UseStaticFiles("/viewer");
+			// app.UseBlazorFrameworkFiles("/viewer");
 
 			app.UseRouting();
 			app.UseCors();
