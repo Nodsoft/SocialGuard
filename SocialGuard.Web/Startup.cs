@@ -7,12 +7,10 @@ using Microsoft.Extensions.Hosting;
 using SocialGuard.Web.Services;
 using SocialGuard.Web.Services.Logging;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using Nodsoft.MoltenObsidian.Blazor;
-using Nodsoft.MoltenObsidian.Vault;
-using Nodsoft.MoltenObsidian.Vaults.FileSystem;
 
 namespace SocialGuard.Web
 {
@@ -35,10 +33,9 @@ namespace SocialGuard.Web
 			services.AddDirectoryBrowser();
 			
 			// Add the MoltenObsidian Vault
+			services.AddHttpClient("Docs", client => client.BaseAddress = new(Configuration["Docs:WebRoot"]));
+			services.AddMoltenObsidianHttpVault(static services => services.GetRequiredService<IHttpClientFactory>().CreateClient("Docs"));
 			services.AddMoltenObsidianBlazorIntegration();
-			services.AddSingleton<IVault>(static services => FileSystemVault.FromDirectory(
-				new(Path.Join(services.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "Docs"))
-			));
 
 			services.AddCors(c => c.AddDefaultPolicy(builder => builder
 				.AllowAnyOrigin()

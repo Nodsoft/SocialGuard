@@ -1,6 +1,7 @@
 ﻿@page "/docs/{*VaultPath}"
 @layout DocsLayout
 
+@using Nodsoft.MoltenObsidian.Blazor.Templates
 @using SocialGuard.Web.Shared.Docs
 
 @inject IVault Vault
@@ -9,15 +10,16 @@
 	<VaultSidebar Vault="@Vault" />
 
     <main>
-        <article class="content px-4 my-5">
+        <article class="content px-4 my-3">
 	        @BuildBreadcrumb(VaultPath)
 
-	        <ObsidianVaultDisplay Vault="@Vault" BasePath="@this.GetCallingBaseVaultPath()" CurrentPath="@VaultPath">
-	            <NotFound>
-            		<h3 class="text-warning">Not Found</h3>
-            		<p>The requested page could not be found.</p>
-            	</NotFound>
-            </ObsidianVaultDisplay>
+	        <ObsidianVaultDisplay Vault="@Vault" BasePath="@this.GetCallingBaseVaultPath()" CurrentPath="@VaultPath" Options="@VaultDisplayOptions">
+		        <NotFound>
+			        <h3 class="text-warning">Not Found</h3>
+		        </NotFound>
+		        
+		        <FoundIndexNote>@FoundNote.Render(context.Item1)</FoundIndexNote>
+	        </ObsidianVaultDisplay>
         </article>
     </main>
 </div>
@@ -28,6 +30,8 @@
 	
 	[Parameter]
 	public string VaultPath { get; set; }
+
+	public static ObsidianVaultDisplayOptions VaultDisplayOptions { get; } = new() { };
 
 	/// <summary>
 	/// Builds a Bootstrap breadcrumb using a slash-separated path string.
