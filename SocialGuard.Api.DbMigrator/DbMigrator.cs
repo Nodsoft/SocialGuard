@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using SocialGuard.Api.Data;
+using SocialGuard.Api.Data.Authentication;
 using SocialGuard.Api.DbMigrator.Models.Mongo;
 using SocialGuard.Api.Services.Authentication;
 using SocialGuard.Common.Data.Models;

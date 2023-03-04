@@ -21,6 +21,6 @@
 
 @code 
 {
-    public static string CommonPackageVersion { get; set; } = 'v' + typeof(SocialGuard.Common.Services.RestClientBase).Assembly
+    public static string CommonPackageVersion { get; set; } = 'v' + typeof(RestClientBase).Assembly
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
 }

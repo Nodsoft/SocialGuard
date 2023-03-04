@@ -2,12 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using SocialGuard.Common.Data.Models;
 using SocialGuard.Api.Services;
-using SocialGuard.Api.Services.Authentication;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
+using SocialGuard.Api.Data.Authentication;
 
 
 namespace SocialGuard.Api.Controllers.V3
@@ -34,10 +30,10 @@ namespace SocialGuard.Api.Controllers.V3
 		/// <response code="204">If Trustlist is empty</response>    
 		/// <returns>List of user IDs</returns>
 		[HttpGet("list"), ProducesResponseType(typeof(IEnumerable<ulong>), 200), ProducesResponseType(204)]
-		public IActionResult ListUsersIds()
+		public async Task<IActionResult> ListUsersIds()
 		{
-			IEnumerable<ulong> users = trustlistService.ListUserIds();
-			return users.Any()
+			IAsyncEnumerable<ulong> users = trustlistService.ListUserIds().AsAsyncEnumerable().Distinct();
+			return await users.AnyAsync()
 				? StatusCode(200, users)
 				: StatusCode(204);
 		}

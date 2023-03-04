@@ -1,8 +1,7 @@
-﻿using System.Net.Http;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace SocialGuard.Common.Services;
+namespace SocialGuard.Client.Http.Services;
 
 public abstract class RestClientBase
 {
@@ -22,7 +21,8 @@ public abstract class RestClientBase
 		HttpClient.BaseAddress ??= new Uri(MainHost);
 	}
 
-	public virtual void SetBaseUri(Uri uri) => HttpClient.BaseAddress = uri;
+	public virtual void SetHostUri(Uri uri) => HttpClient.BaseAddress = uri;
+	public virtual Uri GetHostUri() => HttpClient.BaseAddress!;
 
 	public static Task<TData?> ParseResponseFullAsync<TData>(HttpResponseMessage response) => response.Content.ReadFromJsonAsync<TData>(SerializerOptions);
 }

@@ -1,14 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using SocialGuard.Common.Data.Models;
 using SocialGuard.Common.Hubs;
 using SocialGuard.Api.Hubs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 
 namespace SocialGuard.Api.Services;

@@ -1,6 +1,7 @@
 ﻿using AspNetCore.Identity.Mongo.Model;
 using Mapster;
 using MongoDB.Bson;
+using SocialGuard.Api.Data.Authentication;
 using SocialGuard.Api.DbMigrator.Models.Mongo;
 using SocialGuard.Api.Services.Authentication;
 using SocialGuard.Common.Data.Models;

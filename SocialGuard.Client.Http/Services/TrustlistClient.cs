@@ -1,11 +1,7 @@
-﻿using SocialGuard.Common.Data.Models;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
+﻿using System.Net.Http.Json;
+using SocialGuard.Common.Data.Models;
 
-
-namespace SocialGuard.Common.Services;
+namespace SocialGuard.Client.Http.Services;
 
 
 public class TrustlistClient : RestClientBase

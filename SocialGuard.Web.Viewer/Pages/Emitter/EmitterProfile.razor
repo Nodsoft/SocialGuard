@@ -17,8 +17,8 @@
                         <th>SG Directory</th>
 
                         <td>
-                            <a target="_blank" href=@TrustlistClient.MainHost>
-                                @(new Uri(TrustlistClient.MainHost).DnsSafeHost)
+                            <a target="_blank" href=@_currentHost.ToString()>
+                                @_currentHost.DnsSafeHost
                             </a>
                         </td>
                     </tr>
@@ -62,12 +62,15 @@ else
     [Parameter] public string EmitterName { get; set; } = string.Empty;
 
     public Emitter? Emitter { get; set; }
-
+    
     public bool Loaded { get; set; } = false;
-
+    
+    private Uri _currentHost;
+    
     protected override async Task OnParametersSetAsync()
     {
         Emitter = await Emitters.GetEmitterAsync(EmitterName);
+        _currentHost = Emitters.GetHostUri();
         await base.OnParametersSetAsync();
         Loaded = true;
     }
