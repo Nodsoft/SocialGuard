@@ -360,3 +360,7 @@ SocialGuard.Web/wwwroot/lib/
 SocialGuard.Web.Viewer/wwwroot/lib/
 
 .idea/
+
+SocialGuard.Web.Viewer/wwwroot/js/app.js
+
+SocialGuard.Web.Viewer/wwwroot/js/app.js.map

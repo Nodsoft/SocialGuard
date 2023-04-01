@@ -16,10 +16,21 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="wwwroot\favicon.ico">
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
+      <Folder Include="Docs" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <LibSassOutputStyle>compressed</LibSassOutputStyle>
+        <LibSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</LibSassOutputStyle>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!--     <SassFile Include="wwwroot\css\app.scss" /> -->
+        <!--     <SassFile Include="**/*.razor.scss" /> -->
+        <None Update="**/*.css" Visible="false" />
+        <Content Update="**/*.css" Visible="false" />
+
+        <Content Include=".config/dotnet-tools.json" />
     </ItemGroup>
 
 </Project>

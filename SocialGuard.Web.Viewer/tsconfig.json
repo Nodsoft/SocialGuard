@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outFile": "./wwwroot/js/app.js",
+    "module": "AMD",
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "ES2022",
+    "moduleResolution": "Node",
+    "paths": {
+      "@lib/*": [ "./wwwroot/lib/*" ],
+      "@types/*": [ "./wwwroot/lib/types/*" ],
+    },
+    "typeRoots": ["./wwwroot/lib/types/*"]
+  },
+  "exclude": [
+    "./node_modules/*",
+    "./wwwroot/*"
+  ],
+  "compileOnSave": true
+}

@@ -1,47 +1,90 @@
 ﻿@page "/directory"
 @using SocialGuard.Web.Viewer.Data
 
-
 @inject ApiAuthenticationService AuthService;
 
-<h1 class="my-5"><i class="bi bi-server me-3"></i>Select SocialGuard Directory</h1>
+<h1 class="my-5"><i class="bi bi-server me-3"></i>Select a SocialGuard Directory</h1>
 
 @* Present a card list of previously known directories *@
-<div class="row-cols-xl-3 row-cols-md-2">
-	@foreach(AuthenticationDetails authDetails in _directories)
+<div class="row g-2">
+    @foreach ((_, AuthenticationDetails authDetails) in _directories)
     {
-    	<div id="@authDetails.Host.DnsSafeHost" class="card bg-transparent border-light mb-3 m-2">
-    		<div class="card-body">
-    			<h5 class="card-title">@authDetails.DisplayName</h5>
-    			<p class="card-text"><code>@authDetails.Host.DnsSafeHost</code></p>
-    			
-    			@if (authDetails.Login is { } login and not ("" or null))
-    			{
-    				<p class="card-text">Login: <code>@login</code></p>
-    			}
-    			
-			    <div class="d-flex justify-content-between gap-3">
-				    <div id="links">
-					    <a id="swagger" class="card-link" target="_blank" href="@($"{authDetails.Host}swagger")">Swagger</a>
-				    </div>
-				    
-				    <div id="buttons" class="d-flex gap-1">
-					    <button id="edit" title="Edit" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></button>
-						<button id="delete" title="Delete" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-				    </div>
-			    </div>
-    		</div>
-    	</div>
+        <div id="@authDetails.Host.DnsSafeHost" class="col-xl-3 col-lg-6 card bg-transparent border-light mb-3 m-2">
+            <div class="d-flex flex-column card-body">
+                <h5 class="card-title">@authDetails.DisplayName</h5>
+                <p class="card-text">
+                    <code>@authDetails.Host.DnsSafeHost</code>
+                </p>
+
+                @if (authDetails.Login is { } login and not ("" or null))
+                {
+                    <p class="card-text">Login: <code>@login</code></p>
+                }
+
+                <div class="d-flex justify-content-between gap-3 mt-auto">
+                    <div id="links">
+                        <a id="swagger" class="card-link" target="_blank" href="@($"{authDetails.Host}swagger")">Swagger</a>
+                    </div>
+
+                    <div id="buttons" class="d-flex gap-1">
+                        <button id="edit" title="Edit" class="btn btn-sm btn-warning" @onclick="() => OnCardEditClicked(authDetails)">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button id="delete" title="Delete" class="btn btn-sm btn-danger" @onclick="() => OnCardDeleteClicked(authDetails)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </div>
 
-@code {
-	private IEnumerable<AuthenticationDetails> _directories = Enumerable.Empty<AuthenticationDetails>();
-	
-	protected sealed override async Task OnInitializedAsync()
-	{
-		_directories = await AuthService.GetKnownAuthenticationDetailsAsync();
-		await base.OnInitializedAsync();
-	}
+<hr class="my-5" />
 
+@* Present a form to add a new directory *@
+<div>
+    <h3>Create / Edit Directory details</h3>
+
+    <div class="d-flex-inline">
+        <LoginForm @ref="@_loginForm" FormSubmitted="OnLoginFormSubmittedAsync" />
+    </div>
+</div>
+
+@code {
+    private Dictionary<Guid, AuthenticationDetails> _directories = new();
+
+    LoginForm _loginForm = new();
+
+    protected sealed override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _directories = await AuthService.GetKnownAuthenticationDetailsAsync();
+    }
+
+    /// <summary>
+    /// Triggered when a user clicks on the "Edit" button of a directory card.
+    /// </summary>
+    /// <param name="authDetails">The <see cref="AuthenticationDetails"/> of the directory to edit.</param>
+    private void OnCardEditClicked(AuthenticationDetails authDetails)
+    {
+        _loginForm.SetModel(authDetails);
+    }
+
+    /// <summary>
+    /// Triggered when a user clicks on the "Delete" button of a directory card.
+    /// </summary>
+    /// <param name="authDetails">The <see cref="AuthenticationDetails"/> of the directory to delete.</param>
+    private async Task OnCardDeleteClicked(AuthenticationDetails authDetails)
+    {
+        await AuthService.RemoveAuthenticationDetailsAsync(authDetails.Id);
+        _directories.Remove(authDetails.Id);
+    }
+
+    private async Task OnLoginFormSubmittedAsync(AuthenticationDetails obj)
+    {
+        _directories[obj.Id] = obj;
+        await InvokeAsync(StateHasChanged);
+    }
 }
