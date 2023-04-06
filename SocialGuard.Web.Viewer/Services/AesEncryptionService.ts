@@ -23,15 +23,13 @@ async function generateKeyAsync(): Promise<CryptoKey> {
         true,
         ['encrypt', 'decrypt']
     ).then(async (key) => {
-        aesEncryptionKey = key;
-
         // Store the key in the browser's local storage (base64 encoded).
         await crypto.subtle.exportKey('raw', key).then((keyData) => {
             localStorage.setItem('key', btoa(String.fromCharCode(...new Uint8Array(keyData))));
         });
-    }).then(() => {
+        
         console.debug('Generated new encryption key.', aesEncryptionKey);
-        return aesEncryptionKey;
+        return key;
     });
 }
 
@@ -91,19 +89,24 @@ if (!crypto || !crypto.subtle) {
     throw new Error('The browser does not support the Web Crypto API.');
 }
 
-var loadedKey = atob(localStorage.getItem('key')).split('').map((c) => c.charCodeAt(0));
+// Load the encryption key from the browser's local storage.
+const _loadedEncryptionKey = localStorage.getItem('key');
+const loadedEncryptionKey = _loadedEncryptionKey ? new Uint8Array(atob(_loadedEncryptionKey).split('').map((c) => c.charCodeAt(0))) : null;
 
-if (!loadedKey || loadedKey.length === 0) {
+console.debug('Encryption key in local storage.', loadedEncryptionKey);
+
+if (!loadedEncryptionKey || loadedEncryptionKey.length === 0) {
     // Generate a new key.
-    generateKeyAsync().then(() => {
+    generateKeyAsync().then(key => {
+        console.log(`Key from generateKeyAsync: ${key}`);
+        aesEncryptionKey = key;
         console.debug('Generated new encryption key.', aesEncryptionKey);
     });
 }
 else {
-
     crypto.subtle.importKey(
         'raw',
-        new Uint8Array(loadedKey),
+        new Uint8Array(loadedEncryptionKey),
         {name: 'AES-CBC'},
         true,
         ['encrypt', 'decrypt']

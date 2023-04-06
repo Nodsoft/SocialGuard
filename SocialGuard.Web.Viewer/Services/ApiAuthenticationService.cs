@@ -25,7 +25,7 @@ public sealed class ApiAuthenticationService
 
 		// Initialize the local storage with the default values, if they don't exist.
 		// Async method in a constructor is not recommended, but this is a singleton service.
-		_ = InitializeAsync();
+		// InitializeAsync().GetAwaiter().GetResult();
 	}
 	
 	
@@ -33,7 +33,6 @@ public sealed class ApiAuthenticationService
 	/// <summary>
 	/// Determines if the user is authenticated to the SocialGuard API.
 	/// </summary>
-	/// <see cref=""/>
 	/// <returns><see langword="true"/> if the user is authenticated, otherwise <see langword="false"/>.</returns>
 	public async ValueTask<bool> IsAuthenticatedAsync(Uri host)
 	{
@@ -62,7 +61,7 @@ public sealed class ApiAuthenticationService
 			in await _localStorage.GetItemAsync<Dictionary<Guid, AuthenticationDetails>>("logins") ?? new Dictionary<Guid, AuthenticationDetails>()
 			select new KeyValuePair<Guid, AuthenticationDetails>(detail.Key, detail.Value with { Id = detail.Key, Password = null }));
 	
-	internal async Task InitializeAsync(CancellationToken ct = default)
+	internal async ValueTask InitializeAsync(CancellationToken ct = default)
 	{
 		// Initialize the tokens and logins stores, if they don't exist.
 		
@@ -73,7 +72,7 @@ public sealed class ApiAuthenticationService
 		
 		if (await _localStorage.GetItemAsync<Dictionary<Guid, AuthenticationDetails>>("logins", ct) is null)
 		{
-			AuthenticationDetails defaultAuthDetails = new("NSYS SocialGuard", new("https://api.socialguard.net"));
+			AuthenticationDetails defaultAuthDetails = new("NSYS SocialGuard", new("https://api.socialguard.net")) { Active = true };
 			
 			await _localStorage.SetItemAsync("logins", new Dictionary<Guid, AuthenticationDetails>
 			{
@@ -150,5 +149,23 @@ public sealed class ApiAuthenticationService
 		}
 		
 		return await _js.InvokeAsync<string>(/*lang=javascript*/@"decryptAsync", password);
+	}
+	
+	/// <summary>
+	/// Enables/Disables a set of authentication details to be used.
+	/// </summary>
+	/// <param name="id">The ID of the authentication details to enable.</param>
+	/// <returns><see langword="true"/> if the authentication details were enabled, otherwise <see langword="false"/>.</returns>
+	public async ValueTask<bool> ToggleAuthenticationDetailsAsync(Guid id)
+	{
+		Dictionary<Guid, AuthenticationDetails> logins = await _localStorage.GetItemAsync<Dictionary<Guid, AuthenticationDetails>>("logins")
+		    ?? throw new InvalidOperationException("The logins store is not initialized.");
+		
+		AuthenticationDetails details = logins[id];
+		details.Active = !details.Active;
+		logins[id] = details;
+		await _localStorage.SetItemAsync("logins", logins);
+		
+		return details.Active;
 	}
 }

@@ -92,6 +92,15 @@ public sealed record AuthenticationDetails
 	public string? Password { get; set; }
 
 	/// <summary>
+	/// Whether this credential is active.
+	/// </summary>
+	/// <remarks>
+	/// This value is specific to the Browser itself, and is not shared between users.
+	/// It is used to identify active authentication details in the local storage.
+	/// </remarks>
+	public bool Active { get; set; }
+	
+	/// <summary>
 	/// Validates the login/password pair.
 	/// </summary>
 	/// <returns>A <see cref="ValidationResult"/> object.</returns>
