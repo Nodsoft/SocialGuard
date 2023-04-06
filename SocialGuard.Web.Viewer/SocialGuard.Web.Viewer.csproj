@@ -10,11 +10,11 @@
 
     <ItemGroup>
         <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.css" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+        <PackageReference Include="DartSassBuilder" Version="1.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
@@ -32,8 +32,26 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
+        <Content Update="Shared\MainLayout.razor.css">
+          <DependentUpon>MainLayout.razor.scss</DependentUpon>
+        </Content>
     </ItemGroup>
 
+    <PropertyGroup>
+        <DartSassOutputStyle>compressed</DartSassOutputStyle>
+        <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
+        <DartSassOutputLevel>verbose</DartSassOutputLevel>
+
+        <EnableDefaultSassItems>false</EnableDefaultSassItems>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <SassFile Include="wwwroot/css/**/*.scss" /> 
+        <SassFile Include="**/*.razor.scss" /> 
+<!--        <None Update="**/*.css" Visible="false" />-->
+<!--        <Content Update="**/*.css" Visible="false" />-->
+    </ItemGroup>
+    
     <ItemGroup>
         <TypeScriptCompile Include="**/*.ts" Exclude="node_modules\**;wwwroot\lib\**" />
         <Content Remove="tsconfig.json" />

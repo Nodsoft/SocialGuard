@@ -23,6 +23,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1D4A3035-47A4-4D56-B3AE-2B7772BC3023}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialGuard.Client.Http", "SocialGuard.Client.Http\SocialGuard.Client.Http.csproj", "{3D763082-F27E-42CC-A37C-9B4543A9DE3A}"
