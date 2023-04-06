@@ -32,28 +32,21 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
-        <Content Update="Shared\MainLayout.razor.css">
-          <DependentUpon>MainLayout.razor.scss</DependentUpon>
-        </Content>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- Make .razor.css files dependent on the corresponding .razor.scss files -->
+        <Content Update="**\*.razor.css" DependentUpon="%(Filename).razor.scss" />
+    </ItemGroup>
+    
     <PropertyGroup>
         <DartSassOutputStyle>compressed</DartSassOutputStyle>
         <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
         <DartSassOutputLevel>verbose</DartSassOutputLevel>
-
-        <EnableDefaultSassItems>false</EnableDefaultSassItems>
     </PropertyGroup>
     
     <ItemGroup>
-        <SassFile Include="wwwroot/css/**/*.scss" /> 
-        <SassFile Include="**/*.razor.scss" /> 
-<!--        <None Update="**/*.css" Visible="false" />-->
-<!--        <Content Update="**/*.css" Visible="false" />-->
-    </ItemGroup>
-    
-    <ItemGroup>
-        <TypeScriptCompile Include="**/*.ts" Exclude="node_modules\**;wwwroot\lib\**" />
+        <TypeScriptCompile Remove="node_modules\**;wwwroot\lib\**" />
         <Content Remove="tsconfig.json" />
         <TypeScriptCompile Include="tsconfig.json" />
     </ItemGroup>

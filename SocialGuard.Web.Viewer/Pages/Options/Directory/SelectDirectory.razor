@@ -19,12 +19,12 @@
                     <p class="card-text">Login: <code>@login</code></p>
                 }
 
-                <div class="d-flex justify-content-between gap-3 mt-auto">
+                <div class="d-flex justify-content-between align-items-end gap-3 mt-auto">
                     <div id="links">
                         <a id="swagger" class="card-link" target="_blank" href="@($"{authDetails.Host}swagger")">Swagger</a>
                     </div>
 
-                    <div id="buttons" class="d-flex gap-1">
+                    <div id="buttons" class="d-flex gap-1 align-items-center">
                         <div class="form-check form-switch form-check-reverse mx-2">
                             <label class="form-check-label" for=@($"active-{authDetails.Id}")>Active</label>
                             <input class="form-check-input" type="checkbox" role="switch" id=@($"active-{authDetails.Id}") checked="@authDetails.Active"
