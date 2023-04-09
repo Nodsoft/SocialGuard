@@ -19,6 +19,8 @@ builder.Services.AddSocialGuardHttpClientFactory(
 	_ClientIdAssignmentAsyncDelegate
 );
 
+
+
 builder.Services.AddTransient<Task<ChainedClient>>(static async services =>
 {
 	// Get all active authentication details from the Blazored LocalStorage.
@@ -26,8 +28,8 @@ builder.Services.AddTransient<Task<ChainedClient>>(static async services =>
 	ValueTask<Dictionary<Guid, AuthenticationDetails>> getActiveDetailsTask = apiAuthService.GetActiveAuthenticationDetailsAsync();
 
 	// Create a ChainedClient with all the active authentication details.
-	return new(services.GetRequiredService<SocialGuardHttpClientFactory>().CreateClientsAsync((
-		await getActiveDetailsTask).Values.Select(static x => x.Host)));
+	return new(services.GetRequiredService<SocialGuardHttpClientFactory>().CreateClientsAsync(
+		(await getActiveDetailsTask).Values.Select(static x => x.Host)));
 });
 
 builder.Services.AddBlazoredLocalStorage(options =>

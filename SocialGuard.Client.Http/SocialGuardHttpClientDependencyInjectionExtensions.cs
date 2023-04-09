@@ -49,14 +49,14 @@ public static class SocialGuardHttpClientDependencyInjectionExtensions
 		services.AddSingleton(clientAuthTokenProvider ?? DefaultClientAuthTokenProvider);
 		services.AddSingleton(clientIdAssignmentDelegate ?? DefaultClientIdAssignmentDelegate);
 		
-		services.AddTransient<SocialGuardHttpClientFactory>(static services => new(
+		services.AddScoped<SocialGuardHttpClientFactory>(static services => new(
 			services.GetRequiredService<IHttpClientFactory>(),
 			services,
 			services.GetRequiredService<SocialGuardHttpClient.AsyncClientAuthTokenProvider>(),
 			services.GetRequiredService<SocialGuardHttpClientFactory.ClientIdAssignmentAsyncDelegate>()
 		));
 		
-		services.AddTransient<SocialGuardHttpClient>(static services => new(
+		services.AddScoped<SocialGuardHttpClient>(static services => new(
 			services.GetRequiredService<IHttpClientFactory>().CreateClient(),
 			services
 		));

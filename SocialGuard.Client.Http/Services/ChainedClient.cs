@@ -1,5 +1,12 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Fallback;
+using Polly.Wrap;
 using SocialGuard.Client.Http.Data;
 
 namespace SocialGuard.Client.Http.Services;
@@ -11,6 +18,8 @@ namespace SocialGuard.Client.Http.Services;
 [PublicAPI]
 public sealed class ChainedClient
 {
+	private static readonly ConcurrentDictionary<Guid, IPolicyWrap> Circuits = new(); 
+
 	/// <summary>
     /// Initializes a new instance of the <see cref="ChainedClient"/> class.
     /// </summary>
@@ -44,39 +53,49 @@ public sealed class ChainedClient
     public async ValueTask<ChainedQueryResult<TResult>> ExecuteQueryAsync<TResult>(Func<SocialGuardHttpClient, ValueTask<TResult>> query, CancellationToken ct = default)
 	{
 		Dictionary<Uri, Exception> exceptions = new();
-		List<KeyValuePair<Uri, ValueTask<TResult>>> tasks = new();
-		
-		await foreach (KeyValuePair<Uri, ValueTask<TResult>> task in TriggerAsyncQueries(_QueryWrapper, Clients, ct))
-		{
-			tasks.Add(task);
-		}
+
+		// This policy will swallow all exceptions and return a dictionary of exceptions.
+
+		var policy = Policy<TResult>
+			.Handle<Exception>()
+			.FallbackAsync(default(TResult)!, static (result, ctx) =>
+			{
+				if (ctx["hostUri"] is Uri hostUri && ctx["exceptions"] is Dictionary<Uri, Exception> exceptions && result.Exception is not null)
+				{
+					exceptions.Add(hostUri, result.Exception);
+				}
+
+				return Task.CompletedTask;
+			});
 
 		// Await all tasks. If a task throws an exception, it will be added to the exceptions dictionary.
 		Dictionary<Uri, TResult> results = new();
 
-		foreach ((Uri host, ValueTask<TResult> task) in tasks)
+		await foreach ((Uri host, ValueTask<TResult> task) in TriggerAsyncQueries(_QueryWrapper, Clients, ct))
 		{
+			TResult result = await task;
+			
 			if (exceptions.ContainsKey(host))
 			{
 				continue;
 			}
 			
-			results.Add(host, await task.ConfigureAwait(false));
+			results.Add(host, result);
 		}
 		
 		return new(results, exceptions);
 		
+		
+		
 		async ValueTask<TResult> _QueryWrapper(SocialGuardHttpClient client)
 		{
-			try
+			Console.WriteLine($"{nameof(_QueryWrapper)}: Querying {client.HostUri} ({client.ClientId})...");
+
+			return await policy.ExecuteAsync(async ctx => await query((SocialGuardHttpClient)ctx["client"]), new()
 			{
-				return await query(client);
-			}
-			catch (Exception ex)
-			{
-				exceptions.Add(client.HostUri, ex);
-				throw; // This is fine, because we're going to check for exceptions later on.
-			}
+				{ "client" , client },
+				{ "hostUri", client.HostUri }
+			});
 		}
 	}
     
@@ -89,18 +108,14 @@ public sealed class ChainedClient
 	    IAsyncEnumerable<SocialGuardHttpClient> clients,
 	    [EnumeratorCancellation] CancellationToken ct = default
     ) {
-		if (query is null)
-		{
-			throw new ArgumentNullException(nameof(query));
-		}
-
 		await foreach (SocialGuardHttpClient client in clients.WithCancellation(ct))
 		{
+			Debug.WriteLine($"{nameof(TriggerAsyncQueries)}: Querying {client.HostUri} ({client.ClientId})...");
 			yield return new(client.HostUri, query(client));
 		}
 	}
     
-    private static async IAsyncEnumerable<TValue> ToAsyncEnumerable<TValue>(IEnumerable<TValue> enumerable, [EnumeratorCancellation] CancellationToken ct = default)
+    private static async IAsyncEnumerable<TValue> ToAsyncEnumerable<TValue>(IEnumerable<TValue> enumerable)
 	{
 	    foreach (TValue value in enumerable)
 	    {
