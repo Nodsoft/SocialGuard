@@ -1,23 +1,26 @@
-﻿@inject SocialGuardHttpClient Client
+﻿@using SocialGuard.Client.Http.Data
+@inject Task<ChainedClient> ClientTask
 
 @if (Loaded)
 {
 	<h3 class="my-5">Trustlist User : <span class="font-monospace">@Snowflake</span></h3>
 
     <div class="my-5">
-        @if (User is null)
+        @if (Entries is null)
         {
-            <h3 class="text-success">User is not present on the Trustlist.</h3>
+            <h3 class="text-success">User is not listed on any Directory.</h3>
         }
         else
         {
-            <div class="card bg-body border-@(LastMaxEntry!.GetTrustlistLevelBootstrapColor()) mb-5 p-4">
-                <h3 class="mb-4 text-@LastMaxEntry!.GetTrustlistLevelBootstrapColor()">@LastMaxEntry!.GetTrustlistLevelDisplayString() User</h3>
+            (Uri maxHost, TrustlistEntry maxEntry) = LastMaxEntry!.Value;
+            
+            <div class="card bg-body border-@(maxEntry.GetTrustlistLevelBootstrapColor()) mb-5 p-4">
+                <h3 class="mb-4 text-@maxEntry.GetTrustlistLevelBootstrapColor()">@maxEntry.GetTrustlistLevelDisplayString() User</h3>
 
                 <div class="row">
                     <div class="col-xl-8">
                         <h5>Last Reason</h5>
-                        <p class="my-3" style="white-space: pre-wrap;">@LastMaxEntry?.EscalationNote</p>
+                        <p class="my-3" style="white-space: pre-wrap;">@maxEntry.EscalationNote</p>
                     </div>
 
                     <div class="col-xl-4">
@@ -27,14 +30,14 @@
                                     <th>SG Directory</th>
 
                                     <td>
-                                        <a class="text-secondary" target="_blank" href=@SocialGuardHttpClient.MainHost>
-                                            @(new Uri(SocialGuardHttpClient.MainHost).DnsSafeHost)
+                                        <a class="text-secondary" target="_blank" href=@maxHost>
+                                            @maxHost.DnsSafeHost
                                         </a>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    @{ Emitter emitter = LastMaxEntry!.Emitter!; }
+                                    @{ Emitter emitter = maxEntry.Emitter!; }
                                     <th>Entered by</th>
                                     
                                     <td>
@@ -45,21 +48,21 @@
                                     </td>
                                 </tr>
                                 
-                                <tr><th>Entered at</th><td>@LastMaxEntry.EntryAt</td></tr>
-                                <tr><th>Total Entries</th><td>@(User.Entries?.Count ?? 0)</td></tr>
+                                <tr><th>Entered at</th><td>@maxEntry.EntryAt</td></tr>
+                                <tr><th>Total Entries</th><td>@(Entries?.Count ?? 0)</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            @if (User.Entries is { Count: > 1 })
+            @if (Entries is { Count: > 1 })
             {
                 <hr />
 
                 <h3 class="my-5">All Entries</h3>
 
-                @foreach (TrustlistEntry entry in User.Entries)
+                @foreach ((Uri host, TrustlistEntry? entry) in Entries)
                 {
                     <div class="card mb-3 border-@entry.GetTrustlistLevelBootstrapColor() bg-dark">
                         <div class="row">
@@ -75,8 +78,8 @@
                                                 <th>SG Directory</th>
 
                                                 <td>
-                                                    <a class="text-secondary" target="_blank" href=@_currentHost.ToString()>
-                                                        @(_currentHost.DnsSafeHost)
+                                                    <a class="text-secondary" target="_blank" href=@host.ToString()>
+                                                        @(host.DnsSafeHost)
                                                     </a>
                                                 </td>
                                             </tr>
@@ -116,18 +119,33 @@ else
 @code {
 	[Parameter] public ulong Snowflake { get; set; }
     
-    public TrustlistUser? User { get; set; }
-	public TrustlistEntry? LastMaxEntry { get; set; }
-
+	public KeyValuePair<Uri, TrustlistEntry>? LastMaxEntry { get; set; }
+    public IReadOnlyDictionary<Uri, TrustlistUser?> Records { get; set; } = new Dictionary<Uri, TrustlistUser?>();
+    public ICollection<KeyValuePair<Uri, TrustlistEntry>>? Entries { get; set; }
+    
 	public bool Loaded { get; set; } = false;
 
-    private Uri _currentHost;
-    
-	protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
 	{
-	    _currentHost = Client.HostUri;
-	    User = await Client.LookupUserAsync(Snowflake);
-		LastMaxEntry = User?.Entries?.Where(e => e.EscalationLevel == User.Entries.Max(x => x.EscalationLevel)).OrderBy(e => e.LastEscalated).LastOrDefault();
+        ChainedClient client = await ClientTask;
+        
+	    ChainedQueryResult<TrustlistUser?> lookup = await client.ExecuteQueryAsync(async x => await x.LookupUserAsync(Snowflake));
+        Records = new Dictionary<Uri, TrustlistUser?>(lookup.Results.Where(x => x.Value is not null));
+        
+        // Entries correspond to key = host, value = record's entry. Multiple entries are possible.
+        Entries = (
+            from record in Records
+            where record.Value is not null
+            from entry in record.Value!.Entries
+            select new KeyValuePair<Uri, TrustlistEntry>(record.Key, entry)
+        ).ToArray();
+        
+        // LastMaxEntry corresponds to the last entry with the highest escalation level.
+        LastMaxEntry = (
+            from entry in Entries
+            orderby entry.Value.EscalationLevel descending
+            select entry
+        ).FirstOrDefault();
 
 		await base.OnParametersSetAsync();
 

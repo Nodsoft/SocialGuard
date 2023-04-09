@@ -42,7 +42,7 @@ public static class SocialGuardHttpClientDependencyInjectionExtensions
 	public static IServiceCollection AddSocialGuardHttpClientFactory(
 		this IServiceCollection services,
 		SocialGuardHttpClient.AsyncClientAuthTokenProvider? clientAuthTokenProvider = null,
-		SocialGuardHttpClientFactory.ClientIdAssignmentDelegate? clientIdAssignmentDelegate = null
+		SocialGuardHttpClientFactory.ClientIdAssignmentAsyncDelegate? clientIdAssignmentDelegate = null
 	) {
 		services.AddHttpClient();
 		
@@ -53,7 +53,7 @@ public static class SocialGuardHttpClientDependencyInjectionExtensions
 			services.GetRequiredService<IHttpClientFactory>(),
 			services,
 			services.GetRequiredService<SocialGuardHttpClient.AsyncClientAuthTokenProvider>(),
-			services.GetRequiredService<SocialGuardHttpClientFactory.ClientIdAssignmentDelegate>()
+			services.GetRequiredService<SocialGuardHttpClientFactory.ClientIdAssignmentAsyncDelegate>()
 		));
 		
 		services.AddTransient<SocialGuardHttpClient>(static services => new(
@@ -78,6 +78,6 @@ public static class SocialGuardHttpClientDependencyInjectionExtensions
 	/// <remarks>
 	/// This method is provided as a convenience for the <see cref="AddSocialGuardHttpClientFactory"/> method.
 	/// </remarks>
-	public static SocialGuardHttpClientFactory.ClientIdAssignmentDelegate DefaultClientIdAssignmentDelegate { get; } 
-		= static (_, _) => Guid.NewGuid();
+	public static SocialGuardHttpClientFactory.ClientIdAssignmentAsyncDelegate DefaultClientIdAssignmentDelegate { get; } 
+		= static (_, _) => ValueTask.FromResult(Guid.NewGuid());
 }

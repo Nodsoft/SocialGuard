@@ -1,4 +1,5 @@
-﻿@inject SocialGuardHttpClient Client
+﻿@using SocialGuard.Client.Http.Data
+@inject Task<ChainedClient> ClientTask
 
 <h3>Last entered Users :</h3>
 
@@ -24,7 +25,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Records = (await Client.ListKnownUsersAsync()).Reverse().ToArray();
+        ChainedClient client = await ClientTask;
+        ChainedQueryResult<ulong[]> results = await client.ExecuteQueryAsync(static async x => await x.ListKnownUsersAsync());
+        Records = results.Results.SelectMany(x => x.Value).Distinct().Reverse().ToArray();
         Loaded = true;
     }
 }

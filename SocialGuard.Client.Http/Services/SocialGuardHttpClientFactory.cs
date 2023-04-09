@@ -10,12 +10,12 @@ public sealed class SocialGuardHttpClientFactory
 	private readonly IHttpClientFactory _httpClientFactory;
 	private readonly IServiceProvider _services;
 	private readonly SocialGuardHttpClient.AsyncClientAuthTokenProvider _clientAuthTokenProvider;
-	private readonly ClientIdAssignmentDelegate _clientIdAssignmentDelegate;
+	private readonly ClientIdAssignmentAsyncDelegate _clientIdAssignmentDelegate;
 
 	/// <summary>
 	/// A delegate used to assign an ID to a client.
 	/// </summary>
-	public delegate Guid ClientIdAssignmentDelegate(Uri host, IServiceProvider services);
+	public delegate ValueTask<Guid> ClientIdAssignmentAsyncDelegate(Uri host, IServiceProvider services);
 	
 	/// <summary>
 	/// Initializes a new instance of the <see cref="SocialGuardHttpClientFactory"/> class.
@@ -24,7 +24,7 @@ public sealed class SocialGuardHttpClientFactory
 		IHttpClientFactory httpClientFactory, 
 		IServiceProvider services, 
 		SocialGuardHttpClient.AsyncClientAuthTokenProvider clientAuthTokenProvider,
-		ClientIdAssignmentDelegate clientIdAssignmentDelegate
+		ClientIdAssignmentAsyncDelegate clientIdAssignmentDelegate
 	) {
 		_httpClientFactory = httpClientFactory;
 		_services = services;
@@ -36,12 +36,11 @@ public sealed class SocialGuardHttpClientFactory
 	/// Creates a series of <see cref="SocialGuardHttpClient"/> instances.
 	/// </summary>
 	/// <param name="hosts">The hosts to create clients for.</param>
-	/// <param name="clientIdAssignmentDelegate">A delegate used to assign an ID to a client. This can be used to correlate clients to internal identifiers.</param>
 	/// <returns>A series of <see cref="SocialGuardHttpClient"/> instances.</returns>
-	public IEnumerable<SocialGuardHttpClient> CreateClients(
+	public async IAsyncEnumerable<SocialGuardHttpClient> CreateClientsAsync(
 		IEnumerable<Uri> hosts
 	) {
-		using IServiceScope scope = _services.CreateScope();
+		await using AsyncServiceScope scope = _services.CreateAsyncScope();
 		
 		foreach (Uri host in hosts)
 		{
@@ -50,7 +49,7 @@ public sealed class SocialGuardHttpClientFactory
 
 			SocialGuardHttpClient client = new(httpClient, scope.ServiceProvider)
 			{
-				ClientId = _clientIdAssignmentDelegate(host, scope.ServiceProvider),
+				ClientId = await _clientIdAssignmentDelegate(host, scope.ServiceProvider),
 				ClientAuthTokenProviderAsync = _clientAuthTokenProvider
 			};
 			yield return client;

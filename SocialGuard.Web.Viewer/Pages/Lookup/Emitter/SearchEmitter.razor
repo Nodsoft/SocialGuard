@@ -45,7 +45,7 @@
     protected SearchModel Model { get; set; } = new();
     protected EditContext? EditContext { get; set; }
 
-    protected override Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
         EditContext = new(Model);
         EditContext.OnFieldChanged += SetCurrentEmitterId;
@@ -56,7 +56,7 @@
             _loaded = true;
         }
 
-        return base.OnParametersSetAsync();
+        await base.OnParametersSetAsync();
     }
 
 
