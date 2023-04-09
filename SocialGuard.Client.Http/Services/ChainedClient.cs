@@ -111,28 +111,28 @@ public sealed class ChainedClient
 				// This policy will swallow all exceptions and return a dictionary of exceptions.
 				var policy = 
 				Policy<TResult>
-				.Handle<Exception>()
-				.CircuitBreakerAsync(2, TimeSpan.FromMinutes(10))
+				.Handle<HttpRequestException>()
+				.Or<BrokenCircuitException<TResult>>()
+				.FallbackAsync(default(TResult)!, static (result, ctx) =>
+				{
+					if (ctx["hostUri"] is Uri hostUri && ctx["exceptions"] is Dictionary<Uri, Exception> exceptions && result.Exception is not null)
+					{
+						exceptions.Add(hostUri, result.Exception);
+					}
+
+					return Task.CompletedTask;
+				})
 				.WrapAsync
 				(
 					Policy<TResult>.Handle<HttpRequestException>()
-					.Or<BrokenCircuitException<TResult>>()
-					.FallbackAsync(default(TResult)!, static (result, ctx) =>
-					{
-						if (ctx["hostUri"] is Uri hostUri && ctx["exceptions"] is Dictionary<Uri, Exception> exceptions && result.Exception is not null)
-						{
-							exceptions.Add(hostUri, result.Exception);
-						}
-
-						return Task.CompletedTask;
-					})
+					               .CircuitBreakerAsync(2, TimeSpan.FromMinutes(10))
 				);
 
 				return (IPolicyWrap)policy;
 			}
 		);
 		
-		return (AsyncPolicy<TResult>)policy;
+		return Unsafe.As<AsyncPolicyWrap<TResult>>(policy);
 	}
 
 	/// <summary>
