@@ -1,4 +1,4 @@
-﻿@inject TrustlistClient Trustlist
+﻿@inject SocialGuardHttpClient Client
 
 <h3>Last entered Users :</h3>
 
@@ -24,7 +24,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Records = (await Trustlist.ListKnownUsersAsync()).Reverse().ToArray();
+        Records = (await Client.ListKnownUsersAsync()).Reverse().ToArray();
         Loaded = true;
     }
 }

@@ -20,4 +20,9 @@
       <ProjectReference Include="..\SocialGuard.Common\SocialGuard.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    </ItemGroup>
+
 </Project>

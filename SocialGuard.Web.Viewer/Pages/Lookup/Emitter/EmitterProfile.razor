@@ -1,4 +1,4 @@
-﻿@inject EmitterClient Emitters
+﻿@inject SocialGuardHttpClient Client
 
 @if (Loaded)
 {
@@ -66,8 +66,8 @@ else
     
     protected override async Task OnParametersSetAsync()
     {
-        Emitter = await Emitters.GetEmitterAsync(EmitterName);
-        _currentHost = Emitters.GetHostUri();
+        Emitter = await Client.GetEmitterAsync(EmitterName);
+        _currentHost = Client.HostUri;
         await base.OnParametersSetAsync();
         Loaded = true;
     }

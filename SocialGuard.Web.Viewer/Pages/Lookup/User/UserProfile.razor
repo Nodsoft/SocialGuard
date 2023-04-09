@@ -1,4 +1,4 @@
-﻿@inject TrustlistClient Trustlist
+﻿@inject SocialGuardHttpClient Client
 
 @if (Loaded)
 {
@@ -27,8 +27,8 @@
                                     <th>SG Directory</th>
 
                                     <td>
-                                        <a class="text-secondary" target="_blank" href=@RestClientBase.MainHost>
-                                            @(new Uri(RestClientBase.MainHost).DnsSafeHost)
+                                        <a class="text-secondary" target="_blank" href=@SocialGuardHttpClient.MainHost>
+                                            @(new Uri(SocialGuardHttpClient.MainHost).DnsSafeHost)
                                         </a>
                                     </td>
                                 </tr>
@@ -125,8 +125,8 @@ else
     
 	protected override async Task OnParametersSetAsync()
 	{
-	    _currentHost = Trustlist.GetHostUri();
-	    User = await Trustlist.LookupUserAsync(Snowflake);
+	    _currentHost = Client.HostUri;
+	    User = await Client.LookupUserAsync(Snowflake);
 		LastMaxEntry = User?.Entries?.Where(e => e.EscalationLevel == User.Entries.Max(x => x.EscalationLevel)).OrderBy(e => e.LastEscalated).LastOrDefault();
 
 		await base.OnParametersSetAsync();
