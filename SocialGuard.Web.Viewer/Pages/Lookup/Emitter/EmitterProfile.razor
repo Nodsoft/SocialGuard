@@ -65,10 +65,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        await foreach (SocialGuardHttpClient client in ClientFactory.CreateClientsAsync(new[] { HostUri }, ScopedServices))
-        {
-            _client = client;
-        }
+        _client = await ClientFactory.CreateClientAsync(HostUri);
 
         Emitter = await _client.GetEmitterAsync(EmitterName);
         await base.OnParametersSetAsync();

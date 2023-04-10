@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace SocialGuard.Client.Http.Services;
 
@@ -69,6 +70,11 @@ public sealed class SocialGuardHttpClientFactory
 	/// </remarks>
 	public async ValueTask<SocialGuardHttpClient> CreateClientAsync(Uri host, IServiceProvider? services = null)
 	{
+		await foreach(SocialGuardHttpClient client in CreateClientsAsync(new[] { host }, services))
+		{
+			return client;
+		}
 
+		throw null!; // unreachable
 	}
 }
