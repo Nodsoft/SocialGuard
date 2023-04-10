@@ -25,6 +25,7 @@ public partial class SocialGuardHttpClient
 		using HttpRequestMessage request = new(HttpMethod.Get, $"/api/v3/user/{string.Join(',', usersId)}");
 		using HttpResponseMessage response = await HttpClient.SendAsync(await request.WithAuthenticationHandlerAsync(this, ct: ct), ct);
 
+		response.EnsureSuccessStatusCode();
 		return await response.Content.ReadFromJsonAsync<TrustlistUser[]>(SerializerOptions, ct) ?? Array.Empty<TrustlistUser>();
 	}
 

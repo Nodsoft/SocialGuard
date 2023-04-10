@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -78,7 +78,7 @@ public sealed class ChainedClient
 		{
 			Console.WriteLine($"{nameof(_QueryWrapper)}: Querying {client.HostUri} ({client.ClientId})...");
 
-			var policy = GetPolicy<TResult>(client.ClientId);
+			AsyncPolicy<TResult> policy = GetPolicy<TResult>(client.ClientId);
 			
 			return await policy.ExecuteAsync(async ctx => await query((SocialGuardHttpClient)ctx["client"]), new()
 			{
@@ -104,15 +104,14 @@ public sealed class ChainedClient
 	/// <returns>The policy for the client.</returns>
 	private static AsyncPolicy<TResult> GetPolicy<TResult>(Guid clientId)
 	{
-		var policy = Circuits.GetOrAdd
-		(
-			clientId, cid =>
-			{
-				// This policy will swallow all exceptions and return a dictionary of exceptions.
-				var policy = 
-				Policy<TResult>
-				.Handle<HttpRequestException>()
-				.Or<BrokenCircuitException<TResult>>()
+		IPolicyWrap policy = Circuits.GetOrAdd(
+			clientId, 
+			cid => Policy<TResult>
+				.Handle((Exception e) => e 
+					is HttpRequestException 
+					or BrokenCircuitException
+					or OperationCanceledException
+				)
 				.FallbackAsync(default(TResult)!, static (result, ctx) =>
 				{
 					if (ctx["hostUri"] is Uri hostUri && ctx["exceptions"] is Dictionary<Uri, Exception> exceptions && result.Exception is not null)
@@ -122,15 +121,11 @@ public sealed class ChainedClient
 
 					return Task.CompletedTask;
 				})
-				.WrapAsync
-				(
-					Policy<TResult>.Handle<HttpRequestException>()
-					               .CircuitBreakerAsync(2, TimeSpan.FromMinutes(10))
-				);
-
-				return (IPolicyWrap)policy;
-			}
-		);
+				.WrapAsync(Policy<TResult>
+					.Handle<HttpRequestException>()
+					.CircuitBreakerAsync(2, TimeSpan.FromMinutes(10))
+				)
+			);
 		
 		return Unsafe.As<AsyncPolicyWrap<TResult>>(policy);
 	}
