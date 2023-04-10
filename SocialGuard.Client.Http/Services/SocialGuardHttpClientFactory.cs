@@ -31,15 +31,15 @@ public sealed class SocialGuardHttpClientFactory
 		_clientAuthTokenProvider = clientAuthTokenProvider;
 		_clientIdAssignmentDelegate = clientIdAssignmentDelegate;
 	}
-	
+
 	/// <summary>
 	/// Creates a series of <see cref="SocialGuardHttpClient"/> instances.
 	/// </summary>
 	/// <param name="hosts">The hosts to create clients for.</param>
+	/// <param name="services">The service provider to use for resolving services.</param>
 	/// <returns>A series of <see cref="SocialGuardHttpClient"/> instances.</returns>
-	public async IAsyncEnumerable<SocialGuardHttpClient> CreateClientsAsync(
-		IEnumerable<Uri> hosts
-	) {
+	public async IAsyncEnumerable<SocialGuardHttpClient> CreateClientsAsync(IEnumerable<Uri> hosts, IServiceProvider? services = null) 
+	{
 		await using AsyncServiceScope scope = _services.CreateAsyncScope();
 		
 		foreach (Uri host in hosts)
@@ -47,12 +47,28 @@ public sealed class SocialGuardHttpClientFactory
 			HttpClient httpClient = _httpClientFactory.CreateClient();
 			httpClient.BaseAddress = host;
 
-			SocialGuardHttpClient client = new(httpClient, scope.ServiceProvider)
+			SocialGuardHttpClient client = new(httpClient, services ?? scope.ServiceProvider)
 			{
-				ClientId = await _clientIdAssignmentDelegate(host, scope.ServiceProvider),
+				ClientId = await _clientIdAssignmentDelegate(host, services ?? scope.ServiceProvider),
 				ClientAuthTokenProviderAsync = _clientAuthTokenProvider
 			};
+			
 			yield return client;
 		}
+	}
+
+	/// <summary>
+	/// Creates a single <see cref="SocialGuardHttpClient"/> instance.
+	/// </summary>
+	/// <param name="host">The host to create a client for.</param>
+	/// <param name="services">The service provider to use for resolving services.</param>
+	/// <returns>A single <see cref="SocialGuardHttpClient"/> instance.</returns>
+	/// <remarks>
+	/// This method is a shorthand convenience method for <see cref="CreateClientsAsync(IEnumerable{Uri}, IServiceProvider?)"/>.
+	/// It merely interprets the <paramref name="host"/> parameter as a single-element enumerable and returns the first element of the resulting async enumerable.
+	/// </remarks>
+	public async ValueTask<SocialGuardHttpClient> CreateClientAsync(Uri host, IServiceProvider? services = null)
+	{
+
 	}
 }

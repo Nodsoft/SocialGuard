@@ -2,22 +2,25 @@
 @page "/user/{UserIdStr}"
 @inject NavigationManager NavigationManager
 
-
-<div class="row justify-content-around text-center mb-5">
-    <div class="col-lg col-xl-7">
-        <h3 class="my-3">Search for User :</h3>
-
-        <EditForm EditContext=EditContext>
-            <DataAnnotationsValidator />
-
-            <div class="input-group input-group-lg">
-                <InputText @bind-Value=Model.SearchStr class="form-control" placeholder="User Snowflake" />
-            </div>
-
-            <p class="lead text-start m-2">
-                <ValidationMessage For="() => Model.SearchStr" />
-            </p>
-        </EditForm>
+<div class="row justify-content-between mb-5">
+    <div class="col-lg col-xl-7 d-flex flex-column">
+        <h1 class="mb-3"><i class="bi bi-person-lines-fill me-3" aria-hidden="true"></i>User Records</h1>
+        
+        <div class="mt-auto mb-3">
+            <h3 class="my-3"><i class="bi bi-search me-3" aria-hidden="true"></i>Search</h3>
+            
+            <EditForm EditContext="EditContext">
+                <DataAnnotationsValidator />
+    
+                <div class="input-group input-group-lg">
+                    <InputText @bind-Value="Model.SearchStr" class="form-control" placeholder="User Snowflake" />
+                </div>
+    
+                <p class="lead text-start m-2">
+                    <ValidationMessage For="() => Model.SearchStr" />
+                </p>
+            </EditForm>
+        </div>
     </div>
 
     <div class="col-lg-auto">
@@ -27,9 +30,7 @@
             </ChildContent>
             
             <ErrorContent>
-                <p class="lead text-danger">
-                    An error occured while loading the latest records.
-                </p>
+                <p class="lead text-danger">An error occured while loading the latest records.</p>
             </ErrorContent>
         </ErrorBoundary>
     </div>

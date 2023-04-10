@@ -1,4 +1,6 @@
-﻿@inject SocialGuardHttpClient Client
+﻿@inherits OwningComponentBase
+
+@inject SocialGuardHttpClientFactory ClientFactory
 
 @if (Loaded)
 {
@@ -17,8 +19,8 @@
                         <th>SG Directory</th>
 
                         <td>
-                            <a target="_blank" href=@_currentHost.ToString()>
-                                @_currentHost.DnsSafeHost
+                            <a target="_blank" href=@_client!.HostUri.ToString()>
+                                @_client!.HostUri.DnsSafeHost
                             </a>
                         </td>
                     </tr>
@@ -52,18 +54,23 @@ else
 }
 
 @code {
+    [Parameter] public Uri HostUri { get; set; } = new Uri("https://api.socialguard.net");
     [Parameter] public string EmitterName { get; set; } = string.Empty;
 
     public Emitter? Emitter { get; set; }
     
     public bool Loaded { get; set; } = false;
-    
-    private Uri _currentHost;
-    
+
+    private SocialGuardHttpClient? _client;
+
     protected override async Task OnParametersSetAsync()
     {
-        Emitter = await Client.GetEmitterAsync(EmitterName);
-        _currentHost = Client.HostUri;
+        await foreach (SocialGuardHttpClient client in ClientFactory.CreateClientsAsync(new[] { HostUri }, ScopedServices))
+        {
+            _client = client;
+        }
+
+        Emitter = await _client.GetEmitterAsync(EmitterName);
         await base.OnParametersSetAsync();
         Loaded = true;
     }

@@ -51,12 +51,12 @@ public static class SocialGuardHttpClientDependencyInjectionExtensions
 		
 		services.AddScoped<SocialGuardHttpClientFactory>(static services => new(
 			services.GetRequiredService<IHttpClientFactory>(),
-			services,
+			services.GetRequiredService<IServiceProvider>(),
 			services.GetRequiredService<SocialGuardHttpClient.AsyncClientAuthTokenProvider>(),
 			services.GetRequiredService<SocialGuardHttpClientFactory.ClientIdAssignmentAsyncDelegate>()
 		));
 		
-		services.AddScoped<SocialGuardHttpClient>(static services => new(
+		services.AddTransient<SocialGuardHttpClient>(static services => new(
 			services.GetRequiredService<IHttpClientFactory>().CreateClient(),
 			services
 		));
