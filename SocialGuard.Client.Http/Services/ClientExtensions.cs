@@ -34,7 +34,7 @@ public static class ClientExtensions
 
 		if (ensureAuthentication)
 		{
-			throw new InvalidOperationException("No authentication token was provided.");
+			throw new InvalidOperationException("No authentication token was provided, and this request requires authentication.");
 		}
 
 		return message;

@@ -73,7 +73,6 @@ public sealed class ChainedClient
 		return new(results, exceptions);
 		
 		
-		
 		async ValueTask<TResult> _QueryWrapper(SocialGuardHttpClient client, Dictionary<Uri, Exception> exceptions)
 		{
 			Console.WriteLine($"{nameof(_QueryWrapper)}: Querying {client.HostUri} ({client.ClientId})...");

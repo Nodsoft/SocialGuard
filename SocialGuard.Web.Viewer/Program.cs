@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
@@ -65,7 +66,7 @@ static async ValueTask<string?> _ClientAuthTokenProvider(SocialGuardHttpClient c
 	if (details is { Active: true, Login: not null, Password: not null })
 	{
 		// Now we need to login.
-		if (await client.LoginAsync(details.Login, details.Password, ct) is { } authResult)
+		if (await client.LoginAsync(details.Login, (await apiAuthService.DecryptPasswordAsync(details.Password, ct))!, ct) is { } authResult)
 		{
 			token = new(details.Host, authResult.Token, authResult.Expiration);
 

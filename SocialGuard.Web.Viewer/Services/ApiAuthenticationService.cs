@@ -76,10 +76,9 @@ public sealed class ApiAuthenticationService
 	/// <param name="ct">The cancellation token.</param>
 	/// <returns>A collection of authentication details.</returns>
 	internal async ValueTask<Dictionary<Guid, AuthenticationDetails>> GetActiveAuthenticationDetailsAsync(CancellationToken ct = default) => new(
-		from detail
-		in await _localStorage.GetItemAsync<Dictionary<Guid, AuthenticationDetails>>("logins", ct) ?? new Dictionary<Guid, AuthenticationDetails>()
+		from detail in await _localStorage.GetItemAsync<Dictionary<Guid, AuthenticationDetails>>("logins", ct) ?? new Dictionary<Guid, AuthenticationDetails>()
 		where detail.Value.Active
-		select new KeyValuePair<Guid, AuthenticationDetails>(detail.Key, detail.Value with { Id = detail.Key, Password = null })
+		select new KeyValuePair<Guid, AuthenticationDetails>(detail.Key, detail.Value with { Id = detail.Key })
 	);
 	
 	internal async ValueTask InitializeAsync(CancellationToken ct = default)
