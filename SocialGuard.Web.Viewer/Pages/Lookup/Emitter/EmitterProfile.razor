@@ -65,7 +65,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        _client = await ClientFactory.CreateClientAsync(HostUri);
+        _client = await ClientFactory.CreateClientAsync(HostUri, ScopedServices);
 
         Emitter = await _client.GetEmitterAsync(EmitterName);
         await base.OnParametersSetAsync();

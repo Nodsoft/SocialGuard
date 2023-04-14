@@ -13,7 +13,7 @@ public partial class SocialGuardHttpClient
 	/// <param name="registerDetails">The details of the user to register.</param>
 	/// <param name="ct">The cancellation token.</param>
 	/// <returns>The response from the server.</returns>
-	public async Task<Response?> RegisterNewUserAsync(RegisterModel registerDetails, CancellationToken ct = default)
+	public async ValueTask<Response?> RegisterNewUserAsync(RegisterModel registerDetails, CancellationToken ct = default)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Post, "/api/v3/auth/register")
 		{
@@ -32,7 +32,7 @@ public partial class SocialGuardHttpClient
 	/// <param name="ct">The cancellation token.</param>
 	/// <returns>The token for the user.</returns>
 	/// <exception cref="HttpRequestException">Thrown when the authentication fails.</exception>
-	public async Task<TokenResult?> LoginAsync(string username, string password, CancellationToken ct = default)
+	public async ValueTask<TokenResult?> LoginAsync(string username, string password, CancellationToken ct = default)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Post, "/api/v3/auth/login")
 		{
@@ -54,5 +54,20 @@ public partial class SocialGuardHttpClient
 		}
 
 		return (await response.Content.ReadFromJsonAsync<Response<TokenResult>>(SerializerOptions, ct))?.Details;
+	}
+	
+	/// <summary>
+	/// Determines if the user is logged in.
+	/// </summary>
+	/// <param name="ct">The cancellation token.</param>
+	/// <returns>Whether the user is logged in.</returns>
+	/// <remarks>
+	/// This method determines if the user is logged in by checking if the token is valid.
+	/// </remarks>
+	public async ValueTask<bool> IsLoggedInAsync(CancellationToken ct = default)
+	{
+		using HttpRequestMessage request = new(HttpMethod.Get, "/api/v3/auth/whoami");
+		using HttpResponseMessage response = await HttpClient.SendAsync(await request.WithAuthenticationHandlerAsync(this, ct: ct), ct);
+		return response.StatusCode is HttpStatusCode.OK or HttpStatusCode.NoContent;
 	}
 }
