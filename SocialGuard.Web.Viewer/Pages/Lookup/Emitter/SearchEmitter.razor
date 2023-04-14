@@ -1,0 +1,118 @@
+﻿@page "/emitter"
+@page "/emitter/{EmitterName?}"
+
+@using SocialGuard.Web.Viewer.Data
+
+@inject NavigationManager NavigationManager
+@inject ApiAuthenticationService ApiAuthenticationService
+
+@if (_loaded)
+{
+    <div class="row justify-content-between mb-5">
+        <div class="col col-lg-8 d-flex flex-column">
+            <h1 class="mb-3"><i class="bi bi-patch-check-fill me-3" aria-hidden="true"></i>Emitters</h1>
+
+            <div class="mt-auto mb-3">
+                <h3 class="my-3"><i class="bi bi-search me-3" aria-hidden="true"></i>Search</h3>
+            
+                <EditForm EditContext="@EditContext">
+                    <DataAnnotationsValidator />
+
+                    <div class="input-group input-group-xl">
+                        <InputSelect TValue="Guid" placeholder="Select a Directory" @bind-Value="@Model.DirectoryId" class="form-select">
+                            @* <option value="@Guid.Empty" disabled selected>Select a Directory</option> *@
+                            @foreach (AuthenticationDetails directory in _activeAuthDetails.Values)
+                            {
+                                <option value="@directory.Id">@directory.DisplayName (@directory.Host.DnsSafeHost)</option>
+                            }
+                        </InputSelect>
+                    
+                        <InputText @bind-Value="@Model.SearchStr" DisplayName="Emitter ID" class="form-control" placeholder="Emitter ID" />
+                    </div>
+
+                    <p class="lead text-start m-2">
+                        <ValidationMessage For="() => Model.SearchStr" />
+                    </p>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @LoadingSpinner
+}
+
+@if (_contentLoaded)
+{
+    <hr class="my-5" />
+
+    <ErrorBoundary>
+        <ChildContent>
+            <EmitterProfile @ref="_emitterProfile" EmitterName=@EmitterName HostUri="@_activeAuthDetails[Model.DirectoryId].Host" />
+        </ChildContent>
+
+        <ErrorContent>
+            <h3 class="text-danger">An error occured loading Emitter "@EmitterName".</h3>
+        </ErrorContent>
+    </ErrorBoundary>
+}
+
+
+@code {
+    [Parameter] public string? EmitterName { get; set; }
+
+    private bool _loaded, _contentLoaded;
+    private Dictionary<Guid, AuthenticationDetails> _activeAuthDetails = new();
+    private EmitterProfile _emitterProfile = new();
+
+    protected SearchModel Model { get; set; } = new();
+    protected EditContext? EditContext { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _activeAuthDetails = await ApiAuthenticationService.GetActiveAuthenticationDetailsAsync();
+        Model.DirectoryId = _activeAuthDetails.Values.FirstOrDefault()?.Id ?? Guid.Empty;
+        
+        EditContext = new(Model);
+        EditContext.OnFieldChanged += SetCurrentEmitterId;
+
+        _loaded = true;
+        
+        if (EmitterName is not null)
+        {
+            Model.SearchStr = EmitterName;
+            _contentLoaded = true;
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+
+    public void SetCurrentEmitterId(object? _1, FieldChangedEventArgs _2)
+    {
+        _contentLoaded = false;
+
+        if (EditContext!.Validate())
+        {
+            EmitterName = Model.SearchStr;
+
+            _emitterProfile = new()
+            {
+                EmitterName = Model.SearchStr!,
+                HostUri = _activeAuthDetails[Model.DirectoryId].Host
+            };
+            
+            _contentLoaded = true;
+        }
+    }
+
+    public sealed record SearchModel
+    {
+        [Required]
+        public Guid DirectoryId { get; set; }
+        
+        [Required, MaxLength(100)]
+        public string? SearchStr { get; set; }
+    }
+}

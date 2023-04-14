@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
 	<meta charset="utf-8" />
@@ -28,7 +28,7 @@
 	<div id="app">
 		<div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
 			<div class="lds-dual-ring m-3"></div>
-			<h3>Loading...</h3>
+			<h3>Loading:<span class="loading-progress-text ms-2"></span></h3>
 		</div>
 	</div>
 
@@ -39,6 +39,7 @@
 	</div>
 
 	<script src="/_framework/blazor.webassembly.js"></script>
+	<script src="/js/app.js"></script>
 	<script>navigator.serviceWorker.register('service-worker.js');</script>
 </body>
 

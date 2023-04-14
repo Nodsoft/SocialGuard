@@ -1,0 +1,106 @@
+﻿@page "/user"
+@page "/user/{UserIdStr}"
+@inject NavigationManager NavigationManager
+
+<div class="row justify-content-between mb-5">
+    <div class="col-lg col-xl-7 d-flex flex-column">
+        <h1 class="mb-3"><i class="bi bi-person-lines-fill me-3" aria-hidden="true"></i>User Records</h1>
+        
+        <div class="mt-auto mb-3">
+            <h3 class="my-3"><i class="bi bi-search me-3" aria-hidden="true"></i>Search</h3>
+            
+            <EditForm EditContext="EditContext">
+                <DataAnnotationsValidator />
+    
+                <div class="input-group input-group-lg">
+                    <InputText @bind-Value="Model.SearchStr" class="form-control" placeholder="User Snowflake" />
+                </div>
+    
+                <p class="lead text-start m-2">
+                    <ValidationMessage For="() => Model.SearchStr" />
+                </p>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="col-lg-auto">
+        <ErrorBoundary>
+            <ChildContent>
+                <LastEnteredUsers />
+            </ChildContent>
+            
+            <ErrorContent>
+                <p class="lead text-danger">An error occured while loading the latest records.</p>
+            </ErrorContent>
+        </ErrorBoundary>
+    </div>
+</div>
+
+@if (_loaded)
+{
+    <hr class="my-5" />
+
+    <ErrorBoundary @ref=_lookupErrorBound>
+        <ChildContent>
+            <UserProfile Snowflake=SearchId />
+        </ChildContent>
+
+        <ErrorContent>
+            <h3 class="text-danger">An error occured while loading record for user <span class="font-monospace">@SearchId</span>.</h3>
+        </ErrorContent>
+    </ErrorBoundary>
+}
+
+
+@code {
+    public const string SnowflakeRegex = /*lang=regex*/"^(\\d{17,21})$";
+
+    [Parameter] public string? UserIdStr { get; set; }
+    public ulong SearchId { get; set; }
+
+    private bool _loaded = false;
+
+    protected SearchModel Model { get; set; } = new();
+    protected EditContext EditContext { get; set; } = null!;
+
+    private ErrorBoundary _lookupErrorBound = new();
+
+    protected override Task OnParametersSetAsync()
+    {
+        EditContext = new(Model);
+        EditContext.OnFieldChanged += SetCurrentProfileSnowflake;
+
+        if (UserIdStr is not null)
+        {
+            Model.SearchStr = UserIdStr;
+
+            if (EditContext.Validate())
+            {
+                _lookupErrorBound.Recover();
+                SearchId = Convert.ToUInt64(Model.SearchStr);
+                _loaded = true;
+            }
+        }
+
+        return base.OnParametersSetAsync();
+    }
+
+
+    public void SetCurrentProfileSnowflake(object? _1, FieldChangedEventArgs _2)
+    {
+        _loaded = false;
+
+        if (EditContext.Validate())
+        {
+            _lookupErrorBound.Recover();
+            SearchId = Convert.ToUInt64(Model.SearchStr);
+            _loaded = true;
+        }
+    }
+
+    public sealed record SearchModel
+    {
+        [Required, RegularExpression(SnowflakeRegex, ErrorMessage = "Invalid Snowflake.")]
+        public string? SearchStr { get; set; }
+    }
+}

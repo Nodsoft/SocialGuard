@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
@@ -9,30 +9,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Remove="libman.json"/>
+        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
     </ItemGroup>
 
     <ItemGroup>
-        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.css"/>
-    </ItemGroup>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+        <PackageReference Include="DartSassBuilder" Version="1.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.0.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
 
-    <ItemGroup>
-        <None Include="libman.json">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.HttpHandler" Version="3.2.1"/>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0"/>
-
-        <ProjectReference Include="..\SocialGuard.Client.Http\SocialGuard.Client.Http.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
+        <ProjectReference Include="..\SocialGuard.Client.Http\SocialGuard.Client.Http.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,6 +32,23 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Make .razor.css files dependent on the corresponding .razor.scss files -->
+        <Content Update="**\*.razor.css" DependentUpon="%(Filename).razor.scss" />
+    </ItemGroup>
+    
+    <PropertyGroup>
+        <DartSassOutputStyle>compressed</DartSassOutputStyle>
+        <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
+        <DartSassOutputLevel>verbose</DartSassOutputLevel>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <TypeScriptCompile Remove="node_modules\**;wwwroot\lib\**" />
+        <Content Remove="tsconfig.json" />
+        <TypeScriptCompile Include="tsconfig.json" />
     </ItemGroup>
 
 </Project>

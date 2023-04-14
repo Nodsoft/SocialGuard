@@ -1,0 +1,33 @@
+﻿@using SocialGuard.Client.Http.Data
+@inject Task<ChainedClient> ClientTask
+
+<h3><i class="bi bi-person-fill-up me-3"></i>Last entered Users</h3>
+
+<ul class="overflow-auto text-start" style="max-height:12rem;">
+    @if (Loaded)
+    {
+        <Virtualize Items=Records Context=record>
+            <li><a href="user/@record">@record</a></li>
+        </Virtualize>
+    }
+    else
+    {
+        @LoadingSpinner
+    }
+</ul>
+
+@code
+{
+    public ulong[] Records { get; set; } = Array.Empty<ulong>();
+
+    public bool Loaded { get; set; } = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ChainedClient client = await ClientTask;
+        ChainedQueryResult<ulong[]> results = await client.ExecuteQueryAsync(static async x => await x.ListKnownUsersAsync());
+        Records = results.Results.SelectMany(x => x.Value).Distinct().Reverse().ToArray();
+        Loaded = true;
+    }
+}

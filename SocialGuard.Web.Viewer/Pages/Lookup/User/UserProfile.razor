@@ -1,0 +1,154 @@
+﻿@using SocialGuard.Client.Http.Data
+@inject Task<ChainedClient> ClientTask
+
+@if (Loaded)
+{
+	<h3 class="my-5">Trustlist User : <span class="font-monospace">@Snowflake</span></h3>
+
+    <div class="my-5">
+        @if (Entries is null)
+        {
+            <h3 class="text-success">User is not listed on any Directory.</h3>
+        }
+        else
+        {
+            (Uri maxHost, TrustlistEntry maxEntry) = LastMaxEntry!.Value;
+            
+            <div class="card bg-body border-@(maxEntry.GetTrustlistLevelBootstrapColor()) mb-5 p-4">
+                <h3 class="mb-4 text-@maxEntry.GetTrustlistLevelBootstrapColor()">@maxEntry.GetTrustlistLevelDisplayString() User</h3>
+
+                <div class="row">
+                    <div class="col-xl-8">
+                        <h5>Last Reason</h5>
+                        <p class="my-3" style="white-space: pre-wrap;">@maxEntry.EscalationNote</p>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th>SG Directory</th>
+
+                                    <td>
+                                        <a class="text-secondary" target="_blank" href=@maxHost>
+                                            @maxHost.DnsSafeHost
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    @{ Emitter emitter = maxEntry.Emitter!; }
+                                    <th>Entered by</th>
+                                    
+                                    <td>
+                                        <a class="text-secondary" href="/emitter/@(emitter.Login)">
+                                            @emitter.DisplayName
+                                            <span class="text-muted">(@emitter.Login)</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                
+                                <tr><th>Entered at</th><td>@maxEntry.EntryAt</td></tr>
+                                <tr><th>Total Entries</th><td>@(Entries?.Count ?? 0)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @if (Entries is { Count: > 1 })
+            {
+                <hr />
+
+                <h3 class="my-5">All Entries</h3>
+
+                @foreach ((Uri host, TrustlistEntry? entry) in Entries)
+                {
+                    <div class="card mb-3 border-@entry.GetTrustlistLevelBootstrapColor() bg-dark">
+                        <div class="row">
+                            <div class="col-lg">
+                                <div class="card-body" style="white-space: pre-wrap;">@entry.EscalationNote</div>
+                            </div>
+
+                            <div class="col-lg-auto">
+                                <div class="card-body">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <th>SG Directory</th>
+
+                                                <td>
+                                                    <a class="text-secondary" target="_blank" href=@host.ToString()>
+                                                        @(host.DnsSafeHost)
+                                                    </a>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Emitter</th>
+                                                
+                                                <td>
+                                                    <a class="text-secondary" href="/emitter/@(entry.Emitter!.Login)">
+                                                        @entry.Emitter!.DisplayName
+                                                        <span class="text-muted">(@entry.Emitter!.Login)</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            
+                                            <tr><th>Entered at</th><td>@entry.EntryAt</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
+}
+else
+{
+	@LoadingSpinner
+}
+
+
+
+
+
+@code {
+	[Parameter] public ulong Snowflake { get; set; }
+    
+	public KeyValuePair<Uri, TrustlistEntry>? LastMaxEntry { get; set; }
+    public IReadOnlyDictionary<Uri, TrustlistUser?> Records { get; set; } = new Dictionary<Uri, TrustlistUser?>();
+    public ICollection<KeyValuePair<Uri, TrustlistEntry>>? Entries { get; set; }
+    
+	public bool Loaded { get; set; } = false;
+
+    protected override async Task OnParametersSetAsync()
+	{
+        ChainedClient client = await ClientTask;
+        
+	    ChainedQueryResult<TrustlistUser?> lookup = await client.ExecuteQueryAsync(async x => await x.LookupUserAsync(Snowflake));
+        Records = new Dictionary<Uri, TrustlistUser?>(lookup.Results.Where(x => x.Value is not null));
+        
+        // Entries correspond to key = host, value = record's entry. Multiple entries are possible.
+        Entries = (
+            from record in Records
+            where record.Value is not null
+            from entry in record.Value!.Entries
+            select new KeyValuePair<Uri, TrustlistEntry>(record.Key, entry)
+        ).ToArray();
+        
+        // LastMaxEntry corresponds to the last entry with the highest escalation level.
+        LastMaxEntry = (
+            from entry in Entries
+            orderby entry.Value.EscalationLevel descending
+            select entry
+        ).FirstOrDefault();
+
+		await base.OnParametersSetAsync();
+
+		Loaded = true;
+	}
+}
