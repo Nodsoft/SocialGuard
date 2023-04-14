@@ -1,0 +1,4 @@
+﻿# Ignore the /Docs folder (Obsidian Vault location)
+/Docs
+
+*.css
