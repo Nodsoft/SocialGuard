@@ -1,0 +1,71 @@
+﻿@using SocialGuard.Web.Viewer.Data
+
+@inject ApiAuthenticationService AuthService
+
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary  />
+
+    <div class="d-flex flex-column gap-3 my-3">
+        <div class="form-group">
+            <div class="d-flex justify-content-between form-label">
+                <label for="display-name">Display Name</label>
+                <ValidationMessage For="@(() => Model.DisplayName)" />
+            </div>
+            
+            <InputText class="form-control" id="display-name" @bind-Value="Model.DisplayName" />
+        </div>
+
+        <div class="form-group">
+            <div class="d-flex justify-content-between">
+                <label for="host" class="form-label">Host</label>
+                <ValidationMessage For="@(() => Model.Host)" />
+            </div>
+
+            <InputText type="url" class="form-control" id="host" @bind-Value="Model.HostStr" />
+        </div>
+
+        <div class="row">
+            <div class="col-lg form-group">
+                <div class="d-flex justify-content-between form-label">
+                    <label for="login">Login</label>
+                    <ValidationMessage For="@(() => Model.Login)" />
+                </div>
+
+                <InputText class="form-control" id="login" @bind-Value="Model.Login" />
+            </div>
+
+            <div class="col-lg form-group">
+                <div class="d-flex justify-content-between form-label">
+                    <label for="password">Password</label>
+                    <ValidationMessage For="@(() => Model.Password)" />
+                </div>
+
+                <InputText class="form-control" id="password" type="password" @bind-Value="Model.Password" />
+            </div>
+        </div>
+    </div>
+
+    <button class="btn btn-primary px-5" type="submit">Save</button>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public AuthenticationDetails Model { get; set; } = new("Example", new("https://localhost/api", UriKind.Absolute));
+
+    [Parameter]
+    public EventCallback<AuthenticationDetails> FormSubmitted { get; set; }
+
+    private async Task OnValidSubmit()
+    {
+        await AuthService.UpsertAuthenticationDetailsAsync(Model);
+        await FormSubmitted.InvokeAsync(Model);
+    }
+    
+    public async void SetModel(AuthenticationDetails model)
+    {
+        Model = model;
+        await InvokeAsync(StateHasChanged);
+    }
+}
