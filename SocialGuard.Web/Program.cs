@@ -9,35 +9,31 @@ using SocialGuard.Web.Services;
 
 
 
-namespace SocialGuard.Web
-{
-	public class Program
-	{
-		public static async Task Main(string[] args)
-		{
-			IHost host = CreateHostBuilder(args).Build();
+namespace SocialGuard.Web;
 
-			Log.Logger = new LoggerConfiguration()
-			#if DEBUG
-				.MinimumLevel.Debug()
+public class Program
+{
+	public static async Task Main(string[] args)
+	{
+		IHost host = CreateHostBuilder(args).Build();
+
+		Log.Logger = new LoggerConfiguration()
+#if DEBUG
+			.MinimumLevel.Debug()
 #else
 				.MinimumLevel.Information()
 				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
 				.MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
 #endif
-				.Enrich.FromLogContext()
-				.WriteTo.Console()
-				.CreateLogger();
+			.Enrich.FromLogContext()
+			.WriteTo.Console()
+			.CreateLogger();
 
-			await host.RunAsync();
-		}
-
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder.UseStartup<Startup>();
-					webBuilder.UseSerilog();
-				});
+		await host.RunAsync();
 	}
+
+	public static IHostBuilder CreateHostBuilder(string[] args) =>
+		Host.CreateDefaultBuilder(args)
+			.ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+			.UseSerilog();
 }

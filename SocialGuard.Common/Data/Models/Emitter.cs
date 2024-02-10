@@ -13,6 +13,6 @@ public record Emitter
 
 	public ulong Snowflake { get; init; }
 
-	[Required, DisallowNull]
+	[Required]
 	public string DisplayName { get; init; } = string.Empty;
 }

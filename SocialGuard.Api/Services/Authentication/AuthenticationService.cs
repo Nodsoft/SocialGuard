@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using SocialGuard.Common.Data.Models.Authentication;
 using System.IdentityModel.Tokens.Jwt;
@@ -141,4 +141,4 @@ public record AuthServiceResponse<T>
 	public Response<T> Response { get; init; }
 }
 
-public record AuthServiceResponse : AuthServiceResponse<object>;
+public sealed record AuthServiceResponse : AuthServiceResponse<object>;
