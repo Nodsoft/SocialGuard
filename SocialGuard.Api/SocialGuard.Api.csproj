@@ -4,6 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <UserSecretsId>328b09f5-4635-4228-b9af-a4f5bab47844</UserSecretsId>
         <ImplicitUsings>true</ImplicitUsings>
+        <LangVersion>preview</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,6 +21,7 @@
         <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="8.0.0" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
@@ -32,6 +34,12 @@
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.3.1" />
         <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.1.0" />
+        <PackageReference Include="OpenIddict.Quartz" Version="5.1.0" />
+        <PackageReference Include="OpenIddict.Server.AspNetCore" Version="5.1.0" />
+        <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="5.1.0" />
+        <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="5.1.0" />
+        <PackageReference Include="Quartz.AspNetCore" Version="3.8.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
@@ -40,10 +48,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SocialGuard.Common\SocialGuard.Common.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Migrations\AuthDb"/>
     </ItemGroup>
 
 </Project>

@@ -70,11 +70,12 @@ public class Startup
 		);
 
 		services.AddDbContextPool<AuthDbContext>(o =>
-			o.UseNpgsql(dbConnectionString, p =>
-					p.EnableRetryOnFailure()
-				)
-				.UseSnakeCaseNamingConvention()
-		);
+		{
+			o.UseNpgsql(dbConnectionString, p => p.EnableRetryOnFailure())
+				.UseSnakeCaseNamingConvention();
+
+			o.UseOpenIddict<Guid>();
+		});
 
 		services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
@@ -87,17 +88,12 @@ public class Startup
 				string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 				options.IncludeXmlComments(xmlPath);
 
-				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new()
-					{
-						Name = "bearer",
-						BearerFormat = "JWT",
-						Scheme = "bearer",
-						Description = "Specify the authorization token.",
-						In = ParameterLocation.Header,
-						Type = SecuritySchemeType.Http,
-					}
-				);
+				// OIDC configuration
+				options.AddSecurityDefinition("oidc" /* OpenID Connect */, new()
+				{
+					Type = SecuritySchemeType.OpenIdConnect,
+					OpenIdConnectUrl = new("/.well-known/openid-configuration", UriKind.Relative)
+				});
 
 				// Make sure swagger UI requires a Bearer token specified
 				OpenApiSecurityScheme securityScheme = new()
@@ -117,24 +113,40 @@ public class Startup
 			}
 		);
 
+		// Add authz via OpenIddict
+		services.AddOpenIddict()
+			.AddCore(options =>
+			{
+				options.UseEntityFrameworkCore()
+					.UseDbContext<AuthDbContext>()
+					.ReplaceDefaultEntities<Guid>();
 
+				options.UseQuartz();
+			})
+			.AddServer(options =>
+			{
+				options.SetTokenEndpointUris("/api/v4/connect/token");
+
+				options.AllowPasswordFlow();
+				options.AllowRefreshTokenFlow();
+
+				options.AcceptAnonymousClients();
+
+				options.AddDevelopmentEncryptionCertificate();
+				options.AddDevelopmentSigningCertificate();
+
+				options.UseAspNetCore()
+					.EnableTokenEndpointPassthrough();
+			})
+			.AddValidation(options =>
+			{
+				options.UseLocalServer();
+				options.UseAspNetCore();
+			});
+		
 		services.AddSignalR(config => config.EnableDetailedErrors = true)
 			.AddMessagePackProtocol();
-
-
-		/*
-		services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
-			options => { },
-			mongo =>
-			{
-				IConfigurationSection config = Configuration.GetSection("Auth");
-				mongo.ConnectionString = config["ConnectionString"];
-				mongo.MigrationCollection = config["Tables:Migration"];
-				mongo.RolesCollection = config["Tables:Role"];
-				mongo.UsersCollection = config["Tables:User"];
-			});
-		*/
-
+		
 		// Add Identity
 		services.AddIdentity<ApplicationUser, UserRole>()
 			.AddEntityFrameworkStores<AuthDbContext>()
@@ -142,35 +154,33 @@ public class Startup
 
 
 		services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+			}
+		)
+		// Adding Jwt Bearer  
+		.AddJwtBearer(options =>
+			{
+				options.SaveToken = true;
+				options.RequireHttpsMetadata = false;
+				options.TokenValidationParameters = new()
 				{
-					options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-					options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-				}
-			)
-
-			// Adding Jwt Bearer  
-			.AddJwtBearer(options =>
-				{
-					options.SaveToken = true;
-					options.RequireHttpsMetadata = false;
-					options.TokenValidationParameters = new()
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidAudience = Configuration["JWT:ValidAudience"],
-						ValidIssuer = Configuration["JWT:ValidIssuer"],
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
-					};
-				}
-			);
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidAudience = Configuration["JWT:ValidAudience"],
+					ValidIssuer = Configuration["JWT:ValidIssuer"],
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+				};
+			}
+		);
 
 		services.AddCors(c => c.AddDefaultPolicy(builder => builder
-				.AllowAnyOrigin()
-				.AllowAnyHeader()
-				.AllowAnyMethod()
-			)
-		);
+			.AllowAnyOrigin()
+			.AllowAnyHeader()
+			.AllowAnyMethod()
+		));
 
 
 		services.AddTransient<AuthenticationService>();
