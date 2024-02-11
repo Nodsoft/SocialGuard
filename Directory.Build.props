@@ -4,8 +4,8 @@
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
         <AnalysisLevel>latest</AnalysisLevel>
 
-        <VersionPrefix>3.1</VersionPrefix>
-        <VersionSuffix>rc4</VersionSuffix>
+        <VersionPrefix>4.0</VersionPrefix>
+        <VersionSuffix>dev</VersionSuffix>
         
         <Authors>Sakura Akeno Isayeki</Authors>
         <Company>Nodsoft Systems</Company>
