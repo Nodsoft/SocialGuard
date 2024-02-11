@@ -7,7 +7,7 @@ using SocialGuard.Api.Services;
 namespace SocialGuard.Api.Controllers
 {
 	[ApiController, Route("api/v{version:apiVersion}/[controller]"), Authorize]
-	[ApiVersion("3.0"), ApiVersion("2.0")]
+	[ApiVersion("3.0"), ApiVersion("2.0"), ApiVersion("4.0")]
 	public class EmitterController : ControllerBase
 	{
 		private readonly IEmitterService emitterService;

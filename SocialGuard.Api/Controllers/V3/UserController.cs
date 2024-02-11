@@ -11,7 +11,7 @@ namespace SocialGuard.Api.Controllers.V3
 	public record TrustlistImportModel(IEnumerable<TrustlistUser> Entries, Emitter Emitter, DateTime Timestamp);
 
 
-	[ApiController, Route("api/v{version:apiVersion}/[controller]"), ApiVersion("3.0")]
+	[ApiController, Route("api/v{version:apiVersion}/[controller]"), ApiVersion("3.0"), ApiVersion("4.0")]
 	public class UserController : ControllerBase
 	{
 		private readonly ITrustlistService trustlistService;

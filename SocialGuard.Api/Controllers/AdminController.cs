@@ -10,7 +10,7 @@ namespace SocialGuard.Api.Controllers;
 /// Provides administration endpoints for managing the SocialGuard API. 
 /// </summary>
 [ApiController, Route("api/v{version:apiVersion}/[controller]"), Authorize(Roles = UserRole.Admin)]
-[ApiVersion("3.0"), ApiVersion("2.0")]
+[ApiVersion("3.0"), ApiVersion("2.0"), ApiVersion("4.0")]
 public class AdminController
 {
 	private readonly AdminService _adminService;
