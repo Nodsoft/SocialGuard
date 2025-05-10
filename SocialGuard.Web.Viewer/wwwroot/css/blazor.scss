@@ -85,6 +85,52 @@ h1:focus {
   }
 }
 
+@keyframes flash-nuclear-color {
+  0% {
+    color: red;
+  }
+  50% {
+    color: yellow;
+  }
+  100% {
+    color: red;
+  }
+}
+
+@keyframes flash-nuclear-border {
+    0% {
+        border-color: red;
+    }
+    50% {
+        border-color: yellow;
+    }
+    100% {
+        border-color: red;
+    }
+}
+
+%color-nuclear {
+  // Flash colors from red to yellow and back    
+  animation: flash-nuclear-color 1s linear infinite;
+}
+
+%border-nuclear {
+  // Flash colors from red to yellow and back    
+  animation: flash-nuclear-border 1s linear infinite;
+}
+
+.text {
+  &-nuclear {
+    @extend %color-nuclear;
+  }
+}
+
+.border {
+  &-nuclear {
+      @extend %border-nuclear;
+  }
+}
+
 @keyframes lds-dual-ring {
   0% {
     transform: rotate(0deg);

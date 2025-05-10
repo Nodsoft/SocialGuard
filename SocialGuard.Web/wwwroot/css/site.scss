@@ -126,3 +126,7 @@ body {
 	-webkit-backdrop-filter: blur(50px);
 	backdrop-filter: blur(50px);
 }
+
+article.docs {
+	@import "docs";
+}

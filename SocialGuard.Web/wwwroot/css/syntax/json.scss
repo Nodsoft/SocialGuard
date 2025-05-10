@@ -1,0 +1,11 @@
+﻿$symbols-color: (
+        "jsonKey": #D7BA7D,
+        "jsonString": #D69D85,
+        "jsonNumber": #B5CEA8,
+);
+
+@each $symbol, $color in $symbols-color {
+  .#{$symbol} {
+    color: $color;
+  }
+}

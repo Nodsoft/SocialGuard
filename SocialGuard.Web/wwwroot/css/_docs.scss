@@ -1,0 +1,83 @@
+﻿@mixin code-font() {
+  font-family: monospace;
+  font-size: 90%;
+}
+
+pre {
+  @include code-font();
+  padding: 1em;
+  background-color: rgba(white, 0.05);
+  border-radius: 0.5em;
+  white-space: pre-wrap;
+}
+
+:not(pre) code {
+  @include code-font();
+
+  color: #e83e8c;
+  text-decoration-color: #e83e8c;
+  background-color: rgba(white, 0.03);
+  padding: 0.25em 0.5em;
+  border-radius: 0.3em;
+}
+
+.markdown-alert {
+  @mixin callout-color($name, $color) {
+    background-color: rgba($color, 0.1);
+
+    &-title {
+      color: $color;
+
+      svg {
+        fill: $color;
+      }
+    }
+  }
+
+  background-color: rgba(white, 0.025);
+  background-blend-mode: lighten;
+  padding: 1.5em;
+  border-radius: 0.5em;
+  margin: 1em 0;
+
+  &-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-weight: bold;
+  }
+
+  p:first-child {
+    margin-block-start: 0;
+  }
+
+  p:last-child {
+    margin-block-end: 0;
+  }
+
+  // Colors
+  @include callout-color("info", rgb(0, 122, 255));
+}
+
+@mixin code-block-syntax($lang) {
+  .lang-#{$lang} .#{$lang} pre {
+    @content;
+  }
+}
+
+@include code-block-syntax("json") {
+  @import "syntax/json";
+}
+
+.moltenobsidian-tag {
+  background-color: rgba(0, 173, 181, 0.1);
+  padding-inline: .75em;
+  padding-block: .25em;
+  border-radius: 1em;
+  
+  &::before {
+    content: "#";
+    padding-inline-end: 0.25em;
+    color: var(--bs-primary);
+  }
+}

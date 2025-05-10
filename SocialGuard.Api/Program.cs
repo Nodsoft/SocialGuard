@@ -50,6 +50,6 @@ namespace SocialGuard.Api
 			Host.CreateDefaultBuilder(args)
 				.ConfigureWebHostDefaults(webBuilder => 
 					webBuilder.UseStartup<Startup>())
-				.UseSerilog();
+				.UseSerilog((hostingCtx, config) => config.ReadFrom.Configuration(hostingCtx.Configuration));
 	}
 }

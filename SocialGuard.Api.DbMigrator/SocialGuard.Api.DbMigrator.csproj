@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>dotnet-SocialGuard.Api.DbMigrator-3AA5545F-89A5-43BD-81AE-EEB10C452C57</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Mapster.Async" Version="2.0.0" />
-        <PackageReference Include="Mapster.EFCore" Version="5.1.0" />
+        <PackageReference Include="Mapster.Async" Version="2.0.1" />
+        <PackageReference Include="Mapster.EFCore" Version="5.1.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>

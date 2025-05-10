@@ -23,11 +23,14 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '7.0.x'
-        include-prerelease: true
+        dotnet-version: '8.0'
+#        include-prerelease: true
+    
     - name: Restore dependencies
       run: dotnet restore *.sln
+      
     - name: Build
       run: dotnet build --no-restore *.sln
+      
     - name: Test
       run: dotnet test --no-build --verbosity normal *.sln
