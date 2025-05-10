@@ -17,24 +17,24 @@
     <ItemGroup>
         <PackageReference Include="AspNetCore.Identity.Mongo" Version="8.3.3"/>
         <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
-        <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="8.0.0" />
-        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1" />
+        <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="8.1.2" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.15" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.15" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.15" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.15">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.1" />
-        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.3.1" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.15" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.9.0" />
         <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1"/>
     </ItemGroup>
 

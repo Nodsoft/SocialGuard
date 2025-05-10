@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Mapster.Async" Version="2.0.0" />
-        <PackageReference Include="Mapster.EFCore" Version="5.1.0" />
+        <PackageReference Include="Mapster.Async" Version="2.0.1" />
+        <PackageReference Include="Mapster.EFCore" Version="5.1.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>

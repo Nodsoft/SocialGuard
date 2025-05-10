@@ -9,10 +9,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DartSassBuilder" Version="1.0.0" />
-        <PackageReference Include="Nodsoft.MoltenObsidian.Blazor" Version="1.0.4-beta" />
-        <PackageReference Include="Nodsoft.MoltenObsidian.Vaults.Http" Version="1.0.4-beta" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+        <PackageReference Include="DartSassBuilder" Version="1.1.0" />
+        <PackageReference Include="Nodsoft.MoltenObsidian.Blazor" Version="1.1.2" />
+        <PackageReference Include="Nodsoft.MoltenObsidian.Vaults.Http" Version="1.1.2" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     </ItemGroup>
 
