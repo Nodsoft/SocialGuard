@@ -16,7 +16,7 @@
         <PackageReference Include="DartSassBuilder" Version="1.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.15" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.15" PrivateAssets="all" />
-        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.8.3">
+        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.3">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
