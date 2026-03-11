@@ -17,251 +17,148 @@ using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using SocialGuard.Api.Data;
 using SocialGuard.Api.Data.Authentication;
+using SocialGuard.Api.Infrastructure;
+using SocialGuard.Api.Infrastructure.Authentication;
 using SocialGuard.Api.Services.Admin;
 
 
 namespace SocialGuard.Api;
 
-public class Startup
+public static class Startup
 {
-	public Startup(IConfiguration configuration)
-	{
-		Configuration = configuration;
-	}
-
-	public IConfiguration Configuration { get; }
 	public static string Version { get; } = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
 
 	// This method gets called by the runtime. Use this method to add services to the container.
-	public void ConfigureServices(IServiceCollection services)
+	public static void ConfigureApplicationServices(this WebApplicationBuilder builder)
 	{
-		services.AddControllers(config => { config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider()); });
+		Log.Logger = new LoggerConfiguration()
+			.WriteTo.Console()
+			.CreateBootstrapLogger();
+		
+		builder.Services.AddSerilog((services, lc) => lc
+			.ReadFrom.Configuration(builder.Configuration)
+			.ReadFrom.Services(services)
+			.Enrich.FromLogContext()
+			.WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
+		);
+		
+		builder.Services.AddControllers(config => { config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider()); });
 
-		services.AddApiVersioning(config =>
-			{
-				config.DefaultApiVersion = new(3, 1, "rc1");
-				config.AssumeDefaultVersionWhenUnspecified = true;
-				config.ReportApiVersions = true;
-			}
+		builder.Services.AddApiVersioning(config =>
+		{
+			config.DefaultApiVersion = new(3, 1, "rc1");
+			config.AssumeDefaultVersionWhenUnspecified = true;
+			config.ReportApiVersions = true;
+		});
+
+		builder.Services.AddVersionedApiExplorer(options =>
+		{
+			// add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+			// note: the specified format code will format the version as "'v'major[.minor][-status]"
+			options.GroupNameFormat = "'v'VVV";
+
+			// note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+			// can also be used to control the format of the API version in route templates
+			options.SubstituteApiVersionInUrl = true;
+		});
+
+		string dbConnectionString = builder.Configuration.GetConnectionString("Database");
+
+		builder.Services.AddDbContextPool<ApiDbContext>(o => o
+			.UseNpgsql(dbConnectionString)
+			.UseSnakeCaseNamingConvention()
 		);
 
-		services.AddVersionedApiExplorer(options =>
-			{
-				// add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-				// note: the specified format code will format the version as "'v'major[.minor][-status]"
-				options.GroupNameFormat = "'v'VVV";
-
-				// note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-				// can also be used to control the format of the API version in route templates
-				options.SubstituteApiVersionInUrl = true;
-			}
+		builder.Services.AddDbContextPool<AuthDbContext>(o => o
+			.UseNpgsql(dbConnectionString)
+			.UseSnakeCaseNamingConvention()
 		);
 
-		string dbConnectionString = Configuration.GetConnectionString("Database");
-
-		services.AddDbContextPool<ApiDbContext>(o =>
-			o.UseNpgsql(dbConnectionString, p =>
-					p.EnableRetryOnFailure()
-				)
-				.UseSnakeCaseNamingConvention()
-		);
-
-		services.AddDbContextPool<AuthDbContext>(o =>
-			o.UseNpgsql(dbConnectionString, p =>
-					p.EnableRetryOnFailure()
-				)
-				.UseSnakeCaseNamingConvention()
-		);
-
-		services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-
-		services.AddSwaggerGen(options =>
-			{
-				options.OperationFilter<SwaggerDefaultValues>();
-
-				// Set the comments path for the Swagger JSON and UI.
-				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
-				string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-				options.IncludeXmlComments(xmlPath);
-
-				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new()
-					{
-						Name = "bearer",
-						BearerFormat = "JWT",
-						Scheme = "bearer",
-						Description = "Specify the authorization token.",
-						In = ParameterLocation.Header,
-						Type = SecuritySchemeType.Http,
-					}
-				);
-
-				// Make sure swagger UI requires a Bearer token specified
-				OpenApiSecurityScheme securityScheme = new()
-				{
-					Reference = new()
-					{
-						Id = "jwt_auth",
-						Type = ReferenceType.SecurityScheme
-					}
-				};
-
-				options.AddSecurityRequirement(new()
-					{
-						{ securityScheme, Array.Empty<string>() }
-					}
-				);
-			}
-		);
-
-
-		services.AddSignalR(config => config.EnableDetailedErrors = true)
+		builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+		
+		builder.AddApplicationSwagger();
+		
+		builder.Services.AddSignalR(config => config.EnableDetailedErrors = true)
 			.AddMessagePackProtocol();
 
-
-		/*
-		services.AddIdentityMongoDbProvider<ApplicationUser, UserRole, string>(
-			options => { },
-			mongo =>
-			{
-				IConfigurationSection config = Configuration.GetSection("Auth");
-				mongo.ConnectionString = config["ConnectionString"];
-				mongo.MigrationCollection = config["Tables:Migration"];
-				mongo.RolesCollection = config["Tables:Role"];
-				mongo.UsersCollection = config["Tables:User"];
-			});
-		*/
-
 		// Add Identity
-		services.AddIdentity<ApplicationUser, UserRole>()
+		builder.Services.AddIdentity<ApplicationUser, UserRole>()
 			.AddEntityFrameworkStores<AuthDbContext>()
 			.AddDefaultTokenProviders();
 
+		builder.AddApplicationAuthentication();
 
-		services.AddAuthentication(options =>
-				{
-					options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-					options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-				}
-			)
+		
+		builder.Services.AddCors(c => c.AddDefaultPolicy(builder => builder
+			.AllowAnyOrigin()
+			.AllowAnyHeader()
+			.AllowAnyMethod()
+		));
+		
+		builder.Services.AddScoped<ITrustlistService, PostgresTrustlistService>();
+		builder.Services.AddScoped<IEmitterService, PostgresEmitterService>();
+		
+		builder.Services.AddTransient<AuthenticationService>();
+		builder.Services.AddTransient<AdminService>();
 
-			// Adding Jwt Bearer  
-			.AddJwtBearer(options =>
-				{
-					options.SaveToken = true;
-					options.RequireHttpsMetadata = false;
-					options.TokenValidationParameters = new()
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidAudience = Configuration["JWT:ValidAudience"],
-						ValidIssuer = Configuration["JWT:ValidIssuer"],
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
-					};
-				}
-			);
-
-		services.AddCors(c => c.AddDefaultPolicy(builder => builder
-				.AllowAnyOrigin()
-				.AllowAnyHeader()
-				.AllowAnyMethod()
-			)
-		);
-
-
-		services.AddTransient<AuthenticationService>();
-
-		services.AddTransient<TrustlistHub>();
-
-		services.AddSingleton(s => new MongoClient(Configuration["MongoDatabase:ConnectionString"]).GetDatabase(Configuration["MongoDatabase:DatabaseName"]));
-
-		services.AddScoped<ITrustlistService, PostgresTrustlistService>()
-			.AddScoped<IEmitterService, PostgresEmitterService>();
-
-		services.AddTransient<AdminService>();
-
-		services.AddApplicationInsightsTelemetry(options =>
-			{
+		builder.Services.AddApplicationInsightsTelemetry(options =>
+		{
 #if DEBUG
-				options.DeveloperMode = true;
+			options.DeveloperMode = true;
 #endif
-			}
-		);
+		});
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-	public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
+	public static void ConfigureApplicationPipeline(this WebApplication app)
 	{
-		if (env.IsDevelopment())
+		// Request Logging
+		app.UseSerilogRequestLogging(options =>
+		{
+			// Customize the message template
+			options.MessageTemplate =
+				"{RequestScheme} {RequestMethod} {RequestPath} by {RequestClient} responded {StatusCode} in {Elapsed:0.0000} ms";
+
+			// Attach additional properties to the request completion event
+			options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+			{
+				diagnosticContext.Set("RequestClient", httpContext.Connection.RemoteIpAddress);
+				diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme.ToUpperInvariant());
+			};
+		});
+		
+		if (app.Environment.IsDevelopment())
 		{
 			app.UseDeveloperExceptionPage();
 		}
 
-		List<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToList();
-
-		// Nginx configuration step
-		ForwardedHeadersOptions forwardedHeadersOptions = new()
-		{
-			ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-		};
-
-		if (allowedProxies is { Count: > 0 })
-		{
-			forwardedHeadersOptions.KnownProxies.Clear();
-
-			foreach (IPAddress address in allowedProxies)
-			{
-				forwardedHeadersOptions.KnownProxies.Add(address);
-			}
-		}
-
 		app.UseStaticFiles();
-
-		app.UseSwagger(options => { options.RouteTemplate = "swagger/{documentName}/swagger.json"; });
-		app.UseSwaggerUI(options =>
-			{
-				options.RoutePrefix = "swagger";
-
-				foreach (ApiVersionDescription description in provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
-				{
-					options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToLowerInvariant());
-				}
-			}
-		);
-
+		
 		app.UseHttpsRedirection();
 
 		app.UseRouting();
 		app.UseCors();
 
-		app.UseForwardedHeaders(forwardedHeadersOptions);
+		HashSet<IPAddress> allowedProxies = app.Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToHashSet();
+		app.ConfigureReverseProxySupport(allowedProxies);
 			
 		app.UseAuthentication();
 		app.UseAuthorization();
 
 		app.UseMiddleware<RequestLoggingMiddleware>();
+		
+		app.MapGet("/", ctx =>
+		{
+			ctx.Response.Redirect("/swagger/index.html");
+			return Task.CompletedTask;
+		});
 
-		app.UseEndpoints(endpoints =>
-			{
-				/*
-				* Remove once proper website is built.
-				*/
-				endpoints.MapGet("/", context =>
-					{
-						context.Response.Redirect("/swagger/index.html");
+		app.MapControllers();
 
-						return Task.CompletedTask;
-					}
-				);
-
-				endpoints.MapControllers();
-
-				endpoints.MapHub<TrustlistHub>("/hubs/trustlist");
-			}
-		);
+		app.MapHub<TrustlistHub>("/hubs/trustlist");
 	}
 }
