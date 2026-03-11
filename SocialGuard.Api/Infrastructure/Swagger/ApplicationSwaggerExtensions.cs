@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 
 namespace SocialGuard.Api.Infrastructure.Swagger;
 
@@ -8,38 +8,26 @@ public static class ApplicationSwaggerExtensions
     {
         builder.Services.AddSwaggerGen(options =>
         {
-            options.OperationFilter<SwaggerDefaultValues>();
-
             // Set the comments path for the Swagger JSON and UI.
             string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
             string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             options.IncludeXmlComments(xmlPath);
 
-            // Bearer token authentication
-            options.AddSecurityDefinition("jwt_auth",
-                new()
-                {
-                    Name = "bearer",
-                    BearerFormat = "JWT",
-                    Scheme = "bearer",
-                    Description = "Specify the authorization token.",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                });
-
-            // Make sure swagger UI requires a Bearer token specified
-            OpenApiSecurityScheme securityScheme = new()
+            OpenApiSecurityScheme jwtScheme = new()
             {
-                Reference = new()
-                {
-                    Id = "jwt_auth",
-                    Type = ReferenceType.SecurityScheme
-                }
+                Name = "bearer",
+                BearerFormat = "JWT",
+                Scheme = "bearer",
+                Description = "Specify the authorization token.",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
             };
+            
+            // Bearer token authentication
+            options.AddSecurityDefinition("jwt_auth", jwtScheme);
 
-            options.AddSecurityRequirement(new()
-            {
-                { securityScheme, Array.Empty<string>() }
+            options.AddSecurityRequirement(_ => new() {
+                { new("jwt_auth"), [] }
             });
         });
 

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -9,11 +9,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DartSassBuilder" Version="1.1.0" />
-        <PackageReference Include="Nodsoft.MoltenObsidian.Blazor" Version="1.1.2" />
-        <PackageReference Include="Nodsoft.MoltenObsidian.Vaults.Http" Version="1.1.2" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+        <PackageReference Include="DartSassBuilder" />
+        <PackageReference Include="Nodsoft.MoltenObsidian.Blazor" />
+        <PackageReference Include="Nodsoft.MoltenObsidian.Vaults.Http" />
+        <PackageReference Include="Serilog.AspNetCore" />
+        <PackageReference Include="Serilog.Extensions.Logging" />
     </ItemGroup>
 
     <ItemGroup>

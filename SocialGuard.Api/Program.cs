@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialGuard.Api;
 using SocialGuard.Api.Data;
 
-ConventionRegistry.Register("Ignore null values", new ConventionPack { new IgnoreIfNullConvention(true) }, t => true);
+// ConventionRegistry.Register("Ignore null values", new ConventionPack { new IgnoreIfNullConvention(true) }, t => true);
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.ConfigureApplicationServices();

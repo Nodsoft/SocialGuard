@@ -1,10 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using MongoDB.Driver;
 using SocialGuard.Api.Hubs;
 using SocialGuard.Api.Infrastructure.Conversions;
 using SocialGuard.Api.Infrastructure.Swagger;
@@ -14,7 +8,6 @@ using SocialGuard.Api.Services.Logging;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -105,12 +98,7 @@ public static class Startup
 		builder.Services.AddTransient<AuthenticationService>();
 		builder.Services.AddTransient<AdminService>();
 
-		builder.Services.AddApplicationInsightsTelemetry(options =>
-		{
-#if DEBUG
-			options.DeveloperMode = true;
-#endif
-		});
+		builder.Services.AddApplicationInsightsTelemetry(options => { });
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
