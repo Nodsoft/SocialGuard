@@ -13,66 +13,51 @@ using Nodsoft.MoltenObsidian.Blazor;
 
 namespace SocialGuard.Web;
 
-public sealed class Startup
+public static class Startup
 {
-	public Startup(IConfiguration configuration)
-	{
-		Configuration = configuration;
-	}
-
-	public IConfiguration Configuration { get; }
-
 	// This method gets called by the runtime. Use this method to add services to the container.
 	// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-	public void ConfigureServices(IServiceCollection services)
+	public static void ConfigureApplicationServices(this WebApplicationBuilder builder)
 	{
-		services.AddRazorPages();
+		builder.AddServiceDefaults();
+		
+		builder.Services.AddRazorPages();
 
-		services.AddServerSideBlazor()
+		builder.Services.AddServerSideBlazor()
 			.AddInteractiveServerComponents();
 		
-		services.AddDistributedMemoryCache();
-		services.AddDirectoryBrowser();
+		builder.Services.AddDistributedMemoryCache();
+		builder.Services.AddDirectoryBrowser();
 			
 		// Add the MoltenObsidian Vault
-		services.AddHttpClient("Docs", client => client.BaseAddress = new(Configuration["Docs:WebRoot"]));
-		services.AddMoltenObsidianHttpVault(static services => services.GetRequiredService<IHttpClientFactory>().CreateClient("Docs"));
-		services.AddMoltenObsidianBlazorIntegration();
+		builder.Services.AddHttpClient("Docs", client => client.BaseAddress = new(builder.Configuration.GetValue<string>("Docs:WebRoot")));
+		builder.Services.AddMoltenObsidianHttpVault(static services => services.GetRequiredService<IHttpClientFactory>().CreateClient("Docs"));
+		builder.Services.AddMoltenObsidianBlazorIntegration();
 
-		services.AddCors(c => c.AddDefaultPolicy(builder => builder
-			.AllowAnyOrigin()
-			.AllowAnyHeader()
-			.AllowAnyMethod()));
+		builder.Services.AddCors(c => c
+			.AddDefaultPolicy(static builder => builder
+				.AllowAnyOrigin()
+				.AllowAnyHeader()
+				.AllowAnyMethod()
+			)
+		);
 
-		services.AddSingleton<PageContentLoader>();
+		builder.Services.AddSingleton<PageContentLoader>();
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-	public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+	public static void ConfigureApplicationPipeline(this WebApplication app)
 	{
-		if (env.IsDevelopment())
+		app.UseSerilogRequestLogging();
+		
+		if (app.Environment.IsDevelopment())
 		{
 			app.UseDeveloperExceptionPage();
 		}
-		else if (env.IsProduction())
+		else if (app.Environment.IsProduction())
 		{
-			IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToArray() ?? [];
-
-			// Nginx configuration step
-			ForwardedHeadersOptions forwardedHeadersOptions = new()
-			{
-				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-			};
-
-			if (allowedProxies is { Length: not 0 })
-			{
-				forwardedHeadersOptions.KnownProxies.Clear();
-
-				foreach (IPAddress address in allowedProxies)
-				{
-					forwardedHeadersOptions.KnownProxies.Add(address);
-				}
-			}
+			HashSet<IPAddress>? allowedProxies = app.Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToHashSet();
+			app.ConfigureReverseProxySupport(allowedProxies);
 			
 			app.UseExceptionHandler("/Error");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -90,11 +75,9 @@ public sealed class Startup
 		app.UseRouting();
 		app.UseCors();
 
-		app.UseEndpoints(endpoints =>
-		{
-			endpoints.MapBlazorHub();
-			endpoints.MapFallbackToFile("/viewer/{*path:nonfile}", "viewer/index.html");
-			endpoints.MapFallbackToPage("/_Host");
-		});
+		app.MapDefaultEndpoints();
+		app.MapBlazorHub();
+		app.MapFallbackToFile("/viewer/{*path:nonfile}", "viewer/index.html");
+		app.MapFallbackToPage("/_Host");
 	}
 }

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SocialGuard.Api.Data;
 using SocialGuard.Api.Data.Authentication;
-using SocialGuard.Api.Infrastructure;
 using SocialGuard.Api.Infrastructure.Authentication;
 using SocialGuard.Api.Services.Admin;
 
@@ -28,6 +27,8 @@ public static class Startup
 	// This method gets called by the runtime. Use this method to add services to the container.
 	public static void ConfigureApplicationServices(this WebApplicationBuilder builder)
 	{
+		builder.AddServiceDefaults();
+		
 		Log.Logger = new LoggerConfiguration()
 			.WriteTo.Console()
 			.CreateBootstrapLogger();
@@ -131,20 +132,19 @@ public static class Startup
 		app.UseRouting();
 		app.UseCors();
 
-		HashSet<IPAddress> allowedProxies = app.Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToHashSet();
+		HashSet<IPAddress>? allowedProxies = app.Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToHashSet();
 		app.ConfigureReverseProxySupport(allowedProxies);
 			
 		app.UseAuthentication();
 		app.UseAuthorization();
 
-		app.UseMiddleware<RequestLoggingMiddleware>();
-		
+		app.MapDefaultEndpoints();
 		app.MapGet("/", ctx =>
 		{
 			ctx.Response.Redirect("/swagger/index.html");
 			return Task.CompletedTask;
 		});
-
+		
 		app.MapControllers();
 
 		app.MapHub<TrustlistHub>("/hubs/trustlist");

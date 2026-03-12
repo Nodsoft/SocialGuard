@@ -1,5 +1,7 @@
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -185,6 +187,7 @@ public static class Extensions
 		}
 	}
 
+	/// <param name="app">The IApplicationBuilder to configure.</param>
 	extension(WebApplication app)
 	{
 		/// <summary>
@@ -233,6 +236,33 @@ public static class Extensions
 				};
 			});
         
+			return app;
+		}
+
+		/// <summary>
+		/// Configures the application to support reverse proxy headers,
+		/// allowing it to correctly identify client IP addresses and protocols when behind a reverse proxy.
+		/// </summary>
+		/// <param name="allowedProxies">An optional collection of IP addresses representing trusted reverse proxies. If provided, only headers from these proxies will be processed.</param>
+		/// <returns>The configured IApplicationBuilder.</returns>
+		public WebApplication ConfigureReverseProxySupport(IReadOnlyCollection<IPAddress>? allowedProxies = null)
+		{
+			ForwardedHeadersOptions forwardedHeadersOptions = new()
+			{
+				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+			};
+
+			if (allowedProxies is { Count: > 0 })
+			{
+				forwardedHeadersOptions.KnownProxies.Clear();
+
+				foreach (IPAddress address in allowedProxies)
+				{
+					forwardedHeadersOptions.KnownProxies.Add(address);
+				}
+			}
+        
+			app.UseForwardedHeaders(forwardedHeadersOptions);
 			return app;
 		}
 	}

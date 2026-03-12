@@ -14,6 +14,10 @@
         <PackageReference Include="Nodsoft.MoltenObsidian.Vaults.Http" />
         <PackageReference Include="Serilog.AspNetCore" />
         <PackageReference Include="Serilog.Extensions.Logging" />
+        <PackageReference Include="Microsoft.Web.LibraryManager.Build" />
+        
+        <!-- Used for fixing arm64 build issues -->
+        <PackageReference Include="Microsoft.ClearScript.V8.Native.win-arm64" Condition="'$(RuntimeIdentifier)' == 'win-arm64'" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,6 +37,10 @@
         <Content Update="**/*.css" Visible="false" />
 
         <Content Include=".config/dotnet-tools.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SocialGuard.ServiceDefaults\SocialGuard.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>
