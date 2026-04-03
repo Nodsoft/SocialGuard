@@ -10,6 +10,7 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Hosting;
@@ -52,10 +53,10 @@ public static class Extensions
 			});
 
 			// Uncomment the following to restrict the allowed schemes for service discovery.
-			// builder.Services.Configure<ServiceDiscoveryOptions>(options =>
-			// {
-			//     options.AllowedSchemes = ["https"];
-			// });
+			builder.Services.Configure<ServiceDiscoveryOptions>(options =>
+			{
+			    options.AllowedSchemes = ["https"];
+			});
 
 			return builder;
 		}
@@ -80,7 +81,9 @@ public static class Extensions
 				.Enrich.WithThreadId()
 				.Enrich.WithClientIp()
 				.Enrich.WithDemystifiedStackTraces()
-				.WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
+				// .WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
+				// Temporary fix for Aspire newlines
+				.WriteTo.Console(theme: ConsoleTheme.None)
 				.WriteTo.OpenTelemetry(options =>
 				{
 					options.Endpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
@@ -179,6 +182,15 @@ public static class Extensions
 		/// <returns>The host builder.</returns>
 		public TBuilder AddDefaultHealthChecks()
 		{
+			builder.Services.AddRequestTimeouts(
+				configure: static timeouts =>
+					timeouts.AddPolicy("HealthChecks", TimeSpan.FromSeconds(5)));
+
+			builder.Services.AddOutputCache(
+				configureOptions: static caching =>
+					caching.AddPolicy("HealthChecks",
+						build: static policy => policy.Expire(TimeSpan.FromSeconds(10))));
+
 			builder.Services.AddHealthChecks()
 				// Add a default liveness check to ensure app is responsive
 				.AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
@@ -205,7 +217,7 @@ public static class Extensions
 				app.MapHealthChecks(HealthEndpointPath);
 
 				// Only health checks tagged with the "live" tag must pass for app to be considered alive
-				app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
+				app.MapHealthChecks(AlivenessEndpointPath, new()
 				{
 					Predicate = r => r.Tags.Contains("live")
 				});

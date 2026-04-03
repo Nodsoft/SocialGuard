@@ -1,26 +1,21 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:58956",
-      "sslPort": 44388
-    }
-  },
   "profiles": {
     "SocialGuard.Web": {
       "commandName": "Project",
-      "dotnetRunMessages": "true",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
       "hotReloadProfile": "aspnetcore",
-      "applicationUrl": "https://localhost:5001;http://localhost:5000;https://0.0.0.0:5001;http://0.0.0.0:5000",
+      "applicationUrl": "https://localhost:5021;http://localhost:5020;https://0.0.0.0:5021;http://0.0.0.0:5020",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "hotReloadProfile": "aspnetcore",
+      "applicationUrl": "https://localhost:5021;http://localhost:5020",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

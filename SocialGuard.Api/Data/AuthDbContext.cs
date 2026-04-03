@@ -23,10 +23,7 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser, UserRole, Guid>
 		builder.HasDefaultSchema("auth");
 
 		builder.Entity<UserRole>()
-			.HasData(
-				new UserRole { Id = Guid.NewGuid(), Name = UserRole.Admin, NormalizedName = UserRole.Admin.ToUpper() },
-				new UserRole { Id = Guid.NewGuid(), Name = UserRole.Emitter, NormalizedName = UserRole.Emitter.ToUpper() }
-			);
+			.HasData(UserRole.AdminRole, UserRole.EmitterRole);
 		
 		/*
 		builder.Entity<ApplicationUser>()

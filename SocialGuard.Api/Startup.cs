@@ -4,12 +4,12 @@ using SocialGuard.Api.Infrastructure.Conversions;
 using SocialGuard.Api.Infrastructure.Swagger;
 using SocialGuard.Api.Services;
 using SocialGuard.Api.Services.Authentication;
-using SocialGuard.Api.Services.Logging;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Serilog;
 using SocialGuard.Api.Data;
 using SocialGuard.Api.Data.Authentication;
@@ -33,13 +33,6 @@ public static class Startup
 			.WriteTo.Console()
 			.CreateBootstrapLogger();
 		
-		builder.Services.AddSerilog((services, lc) => lc
-			.ReadFrom.Configuration(builder.Configuration)
-			.ReadFrom.Services(services)
-			.Enrich.FromLogContext()
-			.WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
-		);
-		
 		builder.Services.AddControllers(config => { config.ModelBinderProviders.Insert(0, new CommaSeparatedArrayModelBinderProvider()); });
 
 		builder.Services.AddApiVersioning(config =>
@@ -59,18 +52,19 @@ public static class Startup
 			// can also be used to control the format of the API version in route templates
 			options.SubstituteApiVersionInUrl = true;
 		});
+		
+		builder.AddNpgsqlDbContext<ApiDbContext>("apidb",
+			configureDbContextOptions: o =>
+			{
+				o.UseSnakeCaseNamingConvention();
+			});
 
-		string dbConnectionString = builder.Configuration.GetConnectionString("Database");
-
-		builder.Services.AddDbContextPool<ApiDbContext>(o => o
-			.UseNpgsql(dbConnectionString)
-			.UseSnakeCaseNamingConvention()
-		);
-
-		builder.Services.AddDbContextPool<AuthDbContext>(o => o
-			.UseNpgsql(dbConnectionString)
-			.UseSnakeCaseNamingConvention()
-		);
+		builder.AddNpgsqlDbContext<AuthDbContext>("apidb",
+			configureDbContextOptions: o =>
+			{
+				o.UseSnakeCaseNamingConvention();
+				o.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+			});
 
 		builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 		
@@ -99,7 +93,7 @@ public static class Startup
 		builder.Services.AddTransient<AuthenticationService>();
 		builder.Services.AddTransient<AdminService>();
 
-		builder.Services.AddApplicationInsightsTelemetry(options => { });
+		// builder.Services.AddApplicationInsightsTelemetry(options => { });
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -139,6 +133,7 @@ public static class Startup
 		app.UseAuthorization();
 
 		app.MapDefaultEndpoints();
+		
 		app.MapGet("/", ctx =>
 		{
 			ctx.Response.Redirect("/swagger/index.html");
@@ -146,7 +141,7 @@ public static class Startup
 		});
 		
 		app.MapControllers();
-
+		
 		app.MapHub<TrustlistHub>("/hubs/trustlist");
 	}
 }

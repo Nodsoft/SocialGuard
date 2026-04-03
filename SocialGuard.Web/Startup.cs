@@ -1,14 +1,6 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using SocialGuard.Web.Services;
 using SocialGuard.Web.Services.Logging;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using Nodsoft.MoltenObsidian.Blazor;
 
 namespace SocialGuard.Web;

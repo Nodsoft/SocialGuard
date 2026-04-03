@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://socialguard.dev.localhost:17278;http://socialguard.dev.localhost:15007",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21147",
+        "ASPIRE_DASHBOARD_MCP_ENDPOINT_URL": "https://localhost:23071",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22096"
+      }
+    },
+    "http": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://socialguard.dev.localhost:15007",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19185",
+        "ASPIRE_DASHBOARD_MCP_ENDPOINT_URL": "http://localhost:18041",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20116"
+      }
+    }
+  }
+}

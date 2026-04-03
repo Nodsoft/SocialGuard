@@ -1,0 +1,23 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.1">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>cda76bc1-e662-4bfb-b81f-d30cafeed243</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.AppHost" />
+      <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+      <PackageReference Include="Aspire4Wasm.AppHost" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SocialGuard.Api\SocialGuard.Api.csproj" />
+      <ProjectReference Include="..\SocialGuard.Web.Viewer\SocialGuard.Web.Viewer.csproj" />
+      <ProjectReference Include="..\SocialGuard.Web\SocialGuard.Web.csproj" />
+    </ItemGroup>
+
+</Project>
